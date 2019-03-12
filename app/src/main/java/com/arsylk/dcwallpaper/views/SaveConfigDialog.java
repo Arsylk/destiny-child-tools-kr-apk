@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.*;
+import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.Live2D.L2DConfig;
 import com.arsylk.dcwallpaper.R;
 
@@ -41,7 +42,8 @@ public class SaveConfigDialog extends AlertDialog.Builder implements View.OnFocu
         input_bg_path.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-
+                input_bg_path.setText(DCTools.getRandomDCBackground().getAbsolutePath());
+                input_bg_path.onWindowFocusChanged(false);
                 return false;
             }
         });
