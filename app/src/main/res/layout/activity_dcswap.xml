@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp">
+
+    <LinearLayout
+            android:id="@+id/layout_models"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="5dp">
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Swap from:"/>
+
+        <include layout="@layout/item_l2d_model" android:id="@+id/item_from"/>
+
+        <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Swap to:"/>
+
+        <include layout="@layout/item_l2d_model" android:id="@+id/item_to"/>
+
+    </LinearLayout>
+
+    <ScrollView
+            android:id="@+id/scroll_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/layout_models"
+            android:layout_above="@+id/swap_try">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+            <com.jmedeisis.draglinearlayout.DragLinearLayout
+                    android:id="@+id/drag_list_from"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+            </com.jmedeisis.draglinearlayout.DragLinearLayout>
+
+            <com.jmedeisis.draglinearlayout.DragLinearLayout
+                    android:id="@+id/drag_list_to"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1">
+
+            </com.jmedeisis.draglinearlayout.DragLinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <Button
+            android:id="@+id/swap_try"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:text="Swap"/>
+
+</RelativeLayout>

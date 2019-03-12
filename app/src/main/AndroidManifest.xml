@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.arsylk.dcwallpaper"
+          android:screenOrientation="portrait">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application
+            android:allowBackup="true"
+            android:hardwareAccelerated="true"
+            android:icon="@mipmap/ic_launcher"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:supportsRtl="true"
+            android:theme="@style/Theme.AppCompat">
+        <activity
+                android:name=".activities.MainActivity"
+                android:label="@string/app_name"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+
+                <data
+                        android:mimeType="application/octet-stream"
+                        android:scheme="file"/>
+            </intent-filter>
+        </activity>
+        <activity
+                android:name=".activities.DCModelsActivity"
+                android:label="Destiny Child Models">
+        </activity>
+        <activity
+                android:name=".activities.L2DPreviewActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+        <activity
+                android:name=".activities.L2DModelsActivity"
+                android:label="Unpacked Models">
+        </activity>
+        <activity android:name=".activities.DCSwapActivity">
+        </activity>
+        <activity
+                android:name=".activities.OnlineModelsActivity"
+                android:label="Online Models">
+        </activity>
+        <activity
+                android:name=".activities.DCWikiPageActivity"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+        <activity
+                android:name=".activities.DCWikiActivity"
+                android:label="Destiny Child Wiki"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+        <activity
+                android:name=".activities.DCBannerWidgetConfigureActivity"
+                android:label="Destiny Child Banner">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+            </intent-filter>
+        </activity>
+
+        <service
+                android:name=".Live2D.LiveWallpaperService"
+                android:label="Live2DService"
+                android:permission="android.permission.BIND_WALLPAPER">
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="RANDOM_MODEL"/>
+            </intent-filter>
+
+            <meta-data
+                    android:name="android.service.wallpaper"
+                    android:resource="@xml/wallpaper"/>
+        </service>
+
+        <receiver android:name=".views.PickModelWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/pick_model_widget_info"/>
+        </receiver>
+        <receiver android:name=".views.DCBannerWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/dcbanner_widget_info"/>
+        </receiver>
+    </application>
+
+</manifest>

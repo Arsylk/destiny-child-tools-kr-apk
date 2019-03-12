@@ -1,0 +1,35 @@
+package com.arsylk.dcwallpaper.utils;
+
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import com.arsylk.dcwallpaper.DestinyChild.DCBanners;
+import com.arsylk.dcwallpaper.R;
+import com.koushikdutta.async.future.FutureCallback;
+
+public class ViewFactory {
+
+    public static ImageView getBannerView(Context context, final DCBanners.Banner banner) {
+        final ImageView imageView = new ImageView(context);
+        imageView.setTag(banner);
+        imageView.setAdjustViewBounds(true);
+        imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+        if(!banner.isBitmapLoaded()) {
+            banner.loadImageBitmap(context, new FutureCallback<Bitmap>() {
+                @Override
+                public void onCompleted(Exception e, Bitmap result) {
+                    if(e == null) {
+                        imageView.setImageBitmap(banner.getBannerBitmap());
+                    }else {
+                        imageView.setImageResource(R.drawable.ic_error_outline_black);
+                    }
+                }
+            });
+        }else {
+            imageView.setImageBitmap(banner.getBannerBitmap());
+        }
+
+        return imageView;
+    }
+}

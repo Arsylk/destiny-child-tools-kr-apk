@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Models" android:menuCategory="container">
+        <menu>
+            <group android:checkableBehavior="none">
+
+                <item
+                        android:id="@+id/dcmodels_open"
+                        android:title="Destiny Child"/>
+
+                <item
+                        android:id="@+id/l2dmodels_open"
+                        android:title="Unpacked"/>
+
+                <item
+                        android:id="@+id/onlinemodels_open"
+                        android:title="Online"/>
+
+            </group>
+
+        </menu>
+    </item>
+
+    <item android:title="PCK" android:menuCategory="container">
+        <menu>
+            <group android:checkableBehavior="none">
+                <item
+                        android:id="@+id/file_unpack"
+                        android:title="Unpack"/>
+
+                <item
+                        android:id="@+id/file_pack"
+                        android:title="Pack"/>
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="Magic" android:menuCategory="container">
+        <menu>
+            <group android:checkableBehavior="none">
+                <item
+                        android:id="@+id/wiki_open"
+                        android:title="Wiki"/>
+                <item
+                        android:id="@+id/english_patch"
+                        android:title="English Patch"/>
+
+                <item
+                        android:id="@+id/dcbanner_widget_open"
+                        android:title="Add Banner Widget"/>
+            </group>
+        </menu>
+    </item>
+</menu>

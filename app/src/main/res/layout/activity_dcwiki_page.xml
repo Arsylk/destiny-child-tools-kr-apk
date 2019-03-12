@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+    <!-- Toolbar Layout -->
+    <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar_wiki"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"/>
+
+    <!-- Wiki Top Layout -->
+    <LinearLayout
+            android:id="@+id/layout_wiki_skills"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+        <!-- Wiki Skills Layout -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="3">
+
+            <TextView
+                    android:text="Leader Skill:"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/wiki_skill_leader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"/>
+
+            <TextView
+                    android:text="Auto Skill:"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/wiki_skill_auto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"/>
+
+            <TextView
+                    android:text="Tap Skill:"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/wiki_skill_tap"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"/>
+
+            <TextView
+                    android:text="Slide Skill:"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/wiki_skill_slide"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"/>
+
+            <TextView
+                    android:text="Drive Skill:"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:id="@+id/wiki_skill_drive"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"/>
+
+        </LinearLayout>
+
+        <com.arsylk.dcwallpaper.views.SquareLinearLayout
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+            <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true">
+
+                    <ProgressBar
+                            android:id="@+id/wiki_image_thumbnail_progress"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:indeterminate="false"
+                            android:progress="0"
+                            android:max="100"
+                            android:progressDrawable="@drawable/circular_progress"
+                            style="?android:attr/progressBarStyleHorizontal"/>
+
+                    <ImageView
+                            android:id="@+id/wiki_image_thumbnail"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
+                </RelativeLayout>
+
+                <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="2dp"
+                        android:layout_alignParentBottom="true">
+
+                    <View android:layout_weight="3" android:layout_width="0dp" android:layout_height="0dp"/>
+
+                    <com.arsylk.dcwallpaper.views.SquareLinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1">
+
+                        <ImageView
+                                android:id="@+id/wiki_image_type"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"/>
+
+                    </com.arsylk.dcwallpaper.views.SquareLinearLayout>
+
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+
+        </com.arsylk.dcwallpaper.views.SquareLinearLayout>
+
+    </LinearLayout>
+
+    <!-- Wiki Portaits Layout -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+        <ImageView
+                android:id="@+id/wiki_image_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:baselineAlignBottom="true"
+                android:layout_gravity="bottom"/>
+
+        <ImageView
+                android:id="@+id/wiki_image_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:baselineAlignBottom="true"
+                android:layout_gravity="bottom"/>
+
+        <ImageView
+                android:id="@+id/wiki_image_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:baselineAlignBottom="true"
+                android:layout_gravity="bottom"/>
+
+    </LinearLayout>
+
+</LinearLayout>

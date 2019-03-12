@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="8dp">
+
+    <TextView
+            android:text="Model name:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"/>
+
+    <EditText
+            android:id="@+id/input_name"
+            android:hint="Davi, Red Cross ..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="text"/>
+
+    <TextView
+            android:text="Model id:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"/>
+
+    <EditText
+            android:id="@+id/input_id"
+            android:hint="c326_01, m056_02 ..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="textNoSuggestions"/>
+
+    <TextView
+            android:text="Folder name:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"/>
+
+    <EditText
+            android:id="@+id/input_folder"
+            android:hint="MyMod123, DCMod943 ..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="textNoSuggestions"/>
+
+
+
+</LinearLayout>

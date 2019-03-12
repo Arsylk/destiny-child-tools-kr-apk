@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="80dp"
+              android:orientation="vertical"
+              android:padding="@dimen/item_margin">
+
+    <!-- icons -->
+    <LinearLayout
+            android:id="@+id/layout_icons"
+            android:layout_width="25dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true">
+
+        <ImageView
+                android:id="@+id/element"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="4"
+                android:scaleType="fitCenter"/>
+
+        <ImageView
+                android:id="@+id/type"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="3"
+                android:scaleType="fitCenter"/>
+
+    </LinearLayout>
+
+
+    <!-- thumbnail -->
+    <RelativeLayout
+            android:id="@+id/thumbnail_layout"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+
+        <ImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <RelativeLayout
+                android:id="@+id/thumbnail_stars_layout"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                android:layout_alignParentBottom="true">
+
+            <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="0dp"
+                    android:layout_marginStart="0dp"
+                    android:src="@drawable/ic_star"
+                    android:visibility="gone"/>
+            <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
+                    android:src="@drawable/ic_star"
+                    android:visibility="gone"/>
+            <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginStart="24dp"
+                    android:src="@drawable/ic_star"
+                    android:visibility="gone"/>
+            <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="36dp"
+                    android:layout_marginStart="36dp"
+                    android:src="@drawable/ic_star"
+                    android:visibility="gone"/>
+            <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="48dp"
+                    android:layout_marginStart="48dp"
+                    android:src="@drawable/ic_star"
+                    android:visibility="gone"/>
+
+        </RelativeLayout>
+
+
+    </RelativeLayout>
+
+    <!-- labels -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_toRightOf="@id/thumbnail_layout"
+            android:layout_toEndOf="@id/thumbnail_layout"
+            android:layout_toLeftOf="@id/layout_icons"
+            android:layout_toStartOf="@id/layout_icons"
+            android:padding="@dimen/activity_margin">
+
+        <TextView
+                android:id="@+id/label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top"
+                android:textSize="20sp"/>
+
+        <TextView
+                android:id="@+id/sub_label"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textColor="@android:color/secondary_text_light_nodisable"
+                android:textSize="12sp"
+                android:alpha="0.5"
+                android:gravity="bottom"/>
+
+    </LinearLayout>
+
+
+</RelativeLayout>
