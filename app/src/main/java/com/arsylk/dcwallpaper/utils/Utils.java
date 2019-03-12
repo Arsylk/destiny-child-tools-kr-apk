@@ -478,19 +478,23 @@ public class Utils {
     /*input end*/
 
     /*widget preference start*/
+    public static SharedPreferences widgetPref(Context context, int widgetId) {
+        return context.getSharedPreferences("appwidget_" + widgetId, 0);
+    }
+
     public static void setWidgetPref(Context context, int widgetId, String key, String value) {
-        SharedPreferences.Editor prefs = context.getSharedPreferences("appwidget_" + widgetId, 0).edit();
+        SharedPreferences.Editor prefs = widgetPref(context, widgetId).edit();
         prefs.putString(key, value);
         prefs.commit();
     }
 
     public static String getWidgetPref(Context context, int widgetId, String key) {
-        SharedPreferences prefs = context.getSharedPreferences("appwidget_" + widgetId, 0);
+        SharedPreferences prefs = widgetPref(context, widgetId);
         return prefs.getString(key, null);
     }
 
     public static void removeWidgetPref(Context context, int widgetId) {
-        SharedPreferences prefs = context.getSharedPreferences("appwidget_" + widgetId, 0);
+        SharedPreferences prefs = widgetPref(context, widgetId);
         prefs.edit().clear().apply();
     }
     /*widget preference end*/

@@ -1,27 +1,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/border_frame_black_full_blue">
+                android:background="@drawable/border_frame_black_full_blue"
+                android:id="@+id/dcbanner_layout">
 
-    <ImageView
-            android:id="@+id/dcbanner_image"
+    <ViewFlipper
+            android:id="@+id/dcbanner_view_flipper"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:adjustViewBounds="true"
-            android:scaleType="fitXY"/>
+            android:autoStart="true"
+            android:flipInterval="4000"
+            android:inAnimation="@android:anim/slide_in_left"
+            android:outAnimation="@android:anim/slide_out_right">
 
-    <TextView
-            android:id="@+id/dcbanner_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:layout_below="@+id/dcbanner_image"
-            android:layout_alignStart="@+id/dcbanner_image"
-            android:layout_alignLeft="@+id/dcbanner_image"
-            android:layout_alignEnd="@+id/dcbanner_image"
-            android:layout_alignRight="@+id/dcbanner_image"
-            android:textAlignment="center"
-            android:textColor="@android:color/white"/>
+    </ViewFlipper>
 
 </RelativeLayout>

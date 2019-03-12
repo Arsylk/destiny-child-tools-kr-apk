@@ -42,8 +42,11 @@ public class SaveConfigDialog extends AlertDialog.Builder implements View.OnFocu
         input_bg_path.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                input_bg_path.setText(DCTools.getRandomDCBackground().getAbsolutePath());
-                input_bg_path.onWindowFocusChanged(false);
+                File file = DCTools.getRandomDCBackground();
+                if(file != null) {
+                    input_bg_path.setText(file.getAbsolutePath());
+                    input_bg_path.onWindowFocusChanged(false);
+                }
                 return false;
             }
         });
