@@ -14,7 +14,7 @@ import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.utils.ViewFactory;
-import com.arsylk.dcwallpaper.views.DCBannerWidget;
+import com.arsylk.dcwallpaper.widgets.DCBannerWidget;
 import com.koushikdutta.async.future.FutureCallback;
 
 public class DCBannerWidgetConfigureActivity extends AppCompatActivity {

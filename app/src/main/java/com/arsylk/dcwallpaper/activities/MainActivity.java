@@ -1,7 +1,5 @@
 package com.arsylk.dcwallpaper.activities;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -30,7 +28,6 @@ import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.utils.ViewFactory;
-import com.arsylk.dcwallpaper.views.DCBannerWidget;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 

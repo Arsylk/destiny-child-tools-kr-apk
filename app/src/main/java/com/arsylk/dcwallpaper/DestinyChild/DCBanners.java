@@ -204,10 +204,6 @@ public class DCBanners {
     private List<Banner> banners = null;
     private int loadStatus = 0;
 
-    public DCBanners() {
-        banners = new ArrayList<>();
-    }
-
     public DCBanners(File file) {
         banners = new ArrayList<>();
         if(file.exists()) {
@@ -282,6 +278,7 @@ public class DCBanners {
                     Elements elements = document.select("#editorMainContent a[href]");
 
                     // iter all banners
+                    banners.clear();
                     for(int i = 0; i < elements.size(); i++) {
                         Element element = elements.get(i);
                         if(element.selectFirst("img[src]") != null) {
@@ -290,19 +287,8 @@ public class DCBanners {
                             String articleId = articleUrl.substring(articleUrl.lastIndexOf("/")+1);
                             String imageId = element.selectFirst("img").attr("id").replaceAll("[^0-9]", "");
 
-                            // check if has loaded banner
-                            if(getBanner(i) != null) {
-                                if(getBanner(i).compareIds(articleId, imageId)) {
-                                    continue;
-                                }
-                            }
-
-                            // change or add banner
-                            if(i < banners.size()) {
-                                banners.set(i, new Banner(imageUrl, articleId, imageId));
-                            }else {
-                                banners.add(new Banner(imageUrl, articleId, imageId));
-                            }
+                            // add banner
+                            banners.add(new Banner(imageUrl, articleId, imageId));
                         }
                     }
 

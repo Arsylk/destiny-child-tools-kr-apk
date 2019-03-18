@@ -1,18 +1,16 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/border_frame_black_full_blue"
                 android:id="@+id/dcbanner_layout">
 
-    <ViewFlipper
+    <AdapterViewFlipper
             android:id="@+id/dcbanner_view_flipper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="80dp"
             android:autoStart="true"
             android:flipInterval="4000"
-            android:inAnimation="@android:anim/slide_in_left"
-            android:outAnimation="@android:anim/slide_out_right">
+            android:background="@drawable/border_frame_black_full_blue">
 
-    </ViewFlipper>
+    </AdapterViewFlipper>
 
 </RelativeLayout>

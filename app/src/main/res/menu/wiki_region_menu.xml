@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/wiki_region_kr"
+          android:icon="@drawable/ic_flag_kr"
+          android:title="Korea"
+          app:showAsAction="always"
+          android:enabled="false"/>
+
+    <item android:id="@+id/wiki_region_jp"
+          android:icon="@drawable/ic_flag_jp"
+          android:title="Japan"
+          app:showAsAction="always"
+          android:visible="false"/>
+</menu>

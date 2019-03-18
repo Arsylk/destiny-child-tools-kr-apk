@@ -2,31 +2,15 @@ package com.arsylk.dcwallpaper.DestinyChild;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import com.arsylk.dcwallpaper.Async.*;
-import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
-import com.arsylk.dcwallpaper.views.DCBannerWidget;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.select.Elements;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -35,7 +19,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
-import java.util.regex.Matcher;
 
 import static com.arsylk.dcwallpaper.utils.Utils.bytesToHex;
 import static com.arsylk.dcwallpaper.utils.Utils.getUnpackPath;
@@ -467,6 +450,60 @@ public class DCTools {
         }
     }
 
+    public static void extractCardNames(File src, Context context) throws Exception {
+        DCLocale srcLocale = new DCLocale(unpack(src, context));
+        //dirty match hash
+        Pck.PckFile pckCardDescs = null, pckCardSkills = null;
+        for(Pck.PckFile pckFile : srcLocale.getFiles()) {
+            if(bytesToHex(pckFile.getHash()).equalsIgnoreCase("8C0A00198AD12EE5")) {
+                pckCardDescs = pckFile;
+            }else if(bytesToHex(pckFile.getHash()).equalsIgnoreCase("9C0F002568FDB06B")) {
+                pckCardSkills = pckFile;
+            }
+        }
+        if(pckCardDescs != null && pckCardSkills != null) {
+            LinkedHashMap<String, String> cardDescsMap = srcLocale.loadFile(pckCardDescs);
+            LinkedHashMap<String, String> cardSkillsMap = srcLocale.loadFile(pckCardSkills);
+            List<String> keyList = new ArrayList<>();
+            for(String key : cardDescsMap.keySet()) {
+                if(key.startsWith("51")) {
+                    if(key.startsWith("515") && key.endsWith("6")) continue;
+                    keyList.add(key);
+                }
+            }
+            for(String key : keyList) {
+                String newKey = "1"+key.substring(2, key.length()-1)+"50";
+                Log.d("mTag:Card", key+" => "+cardDescsMap.get(key)+"\n"+newKey+" => "+cardSkillsMap.get(newKey));
+            }
+            Log.d("mTag:CardSize", keyList.size()+"");
+
+
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try{
+                        FileOutputStream out = new FileOutputStream(new File(Define.BASE_DIRECTORY, "idx_carta"));
+                        for(File file : getUnpackPath("pack").listFiles()) {
+                            try {
+                                String string = FileUtils.readFileToString(file, Charset.forName("utf-8"));
+                                if(string.contains("idx") && string.contains("carta")) {
+                                    out.write((file.getName()+"\n").getBytes(Charset.forName("utf-8")));
+                                    FileUtils.moveFile(file, new File(file.getParentFile(), "_"+file.getName()));
+                                }
+                            }catch(Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        out.close();
+                    }catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
+        }
+    }
+
     public static void asyncExtractMissing(final File src, Context context, boolean showGui) {
         new AsyncWithDialog<Void, Void, Void>(context, showGui) {
             @Override
@@ -530,58 +567,6 @@ public class DCTools {
         FileUtils.write(new File(Define.BASE_DIRECTORY, "extracted_new.json"), generated.toString(4), Charset.forName("utf-8"));
     }
 
-    //event banners
-    public static void asyncScrapeEventBanners(Context context, final FutureCallback<DCBanners> callback) {
-        new AsyncWithDialog<Void, String, DCBanners>(context, true, "Loading banners...") {
-            @Override
-            protected DCBanners doInBackground(Void... voids) {
-                final String MAIN_URL = "https://cafe.naver.com/MyCafeIntro.nhn?clubid=27917479";
-                final DCBanners oldBanners = new DCBanners(Define.ASSET_EVENT_BANNERS);
-                final DCBanners newBanners = new DCBanners();
-
-                try {
-                    Document document = Jsoup.connect(MAIN_URL).get();
-                    Elements elements = document.select("#editorMainContent a[href]");
-
-                    // iter all banners
-                    for(int i = 0; i < elements.size(); i++) {
-                        Element element = elements.get(i);
-                        if(element.selectFirst("img[src]") != null) {
-                            String articleUrl = element.attr("href");
-                            String imageUrl = element.selectFirst("img").attr("src");
-                            String articleId = articleUrl.substring(articleUrl.lastIndexOf("/")+1);
-                            String imageId = element.selectFirst("img").attr("id").replaceAll("[^0-9]", "");
-
-                            // check if has loaded banner
-                            if(oldBanners.getBanner(i) != null) {
-                                if(oldBanners.getBanner(i).compareIds(articleId, imageId)) {
-                                    newBanners.addBanner(oldBanners.getBanner(i));
-                                    continue;
-                                }
-                            }
-                            newBanners.addBanner(imageUrl, articleId, imageId);
-                        }
-                    }
-
-                    // save banners
-                    newBanners.save();
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
-
-                return newBanners;
-            }
-
-            @Override
-            protected void onPostExecute(DCBanners banners) {
-                super.onPostExecute(banners);
-                if(callback != null) {
-                    callback.onCompleted(null, banners);
-                }
-            }
-
-        }.execute();
-    }
 
     //developer tools
     public static void fullFilesDump(Context context) {
@@ -625,6 +610,6 @@ public class DCTools {
                 }
                 return null;
             }
-        }.execute("full");
+        }.execute("all_post_update");
     }
 }

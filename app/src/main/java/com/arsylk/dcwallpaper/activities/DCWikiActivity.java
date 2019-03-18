@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -31,6 +32,12 @@ public class DCWikiActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dcwiki);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         initViews();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.wiki_region_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
