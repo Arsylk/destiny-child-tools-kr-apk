@@ -11,30 +11,23 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.arsylk.dcwallpaper.Adapters.DCModelItem;
-import com.arsylk.dcwallpaper.Adapters.DCModelsAdapter;
+import com.arsylk.dcwallpaper.Adapters.L2DModelItem;
 import com.arsylk.dcwallpaper.Adapters.L2DModelsAdapter;
-import com.arsylk.dcwallpaper.Async.OnPackFinishedListener;
+import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.Live2D.L2DConfig;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.Live2D.LiveWallpaperService;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
-import com.arsylk.dcwallpaper.utils.Utils;
 import com.koushikdutta.async.future.FutureCallback;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,11 +55,11 @@ public class L2DModelsActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final List<L2DModelsAdapter.L2DModelItem> items = new ArrayList<>();
+                final List<L2DModelItem> items = new ArrayList<>();
                 for(File dir : Define.MODELS_DIRECTORY.listFiles()) {
                     File _model = new File(dir, "_model");
                     if(_model.exists()) {
-                        L2DModelsAdapter.L2DModelItem item = new L2DModelsAdapter.L2DModelItem(_model);
+                        L2DModelItem item = new L2DModelItem(_model);
                         if(item.isLoaded()) {
                             items.add(item);
                         }
@@ -95,7 +88,7 @@ public class L2DModelsActivity extends AppCompatActivity {
         });
     }
 
-    private void handlePickItem(final L2DModelsAdapter.L2DModelItem item) {
+    private void handlePickItem(final L2DModelItem item) {
         L2DModel l2dModel = new L2DModel(item.getFile());
         if(l2dModel.isLoaded()) {
             L2DModelsActivity.showPickAction(context, l2dModel, new FutureCallback<Integer>() {

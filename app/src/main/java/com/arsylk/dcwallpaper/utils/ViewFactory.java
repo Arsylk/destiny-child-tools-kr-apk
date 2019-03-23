@@ -15,19 +15,10 @@ public class ViewFactory {
         imageView.setTag(banner);
         imageView.setAdjustViewBounds(true);
         imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        if(!banner.isBitmapLoaded()) {
-            banner.loadImageBitmap(context, new FutureCallback<Bitmap>() {
-                @Override
-                public void onCompleted(Exception e, Bitmap result) {
-                    if(e == null) {
-                        imageView.setImageBitmap(banner.getBannerBitmap());
-                    }else {
-                        imageView.setImageResource(R.drawable.ic_error_outline_black);
-                    }
-                }
-            });
-        }else {
+        if(banner.isBitmapLoaded()) {
             imageView.setImageBitmap(banner.getBannerBitmap());
+        }else {
+            imageView.setImageResource(R.drawable.ic_error_outline_black);
         }
 
         return imageView;

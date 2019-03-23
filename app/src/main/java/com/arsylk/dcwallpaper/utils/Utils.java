@@ -431,6 +431,9 @@ public class Utils {
             sb.append(elapsedMinutes);
             sb.append(" minutes ");
         }
+        if(sb.length() == 0) {
+            sb.append("Less than an hour!");
+        }
         sb.trimToSize();
         return sb.toString();
     }

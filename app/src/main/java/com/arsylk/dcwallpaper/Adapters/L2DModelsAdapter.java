@@ -1,8 +1,6 @@
 package com.arsylk.dcwallpaper.Adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,78 +8,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.arsylk.dcwallpaper.R;
-import com.arsylk.dcwallpaper.utils.Utils;
-import org.json.JSONObject;
 
-import java.io.File;
 import java.util.List;
 
 public class L2DModelsAdapter extends BaseAdapter {
-    public static class L2DModelItem {
-        private File output, _model, _preview;
-        private String modelId, modelName;
-        private Bitmap preview = null;
-        private boolean loaded = false;
-
-        public L2DModelItem(File file) {
-            if(file.isDirectory()) {
-                file = new File(file, "_model");
-            }
-            if(file.exists()) {
-                output = file.getParentFile();
-                _model = file;
-                load();
-                loadPreview();
-            }
-        }
-
-        private void load() {
-            try {
-                JSONObject json = Utils.fileToJson(_model);
-                if(json != null) {
-                    if(json.has("model_id") && json.has("model_name")) {
-                        modelId = json.getString("model_id");
-                        modelName = json.getString("model_name");
-                        loaded = true;
-                    }
-                }
-            }catch(Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        public void loadPreview() {
-            _preview = new File(output, "_preview.png");
-            System.out.println(_preview+" "+_preview.exists());
-            if(_preview.exists()) {
-                try{
-                    preview = BitmapFactory.decodeFile(_preview.getAbsolutePath());
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        public boolean isLoaded() {
-            return loaded;
-        }
-
-        public String getModelId() {
-            return modelId;
-        }
-
-        public String getModelName() {
-            return modelName;
-        }
-
-        public Bitmap getPreview() {
-            return preview;
-        }
-
-        public File getFile() {
-            return output;
-        }
-    }
     private Context context;
     private List<L2DModelItem> src_models, models;
 

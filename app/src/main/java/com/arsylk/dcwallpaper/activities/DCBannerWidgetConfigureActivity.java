@@ -9,13 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.arsylk.dcwallpaper.Async.AsyncBanners;
+import com.arsylk.dcwallpaper.Async.interfaces.OnBannerPost;
 import com.arsylk.dcwallpaper.DestinyChild.DCBanners;
 import com.arsylk.dcwallpaper.R;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.utils.ViewFactory;
-import com.arsylk.dcwallpaper.widgets.DCBannerWidget;
-import com.koushikdutta.async.future.FutureCallback;
+import com.arsylk.dcwallpaper.widgets.dcbanner.DCBannerWidget;
 
 public class DCBannerWidgetConfigureActivity extends AppCompatActivity {
     private Context context = DCBannerWidgetConfigureActivity.this;
@@ -47,40 +47,28 @@ public class DCBannerWidgetConfigureActivity extends AppCompatActivity {
             }
         });
 
-        //preload saved banners
-        DCBanners banners = LoadAssets.getDCBannersInstance();
-        if(banners.isFileLoaded() || banners.isWebLoaded()) {
-            initBannerViews(banners);
-        }
-
         //load up-to-date banners
-        banners.webLoad(context, new FutureCallback<DCBanners>() {
+        new AsyncBanners(context, false).setOnBannerPost(new OnBannerPost() {
             @Override
-            public void onCompleted(Exception e, DCBanners result) {
-                if(e == null) {
-                    initBannerViews(result);
-                    result.loadAllBitmaps(context);
-                    result.loadAllArticles(context);
-                }else {
-                    e.printStackTrace();
+            public void onProgressUpdate(DCBanners.Banner... banners) {
+                if(banners == null) {
+                    images_layout.removeAllViews();
+                    return;
+                }
+
+                for(DCBanners.Banner banner : banners) {
+                    ImageView imageView = ViewFactory.getBannerView(context, banner);
+                    imageView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            view.setScaleX(view.getScaleX() == 1.0f ? 0.9f : 1.0f);
+                            view.setScaleY(view.getScaleY() == 1.0f ? 0.9f : 1.0f);
+                        }
+                    });
+                    images_layout.addView(imageView);
                 }
             }
-        });
-    }
-
-    private void initBannerViews(DCBanners banners) {
-        images_layout.removeAllViews();
-        for(DCBanners.Banner banner : banners.getBanners()) {
-            ImageView imageView = ViewFactory.getBannerView(context, banner);
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    view.setScaleX(view.getScaleX() == 1.0f ? 0.9f : 1.0f);
-                    view.setScaleY(view.getScaleY() == 1.0f ? 0.9f : 1.0f);
-                }
-            });
-            images_layout.addView(imageView);
-        }
+        }).execute();
     }
 
     private void saveWidgetConfig() {

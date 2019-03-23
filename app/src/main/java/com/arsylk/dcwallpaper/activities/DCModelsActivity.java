@@ -17,7 +17,7 @@ import android.view.WindowManager;
 import android.widget.*;
 import com.arsylk.dcwallpaper.Adapters.DCModelItem;
 import com.arsylk.dcwallpaper.Adapters.DCModelsAdapter;
-import com.arsylk.dcwallpaper.Async.OnUnpackFinishedListener;
+import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.Live2D.L2DConfig;

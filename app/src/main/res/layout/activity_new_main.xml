@@ -19,19 +19,12 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"/>
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                    android:id="@+id/main_images_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-            </LinearLayout>
-
-        </ScrollView>
+        <ListView
+                android:id="@+id/main_announcements_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:smoothScrollbar="true"
+                android:overScrollMode="never"/>
 
     </LinearLayout>
 

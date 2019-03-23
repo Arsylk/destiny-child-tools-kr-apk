@@ -6,6 +6,8 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.arsylk.dcwallpaper.Async.*;
+import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
+import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;

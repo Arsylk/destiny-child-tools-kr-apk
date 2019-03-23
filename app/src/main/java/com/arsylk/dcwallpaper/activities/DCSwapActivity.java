@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
+import com.arsylk.dcwallpaper.Adapters.L2DModelItem;
 import com.arsylk.dcwallpaper.Adapters.L2DModelsAdapter;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
@@ -29,11 +30,11 @@ import static com.arsylk.dcwallpaper.utils.Define.MODELS_DIRECTORY;
 
 public class DCSwapActivity extends AppCompatActivity {
     private interface OnModelItemPick {
-        void onModelItemPick(L2DModelsAdapter.L2DModelItem item);
+        void onModelItemPick(L2DModelItem item);
     }
     private Context context = DCSwapActivity.this;
     private View fromModelView, toModelView;
-    private L2DModelsAdapter.L2DModelItem fromModelItem, toModelItem;
+    private L2DModelItem fromModelItem, toModelItem;
     private DragLinearLayout fromDragView, toDragView;
     private List<DCSwapFileView> fromFileViews, toFileViews;
 
@@ -56,7 +57,7 @@ public class DCSwapActivity extends AppCompatActivity {
         findViewById(R.id.swap_try).setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                L2DModelsAdapter.L2DModelItem temp;
+                L2DModelItem temp;
                 temp = fromModelItem;
                 fromModelItem = toModelItem;
                 toModelItem = temp;
@@ -81,7 +82,7 @@ public class DCSwapActivity extends AppCompatActivity {
                     case R.id.item_from:
                         showPickModel(new OnModelItemPick() {
                             @Override
-                            public void onModelItemPick(L2DModelsAdapter.L2DModelItem item) {
+                            public void onModelItemPick(L2DModelItem item) {
                                 fillModelView(item, fromModelView);
                                 fillModelFilesView(item, fromDragView);
                                 fromModelItem = item;
@@ -91,7 +92,7 @@ public class DCSwapActivity extends AppCompatActivity {
                     case R.id.item_to:
                         showPickModel(new OnModelItemPick() {
                             @Override
-                            public void onModelItemPick(L2DModelsAdapter.L2DModelItem item) {
+                            public void onModelItemPick(L2DModelItem item) {
                                 fillModelView(item, toModelView);
                                 fillModelFilesView(item, toDragView);
                                 toModelItem = item;
@@ -122,7 +123,7 @@ public class DCSwapActivity extends AppCompatActivity {
         });
     }
 
-    private void fillModelView(L2DModelsAdapter.L2DModelItem item, View view) {
+    private void fillModelView(L2DModelItem item, View view) {
         TextView label = view.findViewById(R.id.label);
         TextView sublabel = view.findViewById(R.id.sub_label);
         ImageView imglabel = view.findViewById(R.id.img_label);
@@ -135,7 +136,7 @@ public class DCSwapActivity extends AppCompatActivity {
 
     }
 
-    private void fillModelFilesView(L2DModelsAdapter.L2DModelItem item, DragLinearLayout layout) {
+    private void fillModelFilesView(L2DModelItem item, DragLinearLayout layout) {
         //list files for model
         List<File> filenames = new ArrayList<>();
         for(File file : item.getFile().listFiles()) {
@@ -237,11 +238,11 @@ public class DCSwapActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                final List<L2DModelsAdapter.L2DModelItem> items = new ArrayList<>();
+                final List<L2DModelItem> items = new ArrayList<>();
                 for(File dir : Define.MODELS_DIRECTORY.listFiles()) {
                     File _model = new File(dir, "_model");
                     if(_model.exists()) {
-                        L2DModelsAdapter.L2DModelItem item = new L2DModelsAdapter.L2DModelItem(_model);
+                        L2DModelItem item = new L2DModelItem(_model);
                         if(item.isLoaded()) {
                             items.add(item);
                         }

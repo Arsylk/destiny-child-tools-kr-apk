@@ -11,8 +11,8 @@
             android:layout_width="25dp"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true">
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
 
         <ImageView
                 android:id="@+id/element"
@@ -36,8 +36,8 @@
             android:id="@+id/thumbnail_layout"
             android:layout_width="70dp"
             android:layout_height="70dp"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true">
 
         <ImageView
                 android:id="@+id/thumbnail"
@@ -96,10 +96,10 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:layout_toRightOf="@id/thumbnail_layout"
-            android:layout_toEndOf="@id/thumbnail_layout"
-            android:layout_toLeftOf="@id/layout_icons"
-            android:layout_toStartOf="@id/layout_icons"
+            android:layout_toRightOf="@id/layout_icons"
+            android:layout_toEndOf="@id/layout_icons"
+            android:layout_toLeftOf="@id/thumbnail_layout"
+            android:layout_toStartOf="@id/thumbnail_layout"
             android:padding="@dimen/activity_margin">
 
         <TextView

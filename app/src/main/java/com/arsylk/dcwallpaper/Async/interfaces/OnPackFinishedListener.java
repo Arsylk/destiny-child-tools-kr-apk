@@ -1,4 +1,4 @@
-package com.arsylk.dcwallpaper.Async;
+package com.arsylk.dcwallpaper.Async.interfaces;
 
 import java.io.File;
 

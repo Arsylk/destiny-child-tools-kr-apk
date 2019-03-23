@@ -34,6 +34,8 @@ public final class Define {
     public static final File ASSET_EXTRACTED_CHILD_NAMES = new File(ASSETS_DIRECTORY, "extracted_child_names.json");
     public static final File ASSET_EVENT_BANNERS = new File(ASSETS_DIRECTORY, "banner_events.json");
 
+    public static final String REMOTE_TRANSLATE_TEXT = "http://dwatchseries-storage.000webhostapp.com/dctools/translate.php?id=%s&text=%s";
+
     public static final Integer[] CONVERT_ID_ELEMENT = new Integer[] {
             R.id.search_element_fire,
             R.id.search_element_water,

@@ -1,10 +1,11 @@
-package com.arsylk.dcwallpaper.widgets;
+package com.arsylk.dcwallpaper.widgets.dcbanner;
 
 
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViewsService;
+import com.arsylk.dcwallpaper.widgets.dcbanner.DCBannerWidgetProvider;
 
 public class DCBannerWidgetService extends RemoteViewsService {
 

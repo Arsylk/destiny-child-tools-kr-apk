@@ -3,6 +3,7 @@ package com.arsylk.dcwallpaper.Async;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 
 import java.io.File;

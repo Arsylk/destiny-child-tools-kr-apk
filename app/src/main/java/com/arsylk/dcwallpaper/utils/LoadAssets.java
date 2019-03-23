@@ -88,20 +88,6 @@ public class LoadAssets  {
         }
     }
 
-    public static Future updateBannerEvents(final Context context) {
-        return getDCBannersInstance().webLoad(context, new FutureCallback<DCBanners>() {
-            @Override
-            public void onCompleted(Exception e, DCBanners result) {
-                if(e == null) {
-                    result.loadAllBitmaps(context);
-                    result.loadAllArticles(context);
-                }else {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
     public static boolean updateInProgress(Context context) {
         return Ion.getDefault(context).getPendingRequestCount(TAG_ASSETS) != 0;
     }
@@ -132,14 +118,5 @@ public class LoadAssets  {
             patch = new DCLocale.Patch(Utils.fileToJson(ASSET_LOCALE));
         }
         return patch;
-    }
-
-    //banners
-    private static DCBanners banners = null;
-    public static DCBanners getDCBannersInstance() {
-        if(banners == null) {
-            banners = new DCBanners(ASSET_EVENT_BANNERS);
-        }
-        return banners;
     }
 }

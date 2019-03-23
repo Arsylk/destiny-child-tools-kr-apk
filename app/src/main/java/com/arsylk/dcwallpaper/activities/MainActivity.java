@@ -16,19 +16,20 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.AdapterView;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
-import com.arsylk.dcwallpaper.Async.OnPackFinishedListener;
-import com.arsylk.dcwallpaper.Async.OnUnpackFinishedListener;
-import com.arsylk.dcwallpaper.DestinyChild.DCBanners;
+import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
+import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
+import com.arsylk.dcwallpaper.Async.*;
+import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
+import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
-import com.arsylk.dcwallpaper.utils.ViewFactory;
-import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
 import java.io.File;
@@ -40,7 +41,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Context context = MainActivity.this;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
-    private ViewGroup images_layout;
+    private ListView announcementList;
+    private DCAnnouncementsAdapter adapter;
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -108,6 +110,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if(!handleIntent()) {
             //check for updates
             LoadAssets.guiFullLoad(context);
+            //load up-to-date banners
+            new AsyncBanners(context, false).execute();
         }
     }
 
@@ -196,47 +200,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         navigationView.setNavigationItemSelectedListener(this);
 
-        images_layout = findViewById(R.id.main_images_layout);
+        adapter = new DCAnnouncementsAdapter(context, true);
 
-        //preload saved banners
-        DCBanners banners = LoadAssets.getDCBannersInstance();
-        if(banners.isFileLoaded() || banners.isWebLoaded()) {
-            initBannerViews();
-        }
-
-        //load up-to-date banners
-        banners.webLoad(context, new FutureCallback<DCBanners>() {
+        announcementList = findViewById(R.id.main_announcements_list);
+        announcementList.setAdapter(adapter);
+        announcementList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onCompleted(Exception e, DCBanners result) {
-                if(e == null) {
-                    initBannerViews();
-                    result.loadAllBitmaps(context);
-                    result.loadAllArticles(context);
-                }else {
-                    e.printStackTrace();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(adapter != null) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(adapter.getItem(position).getUrl())));
                 }
             }
         });
-    }
-
-    private void initBannerViews() {
-        images_layout.removeAllViews();
-        DCBanners banners = LoadAssets.getDCBannersInstance();
-        for(DCBanners.Banner banner : banners.getBanners()) {
-            ImageView imageView = ViewFactory.getBannerView(context, banner);
-            imageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if(view.getTag() instanceof DCBanners.Banner) {
-                        DCBanners.Banner banner = (DCBanners.Banner) view.getTag();
-                        if(banner.isArticleLoaded()) {
-                            Toast.makeText(context, banner.getFormattedTimeLeft(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
+        announcementList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                if(adapter != null) {
+                    DCAnnouncementItem announcement = adapter.getItem(position);
+                    announcement.setShowTranslated(!announcement.isShowTranslated());
+                    adapter.notifyDataSetChanged();
                 }
-            });
-            images_layout.addView(imageView);
-        }
+                return true;
+            }
+        });
     }
 
     private void openDCModels() {

@@ -97,7 +97,7 @@
                     android:resource="@xml/pick_model_widget_info"/>
         </receiver>
         <receiver
-                android:name=".widgets.DCBannerWidget">
+                android:name=".widgets.dcbanner.DCBannerWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -108,7 +108,7 @@
         </receiver>
 
         <service
-                android:name=".widgets.DCBannerWidgetService"
+                android:name=".widgets.dcbanner.DCBannerWidgetService"
                 android:enabled="true"
                 android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>

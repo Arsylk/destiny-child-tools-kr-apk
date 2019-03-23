@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 import com.arsylk.dcwallpaper.utils.Define;
+import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
@@ -20,6 +21,7 @@ import java.io.File;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 
 public class DCBanners {
@@ -41,58 +43,36 @@ public class DCBanners {
 
 
         //methods
-        public void loadImageBitmap(Context context, final FutureCallback<Bitmap> callback) {
+        public Bitmap loadImageBitmap(Context context) {
             if(!imageFile.exists()) {
-                Ion.with(context).load(imageUrl)
-                .asBitmap().setCallback(new FutureCallback<Bitmap>() {
-                    @Override
-                    public void onCompleted(Exception e, Bitmap result) {
-                        if(e == null) {
-                            Utils.bitmapToFile(result, imageFile);
-                            bannerBitmap = result;
-                            if(callback != null) {
-                                callback.onCompleted(null, bannerBitmap);
-                            }
-                        }else {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-            }else {
-                bannerBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-                if(callback != null) {
-                    callback.onCompleted(null, bannerBitmap);
+                try {
+                    Ion.with(context).load(imageUrl).write(imageFile).get();
+                }catch(Exception e) {
+                    e.printStackTrace();
                 }
             }
+            bannerBitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+            return bannerBitmap;
         }
 
-        public void loadArticleDates(Context context, final FutureCallback<Boolean> callback) {
+        public boolean loadArticleDates(Context context) {
             if(!isArticleLoaded()) {
-                Ion.with(context).load(articleUrl)
-                        .asString(Charset.forName("KSC5601")).setCallback(new FutureCallback<String>() {
-                    @Override
-                    public void onCompleted(Exception e, String result) {
-                        if(e == null) {
-                            Document document = Jsoup.parse(result);
-                            for(String articleTextLine : document.select("#tbody *").eachText()) {
-                                Matcher dateMatcher = Define.PATTERN_BANNER_DATE.matcher(articleTextLine);
-                                if(dateMatcher.matches()) {
-                                    matchPossibleDates(dateMatcher);
-                                    if(callback != null) {
-                                        callback.onCompleted(null, true);
-                                    }
-                                    break;
-                                }
-                            }
-                        }else {
-                            e.printStackTrace();
+                try {
+                    Document document = Jsoup.parse(Ion.with(context).load(articleUrl).asString(Charset.forName("KSC5601")).get());
+                    for(String articleTextLine : document.select("#tbody *").eachText()) {
+                        Matcher dateMatcher = Define.PATTERN_BANNER_DATE.matcher(articleTextLine);
+                        if(dateMatcher.matches()) {
+                            matchPossibleDates(dateMatcher);
+                            return true;
                         }
                     }
-                });
-            }else {
-                if(callback != null) {
-                    callback.onCompleted(null, false);
+                }catch(Exception e) {
+                    e.printStackTrace();
                 }
+
+                return false;
+            }else {
+                return true;
             }
         }
 
@@ -120,6 +100,7 @@ public class DCBanners {
         }
 
         private void stringsToDate() {
+            //TODO check if isn't called to often
             //date string to actual date
             try {
                 SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy MM/dd HH:mm Z");
@@ -127,13 +108,6 @@ public class DCBanners {
 
                 Date parsedStart = sourceFormat.parse(dateStart);
                 Date parsedEnd = sourceFormat.parse(dateEnd);
-                Log.d("mTag:Start", parsedStart.toString());
-                Log.d("mTag:End", parsedEnd.toString());
-
-                Log.d("mTag:parsedStart", Utils.betweenDates(Calendar.getInstance().getTime(), parsedStart));
-                Log.d("mTag:parsedEnd", Utils.betweenDates(Calendar.getInstance().getTime(), parsedEnd));
-                Log.d("mTag:space", "--------------------------------------------------------------------");
-
 
                 dateStart = destFormat.format(parsedStart);
                 dateEnd = destFormat.format(parsedEnd);
@@ -267,63 +241,12 @@ public class DCBanners {
         }
     }
 
-    public Future webLoad(Context context, final FutureCallback<DCBanners> callback) {
-        return Ion.with(context).load("https://cafe.naver.com/MyCafeIntro.nhn?clubid=27917479")
-                .asString(Charset.forName("KSC5601")).setCallback(new FutureCallback<String>() {
-            @Override
-            public void onCompleted(Exception e, String result) {
-                if(e == null) {
-                    // parse document
-                    Document document = Jsoup.parse(result);
-                    Elements elements = document.select("#editorMainContent a[href]");
-
-                    // iter all banners
-                    banners.clear();
-                    for(int i = 0; i < elements.size(); i++) {
-                        Element element = elements.get(i);
-                        if(element.selectFirst("img[src]") != null) {
-                            String articleUrl = element.attr("href");
-                            String imageUrl = element.selectFirst("img").attr("src");
-                            String articleId = articleUrl.substring(articleUrl.lastIndexOf("/")+1);
-                            String imageId = element.selectFirst("img").attr("id").replaceAll("[^0-9]", "");
-
-                            // add banner
-                            banners.add(new Banner(imageUrl, articleId, imageId));
-                        }
-                    }
-
-                    // save banners
-                    save();
-                    loadStatus = 2;
-                    if(callback != null) {
-                        callback.onCompleted(null, DCBanners.this);
-                    }
-                }else {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public void loadAllBitmaps(Context context) {
-        for(Banner banner : banners) {
-            banner.loadImageBitmap(context, null);
+    public void setBanner(Banner banner, int i) {
+        if(banners.size() > i) {
+            banners.set(i, banner);
+        }else {
+            banners.add(banner);
         }
-    }
-
-    public void loadAllArticles(Context context) {
-        for(Banner banner : banners) {
-            banner.loadArticleDates(context, null);
-        }
-        save();
-    }
-
-    public void addBanner(String imageUrl, String articleId, String imageId) {
-        banners.add(new Banner(imageUrl, articleId, imageId));
-    }
-
-    public void addBanner(Banner banner) {
-        banners.add(banner);
     }
 
     public Banner getBanner(int i) {

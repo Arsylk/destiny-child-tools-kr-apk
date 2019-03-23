@@ -21,13 +21,13 @@ public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
     @Override
     protected Boolean doInBackground(Void... voids) {
         boolean error = false;
-        try {
-            publishProgress("Updating event banners...");
-            LoadAssets.updateBannerEvents(context).get();
-        }catch(Exception e) {
-            e.printStackTrace();
-            error = true;
-        }
+//        try {
+//            publishProgress("Updating event banners...");
+//            LoadAssets.updateBannerEvents(context).get();
+//        }catch(Exception e) {
+//            e.printStackTrace();
+//            error = true;
+//        }
         try {
             publishProgress("Updating english patch...");
             LoadAssets.updateEnglishPatch(context).get();
