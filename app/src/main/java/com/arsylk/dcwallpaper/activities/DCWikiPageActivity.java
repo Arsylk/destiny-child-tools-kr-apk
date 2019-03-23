@@ -18,8 +18,6 @@ import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_TYPE;
-
 public class DCWikiPageActivity extends AppCompatActivity implements FutureCallback<DCWiki.Page> {
     private Context context = DCWikiPageActivity.this;
     private String modelId;
@@ -74,7 +72,7 @@ public class DCWikiPageActivity extends AppCompatActivity implements FutureCallb
                 @Override
                 public void onClick(View view) {
                     if(toolbar.getTitle().toString().equalsIgnoreCase(wikiItem.getName())) {
-                        toolbar.setTitle(wikiItem.getKname());
+                        toolbar.setTitle(wikiItem.getKrName());
                     }else {
                         toolbar.setTitle(wikiItem.getName());
                     }
@@ -102,8 +100,8 @@ public class DCWikiPageActivity extends AppCompatActivity implements FutureCallb
         wiki_skill_slide.setText(wikiItem.getSkillSlide());
         wiki_skill_drive.setText(wikiItem.getSkillDrive());
 
-        if(wikiItem.getThumbnailImage() != null) {
-            Ion.with(context).load(wikiItem.getThumbnailImage())
+        if(wikiItem.getThumbnailUrl() != null) {
+            Ion.with(context).load(wikiItem.getThumbnailUrl())
                     .progressBar((ProgressBar) findViewById(R.id.wiki_image_thumbnail_progress))
                     .intoImageView(wiki_thumbnail).setCallback(new FutureCallback<ImageView>() {
                 @Override

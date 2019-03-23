@@ -89,6 +89,6 @@ public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncemen
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return Long.valueOf(getItem(position).getId());
     }
 }

@@ -1,85 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/content">
+<android.support.v4.widget.DrawerLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/main_drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
+        android:background="#2f2f2f">
 
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
-        <LinearLayout
+        <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"/>
+
+        <ListView
+                android:id="@+id/main_announcements_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:baselineAligned="false">
-
-            <!-- model repositories -->
-            <Button
-                    android:id="@+id/dcmodels_open"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Destiny Child Models"/>
-
-            <Button
-                    android:id="@+id/mymodels_open"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Unpacked Models"/>
-
-            <Button
-                    android:id="@+id/onlinemodels_open"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Online Models"/>
-
-        </LinearLayout>
-
-
-        <!-- pack/unpack file -->
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-            <Button
-                    android:id="@+id/file_pack"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    
-                    android:text="Pack Model"/>
-
-            <Button
-                    android:id="@+id/file_unpack"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Unpack Model"/>
-
-        </LinearLayout>
-
-        <Button
-                android:id="@+id/swap_model"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Swap Model"/>
-
-        <Button
-                android:id="@+id/wiki_open"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Destiny Child Wiki\nby @Aeit#0009"/>
+                android:smoothScrollbar="true"
+                android:overScrollMode="never"/>
 
     </LinearLayout>
 
-    <!-- english patch -->
-    <Button
-            android:id="@+id/english_patch"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:text="English Patch"/>
+    <android.support.design.widget.NavigationView
+            android:id="@+id/main_navigation_view"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_gravity="start"
+            android:fitsSystemWindows="true"
+            app:itemBackground="@android:color/transparent"
+            app:menu="@menu/main_menu">
 
-</RelativeLayout>
+
+    </android.support.design.widget.NavigationView>
+
+</android.support.v4.widget.DrawerLayout>

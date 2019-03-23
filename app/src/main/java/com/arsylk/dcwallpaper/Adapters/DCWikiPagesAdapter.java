@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.arsylk.dcwallpaper.Async.AsyncWikiCache;
+import com.arsylk.dcwallpaper.Async.interfaces.OnWikiPagePost;
 import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.activities.DCWikiPageActivity;
@@ -15,17 +17,39 @@ import java.util.*;
 import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_ELEMENT;
 import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_TYPE;
 
-public class DCWikiPagesAdapter extends BaseAdapter implements Filterable {
+public class DCWikiPagesAdapter extends BaseAdapter implements OnWikiPagePost, Filterable {
     private Context context;
     private String filterString = "";
+    private int stars = 0;
     private Set<Integer> toggles;
     private List<DCWiki.Page> srcWikiPages, wikiPages;
 
     public DCWikiPagesAdapter(Context context) {
         this.context = context;
         this.toggles = new HashSet<>();
-        this.srcWikiPages = new ArrayList<>(LoadAssets.getDCWikiInstance().getWikiPages());
-        this.wikiPages = new ArrayList<>(LoadAssets.getDCWikiInstance().getWikiPages());
+        this.srcWikiPages = new ArrayList<>();
+        this.wikiPages = new ArrayList<>();
+    }
+
+    public synchronized void cacheBitmaps() {
+        new AsyncWikiCache(context, true)
+                .setOnWikiPagePost(this)
+                .execute(LoadAssets.getDCWikiInstance());
+    }
+
+    @Override
+    public void onProgressUpdate(DCWiki.Page... pages) {
+        if(pages == null) {
+            srcWikiPages.clear();
+            wikiPages.clear();
+            return;
+        }
+
+        for(DCWiki.Page page : pages) {
+            srcWikiPages.add(page);
+            wikiPages.add(page);
+            notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -54,6 +78,7 @@ public class DCWikiPagesAdapter extends BaseAdapter implements Filterable {
             holder.element = convertView.findViewById(R.id.element);
             holder.type = convertView.findViewById(R.id.type);
             holder.thumbnail = convertView.findViewById(R.id.thumbnail);
+            holder.frame = convertView.findViewById(R.id.thumbnail_frame);
             holder.stars = convertView.findViewById(R.id.thumbnail_stars_layout);
             convertView.setTag(holder);
         }
@@ -64,7 +89,12 @@ public class DCWikiPagesAdapter extends BaseAdapter implements Filterable {
         holder.sublabel.setText(wikiPage.getModelId());
         holder.element.setImageResource(wikiPage.getElementDrawable());
         holder.type.setImageResource(wikiPage.getTypeDrawable());
-        Ion.with(holder.thumbnail).load(wikiPage.getThumbnailImage());
+        if(wikiPage.getThumbnailBitmap() != null) {
+            holder.thumbnail.setImageBitmap(wikiPage.getThumbnailBitmap());
+        }else if(wikiPage.getThumbnailUrl() != null) {
+            Ion.with(context).load(wikiPage.getThumbnailUrl()).intoImageView(holder.thumbnail);
+        }
+        holder.frame.setImageResource(wikiPage.getElementFrame());
         for(int i = 0; i < holder.stars.getChildCount(); i++) {
             holder.stars.getChildAt(i).setVisibility((i < wikiPage.getStars()) ? View.VISIBLE : View.GONE);
         }
@@ -82,7 +112,7 @@ public class DCWikiPagesAdapter extends BaseAdapter implements Filterable {
 
     static class ViewHolder {
         TextView label, sublabel;
-        ImageView element, type, thumbnail;
+        ImageView element, type, thumbnail, frame;
         ViewGroup stars;
     }
 
@@ -92,6 +122,11 @@ public class DCWikiPagesAdapter extends BaseAdapter implements Filterable {
         }else {
             toggles.add(id);
         }
+        getFilter().filter(filterString);
+    }
+
+    public void toggleStars(int stars) {
+        this.stars = stars;
         getFilter().filter(filterString);
     }
 
@@ -106,12 +141,14 @@ public class DCWikiPagesAdapter extends BaseAdapter implements Filterable {
                 List<DCWiki.Page> filterList = new ArrayList<>();
                 for(DCWiki.Page page : srcWikiPages) {
                     if(!toggles.contains(CONVERT_ID_ELEMENT[page.getElement()]) && !toggles.contains(CONVERT_ID_TYPE[page.getType()])) {
-                        if(filterString != null) {
-                            if(page.getName().toLowerCase().contains(filterString) || page.getKname().toLowerCase().contains(filterString)) {
+                        if(stars == 0 || stars == page.getStars()) {
+                            if(filterString != null) {
+                                if(page.getName().toLowerCase().contains(filterString) || page.getKrName().toLowerCase().contains(filterString)) {
+                                    filterList.add(page);
+                                }
+                            }else {
                                 filterList.add(page);
                             }
-                        }else {
-                            filterList.add(page);
                         }
                     }
                 }

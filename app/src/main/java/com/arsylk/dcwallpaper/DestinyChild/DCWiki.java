@@ -1,20 +1,27 @@
 package com.arsylk.dcwallpaper.DestinyChild;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.Utils;
+import com.koushikdutta.ion.Ion;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.*;
 
 public class DCWiki {
     public static class Page {
-        private String modelId = null, name = null, kname = null, region = null;
+        private String modelId = null, name = null, krName = null, region = null;
         private int stars = 0, element = 0, type = 0;
         private String skillLeader = null, skillAuto = null, skillTap = null, skillSlide = null, skillDrive = null;
         private String portaitImages[] = null;
-        private String thumbnailImage = null;
+        private String thumbnailUrl = null;
+        private File thumbnailFile = null;
+        private Bitmap thumbnailBitmap = null;
 
         public Page(JSONObject json) {
             load(json);
@@ -29,9 +36,9 @@ public class DCWiki {
                 else
                     name = "";
                 if(json.has("kname"))
-                    kname = json.getString("kname");
+                    krName = json.getString("kname");
                 else
-                    kname = "";
+                    krName = "";
                 if(json.has("region"))
                     region = json.getString("region");
 
@@ -89,8 +96,10 @@ public class DCWiki {
                 if(json.has("skillDrive"))
                     skillDrive = json.getString("skillDrive");
 
-                if(json.has("thumbnail"))
-                    thumbnailImage = json.getString("thumbnail");
+                if(json.has("thumbnail")) {
+                    thumbnailUrl = json.getString("thumbnail").replace("https://", "http://");
+                    thumbnailFile = new File(Define.BITMAP_CACHE_DIRECTORY, modelId+"_wiki.png");
+                }
 
                 portaitImages = new String[3];
                 for(int i = 0; i < portaitImages.length; i++) {
@@ -105,6 +114,23 @@ public class DCWiki {
             }
         }
 
+        public boolean loadBitmap(Context context) {
+            if(thumbnailUrl == null || thumbnailFile == null) return false;
+
+            boolean wasCached = true;
+            if(!thumbnailFile.exists()) {
+                wasCached = false;
+                try {
+                    Ion.with(context).load(thumbnailUrl).write(thumbnailFile).get();
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            thumbnailBitmap = BitmapFactory.decodeFile(thumbnailFile.getAbsolutePath());
+
+            return wasCached;
+        }
+
         public String getModelId() {
             return modelId;
         }
@@ -113,8 +139,8 @@ public class DCWiki {
             return name;
         }
 
-        public String getKname() {
-            return kname;
+        public String getKrName() {
+            return krName;
         }
 
         public String getRegion() {
@@ -141,6 +167,23 @@ public class DCWiki {
                     return R.drawable.ic_element_light;
                 case 4:
                     return R.drawable.ic_element_dark;
+                default:
+                    return R.drawable.ic_error_outline_black;
+            }
+        }
+
+        public int getElementFrame() {
+            switch(element) {
+                case 0:
+                    return R.drawable.frame_element_fire;
+                case 1:
+                    return R.drawable.frame_element_water;
+                case 2:
+                    return R.drawable.frame_element_wind;
+                case 3:
+                    return R.drawable.frame_element_light;
+                case 4:
+                    return R.drawable.frame_element_dark;
                 default:
                     return R.drawable.ic_error_outline_black;
             }
@@ -191,8 +234,16 @@ public class DCWiki {
             return portaitImages;
         }
 
-        public String getThumbnailImage() {
-            return thumbnailImage;
+        public String getThumbnailUrl() {
+            return thumbnailUrl;
+        }
+
+        public File getThumbnailFile() {
+            return thumbnailFile;
+        }
+
+        public Bitmap getThumbnailBitmap() {
+            return thumbnailBitmap;
         }
     }
     private Map<String, Page> wikiPages;
@@ -244,31 +295,3 @@ public class DCWiki {
         return sortedWikiPages;
     }
 }
-
-/*
-"name": "Naiad",
-"kname": "메르핸 나이아스",
-"thumbnail": "http://static.inven.co.kr/image_2011/site_image/game/minidata/99/5500030_i.png",
-"image1": "http://i.imgur.com/HRJWusA.png",
-"image2": "http://i.imgur.com/zEBzXzZ.png",
-"image3": "http://i.imgur.com/c0KnLuf.png",
-"imageSkin": "",
-"starLevel": "5",
-"region": "kr",
-"element": "water",
-"type": "support",
-"skillLeader": "Skill gauge charge rate +20% to all allies",
-"skillAuto": "Deals 93 damage",
-"skillTap": "Deals 314 damage to 1 enemy and skill gauge charge speed +40% for 8s to 2 allies with highest attack",
-"skillSlide": "Deals 699 damage to 1 enemy and gives 140% Double-Edge (increase attack and reduce defense) for 14s to 5 water attack type allies                                                                                ",
-"skillDrive": "Deals 1840 damage to 3 random enemeis and heals 1526HP to 3 allies with lowest HP and attack +120% for 20s to 3 allies with highest attack",
-"tags": [
-    "Naias"
-],
-"tiers": {
-    "WORLD_BOSS": "A",
-    "PVP": "C",
-    "PVE": "C"
-},
-"props": {}
-*/

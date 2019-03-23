@@ -5,6 +5,7 @@
         android:id="@+id/wiki_drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="#2f2f2f"
         android:fitsSystemWindows="false">
 
     <LinearLayout
@@ -32,7 +33,9 @@
             android:layout_marginTop="?attr/actionBarSize"
             android:layout_gravity="start"
             android:fitsSystemWindows="false"
+            android:background="#D0000000"
             app:itemBackground="@android:color/transparent"
+            app:itemTextColor="@drawable/navigation_item_textcolor"
             app:menu="@menu/wiki_menu"
             app:headerLayout="@layout/header_navigation_wiki">
 

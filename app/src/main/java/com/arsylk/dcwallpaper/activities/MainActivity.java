@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
@@ -101,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_main);
+        setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         Utils.requestPermission(context);
         Utils.initDirectories();
@@ -169,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.dcbanner_widget_open:
                 openDCBannerWidget();
                 break;
+            case R.id.discord_open:
+                openDiscord();
         }
 
         if(drawerLayout.isDrawerOpen(Gravity.START)) {
@@ -273,5 +274,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent pickIntent = new Intent(AppWidgetManager.ACTION_APPWIDGET_PICK);
         pickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, 0);
         startActivityForResult(pickIntent, 293);
+    }
+
+    private void openDiscord() {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/wDdq7C8")));
     }
 }

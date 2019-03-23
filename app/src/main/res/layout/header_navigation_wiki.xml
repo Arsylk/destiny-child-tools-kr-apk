@@ -15,5 +15,73 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"/>
+    
+    <LinearLayout 
+            android:id="@+id/search_stars_layout"
+            android:layout_width="match_parent" 
+            android:layout_height="wrap_content"
+            android:padding="@dimen/item_margin"
+            android:orientation="horizontal">
+
+        <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.8"
+                android:tag="0"
+                android:src="@drawable/ic_refresh_white"/>
+        
+        <ImageView 
+                android:id="@+id/search_star_1"
+                android:layout_width="0dp" 
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="1"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="2"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="3"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="4"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="5"
+                android:src="@drawable/ic_star"/>
+        
+    </LinearLayout>
 
 </LinearLayout>

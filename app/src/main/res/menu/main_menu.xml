@@ -52,4 +52,17 @@
             </group>
         </menu>
     </item>
+
+    <item android:title="Credits" android:menuCategory="container">
+        <menu>
+            <group>
+                <item android:title="Whocares8128" android:enabled="false"/>
+                <item android:title="TinyBanana" android:enabled="false"/>
+                <item android:title="Envy" android:enabled="false"/>
+                <item
+                        android:id="@+id/discord_open"
+                        android:title="Join Discord!"/>
+            </group>
+        </menu>
+    </item>
 </menu>

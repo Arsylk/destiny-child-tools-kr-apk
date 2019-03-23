@@ -13,6 +13,8 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.arsylk.dcwallpaper.Adapters.DCWikiPagesAdapter;
@@ -23,6 +25,7 @@ public class DCWikiActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private EditText searchInput;
+    private ViewGroup searchStars;
     private ListView listView;
     private DCWikiPagesAdapter adapter;
 
@@ -66,10 +69,16 @@ public class DCWikiActivity extends AppCompatActivity {
             getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white);
         }
 
+        listView = findViewById(R.id.wiki_pages_list);
         drawerLayout = findViewById(R.id.wiki_drawer_layout);
         navigationView = findViewById(R.id.wiki_navigation_view);
         searchInput = navigationView.getHeaderView(0).findViewById(R.id.search_input);
-        listView = findViewById(R.id.wiki_pages_list);
+        searchStars = navigationView.getHeaderView(0).findViewById(R.id.search_stars_layout);
+
+
+        adapter = new DCWikiPagesAdapter(context);
+        adapter.cacheBitmaps();
+        listView.setAdapter(adapter);
 
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         navigationView.setItemIconTintList(null);
@@ -77,7 +86,7 @@ public class DCWikiActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 item.setChecked(!item.isChecked());
-                item.getIcon().setAlpha(item.isChecked() ? 45 : 255);
+                item.getIcon().setAlpha(item.getIcon().getAlpha() == 255 ? 127 : 255);
                 if(adapter != null)
                     adapter.toggleParameter(item.getItemId());
                 return false;
@@ -102,7 +111,23 @@ public class DCWikiActivity extends AppCompatActivity {
             }
         });
 
-        adapter = new DCWikiPagesAdapter(context);
-        listView.setAdapter(adapter);
+        for(int i = 0; i < searchStars.getChildCount(); i++) {
+            searchStars.getChildAt(i).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(adapter != null) {
+                        int stars = Integer.parseInt(view.getTag().toString());
+                        markUpStars(stars);
+                        adapter.toggleStars(stars);
+                    }
+                }
+            });
+        }
+    }
+
+    private void markUpStars(int stars) {
+        for(int i = 1; i < searchStars.getChildCount(); i++) {
+            searchStars.getChildAt(i).setAlpha((i <= stars) ? 1.0f : 0.5f);
+        }
     }
 }
