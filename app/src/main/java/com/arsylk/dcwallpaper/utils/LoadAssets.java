@@ -10,7 +10,6 @@ import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -20,8 +19,14 @@ import static com.arsylk.dcwallpaper.utils.Define.*;
 public class LoadAssets  {
     private static final int TAG_ASSETS = 732;
 
-    public static void guiFullLoad(Context context) {
-        new AsyncLoadAssets(context, true).execute();
+    public static void guiFullLoad(Context context, final Utils.Callback callback) {
+        new AsyncLoadAssets(context, true) {
+            @Override
+            protected void onPostExecute(Boolean aBoolean) {
+                super.onPostExecute(aBoolean);
+                if(callback != null) callback.onCall();
+            }
+        }.execute();
     }
 
     public static Future updateEnglishPatch(Context context) {
@@ -112,10 +117,10 @@ public class LoadAssets  {
     }
 
     //patch
-    private static DCLocale.Patch patch = null;
-    public static DCLocale.Patch getDCEnglishPatch() {
+    private static DCLocalePatch patch = null;
+    public static DCLocalePatch getDCEnglishPatch() {
         if(patch ==  null) {
-            patch = new DCLocale.Patch(Utils.fileToJson(ASSET_LOCALE));
+            patch = new DCLocalePatch(Utils.fileToJson(ASSET_LOCALE));
         }
         return patch;
     }

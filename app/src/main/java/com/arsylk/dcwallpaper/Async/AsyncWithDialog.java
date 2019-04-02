@@ -5,6 +5,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
+    public interface OnFinished<Result> {
+        void onFinished(Result result);
+    }
     protected Context context;
     protected boolean showGui = true;
     protected String message = "";
@@ -16,7 +19,6 @@ public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTas
 
     public AsyncWithDialog(Context context, boolean showGui, String message) {
         init(context, showGui, message);
-
     }
 
     private void init(Context context, boolean showGui, String message) {

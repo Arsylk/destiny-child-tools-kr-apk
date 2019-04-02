@@ -17,10 +17,13 @@ public final class Define {
     public static final File ONLINE_DIRECTORY = new File(BASE_DIRECTORY, "Online");
     public static final File BITMAP_CACHE_DIRECTORY = new File(ASSETS_DIRECTORY, "bitmap");
 
-    public static final int REQUEST_FILE_UNPACK = 227, REQUEST_FILE_PACK = 228, REQUEST_WALLPAPER_SET = 229;
+    public static final int REQUEST_FILE_UNPACK = 227, REQUEST_FILE_PACK = 228, REQUEST_WALLPAPER_SET = 229, REQUEST_FILE_PATCH = 230;
 
     public static final String ONLINE_MODELS_URL = "http://dwatchseries-storage.000webhostapp.com/dctools/get_models.php";
 
+    public static final String UPLOAD_COMMUNITY_PATCH = "https://dwatchseries-storage.000webhostapp.com/dctools/post_locale_patch.php";
+    public static final String REMOTE_ASSET_COMMUNITY_PATCH = "https://dwatchseries-storage.000webhostapp.com/dctools/assets_community_patch.php";
+    public static final File ASSET_UNPACKED_LOCALE = new File(ASSETS_DIRECTORY, "unpacked_locale.json");
 
     public static final String REMOTE_ASSET_CHILD_NAMES = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_child_names.php?md5=%s";
     public static final File ASSET_CHILD_NAMES = new File(ASSETS_DIRECTORY, "child_names.json");

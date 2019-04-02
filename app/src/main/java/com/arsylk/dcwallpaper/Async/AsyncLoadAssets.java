@@ -1,6 +1,7 @@
 package com.arsylk.dcwallpaper.Async;
 
 import android.content.Context;
+import android.os.Process;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 
 public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
@@ -20,6 +21,7 @@ public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
 
     @Override
     protected Boolean doInBackground(Void... voids) {
+        Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND + Process.THREAD_PRIORITY_MORE_FAVORABLE);
         boolean error = false;
 //        try {
 //            publishProgress("Updating event banners...");

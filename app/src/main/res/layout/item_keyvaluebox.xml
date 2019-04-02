@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:padding="@dimen/item_margin">
+
+    <TextView
+            android:id="@+id/key_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:paddingLeft="@dimen/item_margin"
+            android:paddingStart="@dimen/item_margin"/>
+
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#ffffff" />
+
+    <TextView
+            android:id="@+id/default_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/item_margin"
+            android:textIsSelectable="true"
+            android:textSize="18sp"/>
+
+    <EditText
+            android:id="@+id/translated_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:maxLines="1"
+            android:inputType="text"
+            android:textColor="@android:color/holo_green_dark"
+            android:hint="Translated"/>
+
+</LinearLayout>

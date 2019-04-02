@@ -1,6 +1,7 @@
 package com.arsylk.dcwallpaper.Async;
 
 import android.content.Context;
+import android.os.Process;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
 import com.arsylk.dcwallpaper.Async.interfaces.OnAnnouncementPost;
 import org.jsoup.Jsoup;
@@ -31,6 +32,7 @@ public class AsyncAnnouncements extends AsyncWithDialog<Integer, DCAnnouncementI
 
     @Override
     protected List<DCAnnouncementItem> doInBackground(Integer... integers) {
+        Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST);
         List<DCAnnouncementItem> announcementList = new ArrayList<>();
         try {
             Document document = Jsoup.connect("https://m.cafe.naver.com/NoticeList.nhn?search.clubid=27917479").get();

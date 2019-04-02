@@ -5,7 +5,9 @@ import android.content.Context;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 import com.arsylk.dcwallpaper.Async.*;
+import com.arsylk.dcwallpaper.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.utils.Define;
@@ -384,6 +386,12 @@ public class DCTools {
 
 
     //locale extractor
+    public static void asyncExtractLocale(File src, Context context, OnLocaleUnpackFinished onFinished) {
+        new AsyncLoadLocale(context, true)
+                .setOnLocaleUnpackFinished(onFinished)
+                .execute(src);
+    }
+
     public static void asyncExtractChildNames(File src_locale_file, Context context) {
         new AsyncWithDialog<File, Void, Boolean>(context, true, "Extracting locale...") {
             @Override
@@ -506,40 +514,35 @@ public class DCTools {
         }
     }
 
-    public static void asyncExtractMissing(final File src, Context context, boolean showGui) {
-        new AsyncWithDialog<Void, Void, Void>(context, showGui) {
+    public static void asyncExtractMissing(File src, Context context, boolean showGui) {
+        new AsyncWithDialog<File, Void, File>(context, showGui, "Extracting new keys...") {
             @Override
-            protected Void doInBackground(Void... voids) {
+            protected File doInBackground(File... files) {
+                File extracted = null;
                 try {
-                    DCTools.extractMissing(src, context);
-                } catch (Exception e) {
+                    extracted = DCTools.extractMissing(files[0], context);
+                }catch(Exception e) {
                     e.printStackTrace();
                 }
-                return null;
+                return extracted;
             }
-        }.execute();
+
+            @Override
+            protected void onPostExecute(File file) {
+                super.onPostExecute(file);
+                if(file != null) {
+                    Toast.makeText(context, "Saved to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(context, "Failed to extract!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }.execute(src);
     }
 
-    public static void extractMissing(File src, Context context) throws Exception {
-//        DCLocale.Patch currentPatch = new DCLocale.Patch(new DCLocale(unpack(src, context)));
-//        DCLocale.Patch assetPatch = LoadAssets.getDCEnglishPatch();
-//        Map<String, LinkedHashMap<String, String>> missingHashFiles = new HashMap<>();
-//        for(Map.Entry<String, LinkedHashMap<String, String>> currentPatchFile : currentPatch.getHashFiles().entrySet()) {
-//            if(assetPatch.getHashFile(currentPatchFile.getKey()) != null) {
-//                if(assetPatch.getHashFile(currentPatchFile.getKey()).containsKey())
-//
-//            }
-//
-//            missingHashFiles.put(currentPatchFile.getKey(), currentPatchFile.getValue());
-//        }
-
-
-
-
-
+    public static File extractMissing(File src, Context context) throws Exception {
         DCLocale srcLocale = new DCLocale(unpack(src, context));
-        DCLocale.Patch patch = LoadAssets.getDCEnglishPatch();
-        new DCLocale.Patch(srcLocale).save(new File(src.getParentFile(), "extracted_current.json"));
+        DCLocalePatch patch = LoadAssets.getDCEnglishPatch();
+        new DCLocalePatch(srcLocale).save(new File(Define.BASE_DIRECTORY, "extracted_current.json"));
 
         JSONObject generated = new JSONObject();
         generated.put("name", "Not in patch");
@@ -547,26 +550,33 @@ public class DCTools {
         for(Pck.PckFile pckFile : srcLocale.getFiles()) {
             try {
                 String hash = Utils.bytesToHex(pckFile.getHash()).toLowerCase();
-                LinkedHashMap<String, String> pckFileMap = srcLocale.loadFile(pckFile);
-                LinkedHashMap<String, String> patchFileMap = patch.getHashFile(hash);
-                if(patchFileMap != null) {
-                    for(String patchFileKey : new ArrayList<String>(patchFileMap.keySet())) {
+                LinkedHashMap<String, String> pckFileMap = DCLocale.loadFile(pckFile);
+                DCLocalePatch.Subfile patchSubfile = patch.getHashFile(hash);
+                if(patchSubfile.getDict() != null) {
+                    for(String patchFileKey : new ArrayList<String>(patchSubfile.getDict().keySet())) {
                         pckFileMap.remove(patchFileKey);
                     }
                 }
 
                 JSONObject generatedDict = new JSONObject();
-                for(Map.Entry<String, String> entry : pckFileMap.entrySet()) {
+                for(LinkedHashMap.Entry<String, String> entry : pckFileMap.entrySet()) {
                     generatedDict.put(entry.getKey(), entry.getValue());
                 }
 
 
-                generated.getJSONObject("files").put(hash, generatedDict);
+                generated.getJSONObject("files").put(hash, new JSONObject()
+                        .put("hash", hash)
+                        .put("line_type", pckFile.getExt()-11)
+                        .put("dict", generatedDict));
             }catch(Exception e) {
                 e.printStackTrace();
             }
         }
-        FileUtils.write(new File(Define.BASE_DIRECTORY, "extracted_new.json"), generated.toString(4), Charset.forName("utf-8"));
+
+        File file = new File(Define.BASE_DIRECTORY, "extracted_new.json");
+        FileUtils.write(file, generated.toString(4), Charset.forName("utf-8"));
+
+        return file;
     }
 
 
@@ -612,6 +622,6 @@ public class DCTools {
                 }
                 return null;
             }
-        }.execute("all_post_update");
+        }.execute("all");
     }
 }

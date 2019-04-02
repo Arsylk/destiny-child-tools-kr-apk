@@ -13,7 +13,9 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -24,6 +26,7 @@ import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
 import com.arsylk.dcwallpaper.Async.*;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
+import com.arsylk.dcwallpaper.BuildConfig;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.R;
@@ -47,22 +50,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(data != null && (requestCode == REQUEST_FILE_PACK || requestCode == REQUEST_FILE_UNPACK)) {
-            //URI random stuffs
-            File file = null;
-            try {
-                Uri uri = data.getData();
-                String uriPath = uri.getPath();
-                System.out.println(uriPath);
-                String[] parts = uriPath.split(":");
-                if(parts.length > 1) {
-                    uriPath = uriPath.substring(parts[0].length()+1);
-                    uriPath = Environment.getExternalStorageDirectory() + File.separator + uriPath;
-                    System.out.println(uriPath);
-                }
-                file = new File(uriPath);
-            }catch(Exception e) {
-                e.printStackTrace();
-            }
+            File file = Utils.uriToFile(data.getData());
             if(file == null || !file.exists())
                 return;
             switch(requestCode) {
@@ -108,9 +96,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         initViews();
         if(!handleIntent()) {
             //check for updates
-            LoadAssets.guiFullLoad(context);
-            //load up-to-date banners
-            new AsyncBanners(context, false).execute();
+            LoadAssets.guiFullLoad(context, new Utils.Callback() {
+                @Override
+                public void onCall() {
+                    //load up-to-date announcements
+                    adapter.loadAnnouncements();
+                    //load up-to-date banners
+                    new AsyncBanners(context, false).execute();
+                }
+            });
         }
     }
 
@@ -132,10 +126,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if(BuildConfig.DEBUG)
+            getMenuInflater().inflate(R.menu.developer_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
+            //release menu
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
+                return true;
+            //dev menu
+            case R.id.dev_md5:
+                DCTools.fullFilesDump(context);
+                return true;
+            case R.id.dev_extract_new:
+                DCTools.asyncExtractMissing(new File(DCTools.getDCLocalePath()), context, true);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -161,6 +170,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.wiki_open:
                 openDCWiki();
+                break;
+            case R.id.translate_locale:
+                openTranslateLocale();
                 break;
             case R.id.english_patch:
                 openEnglishPatcher();
@@ -201,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         navigationView.setNavigationItemSelectedListener(this);
 
-        adapter = new DCAnnouncementsAdapter(context, true);
+        adapter = new DCAnnouncementsAdapter(context, false);
 
         announcementList = findViewById(R.id.main_announcements_list);
         announcementList.setAdapter(adapter);
@@ -252,6 +264,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("application/octet-stream");
         startActivityForResult(Intent.createChooser(intent, "Pick file"), requestCode);
+    }
+
+    private void openTranslateLocale() {
+        startActivity(new Intent(context, LocaleTranslateActivity.class));
     }
 
     private void openEnglishPatcher() {

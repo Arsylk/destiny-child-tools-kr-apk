@@ -43,6 +43,9 @@
                         android:id="@+id/wiki_open"
                         android:title="Wiki"/>
                 <item
+                        android:id="@+id/translate_locale"
+                        android:title="Translate Locale"/>
+                <item
                         android:id="@+id/english_patch"
                         android:title="English Patch"/>
 

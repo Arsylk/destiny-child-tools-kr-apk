@@ -63,6 +63,12 @@
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
         <activity
+                android:name=".activities.LocaleTranslateActivity"
+                android:label="Locale Translate"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+
+        <activity
                 android:name=".activities.DCBannerWidgetConfigureActivity"
                 android:label="Destiny Child Banner">
             <intent-filter>
@@ -86,8 +92,7 @@
                     android:resource="@xml/wallpaper"/>
         </service>
 
-        <receiver
-                android:name=".views.PickModelWidget">
+        <receiver android:name=".views.PickModelWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -96,8 +101,7 @@
                     android:name="android.appwidget.provider"
                     android:resource="@xml/pick_model_widget_info"/>
         </receiver>
-        <receiver
-                android:name=".widgets.dcbanner.DCBannerWidget">
+        <receiver android:name=".widgets.dcbanner.DCBannerWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>

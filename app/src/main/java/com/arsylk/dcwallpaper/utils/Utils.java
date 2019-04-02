@@ -11,10 +11,15 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.inputmethod.InputMethodManager;
 import com.arsylk.dcwallpaper.activities.MainActivity;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
@@ -316,6 +321,23 @@ public class Utils {
     /*permissions end*/
 
     /*files start*/
+    public static File uriToFile(Uri uri) {
+        File file = null;
+        try {
+            String uriPath = uri.getPath();
+            String[] parts = uriPath.split(":");
+            if(parts.length > 1) {
+                uriPath = uriPath.substring(parts[0].length()+1);
+                uriPath = Environment.getExternalStorageDirectory() + File.separator + uriPath;
+            }
+            file = new File(uriPath);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        return file;
+    }
+
     public static void initDirectories() {
         //setup directories
         try {
