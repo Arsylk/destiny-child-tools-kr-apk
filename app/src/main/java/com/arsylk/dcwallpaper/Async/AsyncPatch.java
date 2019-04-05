@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
+import com.arsylk.dcwallpaper.utils.LoadAssets;
 
 import java.io.File;
 
@@ -50,7 +51,7 @@ public class AsyncPatch extends AsyncTask<File, Void, Void> {
         if(files.length < 1)
             return null;
         try {
-            DCTools.englishPatch(files[0], context);
+            DCTools.patchLocale(files[0], LoadAssets.getDCEnglishPatch(), context);
             this.time_now = System.currentTimeMillis();
             if(time_now-time_start < 5000L) {
                 Thread.sleep(5000L - (time_now-time_start));

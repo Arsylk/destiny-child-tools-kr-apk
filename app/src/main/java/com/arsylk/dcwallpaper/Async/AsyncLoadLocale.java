@@ -27,17 +27,9 @@ public class AsyncLoadLocale extends AsyncWithDialog<File, Void, DCLocalePatch> 
     protected DCLocalePatch doInBackground(File... files) {
         if(files.length > 0) {
             try {
-                if(!Define.ASSET_UNPACKED_LOCALE.exists() || files.length == 2) {
-                    //unpack game file
-                    DCLocale locale = new DCLocale(DCTools.unpack(files[0], context));
-                    DCLocalePatch patch = new DCLocalePatch(locale);
-
-                    //save to file
-                    patch.save(Define.ASSET_UNPACKED_LOCALE);
-                }
-
-                //load from json file
-                return new DCLocalePatch(Utils.fileToJson(Define.ASSET_UNPACKED_LOCALE));
+                //unpack game file
+                DCLocale locale = new DCLocale(DCTools.unpack(files[0], context));
+                return new DCLocalePatch(locale);
             }catch(Exception e) {
                 e.printStackTrace();
             }

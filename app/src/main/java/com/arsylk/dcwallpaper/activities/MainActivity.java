@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,7 +12,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +21,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
-import com.arsylk.dcwallpaper.Async.*;
+import com.arsylk.dcwallpaper.Async.AsyncBanners;
+import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.BuildConfig;
@@ -33,8 +32,11 @@ import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.koushikdutta.ion.Ion;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.File;
+import java.nio.charset.Charset;
 
 import static com.arsylk.dcwallpaper.utils.Define.REQUEST_FILE_PACK;
 import static com.arsylk.dcwallpaper.utils.Define.REQUEST_FILE_UNPACK;
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 public void onCall() {
                     //load up-to-date announcements
                     adapter.loadAnnouncements();
+
                     //load up-to-date banners
                     new AsyncBanners(context, false).execute();
                 }
@@ -217,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         announcementList = findViewById(R.id.main_announcements_list);
         announcementList.setAdapter(adapter);
+        announcementList.addFooterView(adapter.getLoaderView());
         announcementList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -275,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(context, "Wait for update to finish!", Toast.LENGTH_SHORT).show();
             return;
         }
-        DCTools.asyncEnglishPatch(new File(DCTools.getDCLocalePath()), context);
+        DCTools.asyncEnglishPatchLocale(new File(DCTools.getDCLocalePath()), context);
     }
 
     private void openDCWiki() {

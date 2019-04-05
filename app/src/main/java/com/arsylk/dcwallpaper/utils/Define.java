@@ -21,8 +21,8 @@ public final class Define {
 
     public static final String ONLINE_MODELS_URL = "http://dwatchseries-storage.000webhostapp.com/dctools/get_models.php";
 
-    public static final String UPLOAD_COMMUNITY_PATCH = "https://dwatchseries-storage.000webhostapp.com/dctools/post_locale_patch.php";
-    public static final String REMOTE_ASSET_COMMUNITY_PATCH = "https://dwatchseries-storage.000webhostapp.com/dctools/assets_community_patch.php";
+    public static final String UPLOAD_COMMUNITY_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/post_locale_patch.php";
+    public static final String REMOTE_ASSET_COMMUNITY_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_community_patch.php";
     public static final File ASSET_UNPACKED_LOCALE = new File(ASSETS_DIRECTORY, "unpacked_locale.json");
 
     public static final String REMOTE_ASSET_CHILD_NAMES = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_child_names.php?md5=%s";

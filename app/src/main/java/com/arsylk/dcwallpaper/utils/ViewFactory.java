@@ -2,6 +2,7 @@ package com.arsylk.dcwallpaper.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.arsylk.dcwallpaper.DestinyChild.DCBanners;
@@ -15,9 +16,9 @@ public class ViewFactory {
         imageView.setTag(banner);
         imageView.setAdjustViewBounds(true);
         imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-        if(banner.isBitmapLoaded()) {
+        if (banner.isBitmapLoaded()) {
             imageView.setImageBitmap(banner.getBannerBitmap());
-        }else {
+        } else {
             imageView.setImageResource(R.drawable.ic_error_outline_black);
         }
 

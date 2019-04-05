@@ -24,14 +24,13 @@
             android:textIsSelectable="true"
             android:textSize="18sp"/>
 
-    <EditText
-            android:id="@+id/translated_field"
+    <com.arsylk.dcwallpaper.views.PopupEditText
+            android:id="@+id/popup_field"
             android:layout_width="match_parent"
+            android:padding="@dimen/item_margin"
             android:layout_height="wrap_content"
-            android:lines="1"
-            android:maxLines="1"
-            android:inputType="text"
             android:textColor="@android:color/holo_green_dark"
+            android:textSize="18sp"
             android:hint="Translated"/>
 
 </LinearLayout>

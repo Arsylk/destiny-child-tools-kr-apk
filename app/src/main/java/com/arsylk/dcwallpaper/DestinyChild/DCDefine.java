@@ -17,8 +17,8 @@ public final class DCDefine {
     //extensions
     public static final int UNKNOWN = 0, DAT = 1, MTN = 2, PNG = 3, JSON = 4, LOCALE_DEF = 12, LOCALE_TAB = 11;
     //line patterns
-    public static final Pattern LOCALE_DEF_LINE_PATTERN = Pattern.compile("^(?!/)(\\w+)\\s*?=\\s*?\"(.*?)\"\\s*?$");
-    public static final Pattern LOCALE_TAB_LINE_PATTERN = Pattern.compile("^(?!/)(\\w+)\\s(.*?)$");
+    public static final Pattern LOCALE_DEF_LINE_PATTERN = Pattern.compile("^(?!/)(\\S+)\\s*?=\\s*?\"(.*?)\"\\s*?$");
+    public static final Pattern LOCALE_TAB_LINE_PATTERN = Pattern.compile("^(?!/)(\\S+)\\s(.*?)$");
 
     public static final String DCPACKAGE = "com.NextFloor.DestinyChild";
 }

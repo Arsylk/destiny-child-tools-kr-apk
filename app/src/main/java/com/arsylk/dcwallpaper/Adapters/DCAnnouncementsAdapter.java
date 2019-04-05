@@ -19,6 +19,7 @@ import java.util.List;
 public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncementPost {
     private Context context;
     private List<DCAnnouncementItem> announcementList;
+    private View loaderView = null;
 
     public DCAnnouncementsAdapter(Context context, boolean autoLoad) {
         this.context = context;
@@ -26,8 +27,25 @@ public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncemen
         if(autoLoad) loadAnnouncements();
     }
 
+    public View getLoaderView() {
+        if(loaderView == null) {
+            loaderView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                    .inflate(R.layout.footer_progress, null);
+            loaderView.findViewById(R.id.footer_progressbar).setVisibility(View.VISIBLE);
+        }
+        return loaderView;
+    }
+
     public synchronized void loadAnnouncements() {
-        new AsyncAnnouncements(context, false).setOnAnnouncementsPost(this).execute();
+        if(loaderView != null) loaderView.findViewById(R.id.footer_progressbar).setVisibility(View.VISIBLE);
+        new AsyncAnnouncements(context, false){
+            @Override
+            protected void onPostExecute(List<DCAnnouncementItem> dcAnnouncementItems) {
+                super.onPostExecute(dcAnnouncementItems);
+                if(loaderView != null) loaderView.findViewById(R.id.footer_progressbar).setVisibility(View.GONE);
+                notifyDataSetChanged();
+            }
+        }.setOnAnnouncementsPost(this).execute();
     }
 
     @Override
@@ -75,7 +93,6 @@ public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncemen
         TextView title, author, date, views;
         ImageView thumb;
     }
-
 
     @Override
     public int getCount() {

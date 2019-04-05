@@ -2,18 +2,26 @@ package com.arsylk.dcwallpaper.Adapters;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.*;
+import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPatchChangedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
 import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Utils;
+import com.arsylk.dcwallpaper.views.PopupEditText;
+import com.koushikdutta.async.future.FutureCallback;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -40,21 +48,28 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
     public SubfileDictAdapter(Context context) {
         this.context = context;
         this.entries = new ArrayList<>();
+        this.patch = new DCLocalePatch();
     }
-
 
     //setters
     public void setSearchPanel(View view) {
         final View layoutView = view.findViewById(R.id.search_layout);
-        view.findViewById(R.id.search_toggle_layout).setOnClickListener(new View.OnClickListener() {
+        View showHideView = view.findViewById(R.id.search_toggle_layout);
+        showHideView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean isVisible = layoutView.getVisibility() == View.VISIBLE;
                 v.setScaleX(isVisible ? -1.0f : 1.0f);
                 v.setScaleY(isVisible ? -1.0f : 1.0f);
                 layoutView.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-                if(isVisible)
-                    Utils.dismissKeyboard(context);
+                Utils.dismissKeyboard(context);
+            }
+        });
+        showHideView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                resetSearchPanel();
+                return true;
             }
         });
 
@@ -93,7 +108,6 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
                 getFilter().filter(null);
             }
         });
-        valField.setText("");
 
         patchField = view.findViewById(R.id.search_patch_field);
         patchField.addTextChangedListener(new TextWatcher() {
@@ -138,7 +152,7 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
         }else {
             this.entries = new ArrayList<>();
         }
-        resetSearchPanel();
+        getFilter().filter(null);
         notifyDataSetChanged();
     }
 
@@ -154,37 +168,18 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
     }
 
     private void updatePatch(String key, String val) {
-        if(patch == null) {
-            //if no patch create
-            patch = new DCLocalePatch();
-        }
-        if(patch.getHashFile(subfile.getHash()) == null) {
-            //if no subfile add
-            patch.addSubfile(new DCLocalePatch.Subfile(subfile.getHash(), subfile.getLineType(), new LinkedHashMap<String, String>()));
-        }
-        if(patch.getHashFileDictValue(subfile.getHash(), key) != null) {
-            //if same as in patch
-            if(patch.getHashFileDictValue(subfile.getHash(), key).equals(val)) {
-                return;
-            }
-        }
-        //update entry in patch
-        if(val != null) {
-            patch.getHashFile(subfile.getHash()).setValue(key, val);
-        }else {
-            if(patch.getHashFile(subfile.getHash()) != null) {
-                patch.getHashFile(subfile.getHash()).delValue(key);
-                if(patch.getHashFileDict(subfile.getHash()).size() == 0) {
-                    patch.delSubfile(patch.getHashFile(subfile.getHash()));
-                }
-            }
-        }
-
         //notify about patch update
         if(onPatchChangedListener != null) onPatchChangedListener.onPatchChanged(patch, subfile, key, val);
+
+        //update inner patch
+        if(patch.getHashFile(subfile.getHash()) == null) {
+            patch.addSubfile(new DCLocalePatch.Subfile(subfile.getHash(), subfile.getLineType(), new LinkedHashMap<String, String>()));
+        }
+        patch.getHashFile(subfile.getHash()).setValue(key, val);
+
     }
 
-    private void resetSearchPanel() {
+    public void resetSearchPanel() {
         if(keyField != null)
             keyField.setText("");
         if(valField != null)
@@ -195,9 +190,19 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
             toggleTranslated.setChecked(true);
         if(toggleNonTranslated != null)
             toggleNonTranslated.setChecked(true);
+        getFilter().filter(null);
     }
 
     //overrides
+    @Override
+    public void notifyDataSetChanged() {
+        super.notifyDataSetChanged();
+        if(visibleLabel != null && subfile != null) {
+            visibleLabel.setText(String.format("Displaying %d ouf of %d", entries.size(), subfile.getDict().size()));
+        }
+    }
+
+    //getters
     @Override
     public int getCount() {
         return entries.size();
@@ -215,26 +220,15 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        //inflate view
         if(convertView == null) {
             convertView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                     .inflate(R.layout.item_keyvaluebox, parent, false);
             final ViewHolder holder = new ViewHolder();
             holder.keylabel = convertView.findViewById(R.id.key_label);
             holder.defaultfield = convertView.findViewById(R.id.default_field);
-            holder.translatedfield = convertView.findViewById(R.id.translated_field);
-            holder.watcher = new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            holder.popupfield = convertView.findViewById(R.id.popup_field);
 
-                }
-                @Override
-                public void afterTextChanged(Editable s) {
-                }
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    updatePatch(holder.keylabel.getText().toString(), s.toString());
-                }
-            };
             convertView.setTag(holder);
         }
 
@@ -242,37 +236,45 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
         final ViewHolder holder = (ViewHolder) convertView.getTag();
         final Map.Entry<String, String> entry = getItem(position);
 
-        //update views
+        //update key label
         holder.keylabel.setText(entry.getKey());
-        holder.translatedfield.removeTextChangedListener(holder.watcher);
-        holder.defaultfield.setText(entry.getValue());
-        if(patch != null) {
-            String formatted = patch.getHashFileDictValue(subfile.getHash(), entry.getKey());
-            holder.translatedfield.setText(formatted);
-        }else {
-            holder.translatedfield.setText("");
-        }
-        holder.translatedfield.addTextChangedListener(holder.watcher);
-        holder.translatedfield.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.keylabel.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public boolean onLongClick(View v) {
-                Toast.makeText(context, "Removed entry from patch!", Toast.LENGTH_SHORT).show();
-                if(v instanceof EditText) {
-                    ((EditText) v).setText("");
-                }
-                updatePatch(holder.keylabel.getText().toString(), null);
-
-                return true;
+            public boolean onLongClick(View view) {
+                Utils.translate(context, entry.getValue(), new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        if(e == null) {
+                            holder.popupfield.setText(result);
+                        }else {
+                            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+                return false;
             }
         });
+
+        //update value field
+        holder.defaultfield.setText(entry.getValue());
+
+        //update popup translated field
+        holder.popupfield.setDialogTitle(entry.getKey());
+        holder.popupfield.setText(patch.getHashFileDictValue(subfile.getHash(), entry.getKey()));
+        holder.popupfield.setOnTextChangedListener(new PopupEditText.OnTextChangedListener() {
+            @Override
+            public void onTextChanged(String text) {
+                if(!text.isEmpty()) updatePatch(entry.getKey(), text);
+            }
+        });
+
 
         return convertView;
     }
 
     static class ViewHolder {
         TextView keylabel, defaultfield;
-        EditText translatedfield;
-        TextWatcher watcher;
+        PopupEditText popupfield;
     }
 
     @Override
@@ -280,6 +282,7 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
         return new Filter() {
             @Override
             protected FilterResults performFiltering(CharSequence query) {
+                if(subfile == null) return null;
                 FilterResults results = new FilterResults();
                 List<Map.Entry<String, String>> filterList = new ArrayList<>();
                 for(Map.Entry<String, String> entry : subfile.getDict().entrySet()) {
@@ -291,19 +294,17 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
                         continue;
 
                     //load patch
-                    if(patch != null) {
-                        String patchValue = patch.getHashFileDictValue(subfile.getHash(), entry.getKey());
-                        if(patchValue != null) {
-                            //check toggle patch
-                            if(!showTranslated)
-                                continue;
-                            //check patch query
-                            if(!patchValue.toLowerCase().contains(patchQuery.toLowerCase()))
-                                continue;
-                        }else {
-                            if(!showNonTranslated)
-                                continue;
-                        }
+                    String patchValue = patch.getHashFileDictValue(subfile.getHash(), entry.getKey());
+                    if(patchValue != null) {
+                        //check toggle patch
+                        if(!showTranslated)
+                            continue;
+                        //check patch query
+                        if(!patchValue.toLowerCase().contains(patchQuery.toLowerCase()))
+                            continue;
+                    }else {
+                        if(!showNonTranslated)
+                            continue;
                     }
 
                     //add if checked
@@ -325,32 +326,5 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
                 }
             }
         };
-    }
-
-    @Override
-    public void notifyDataSetChanged() {
-        super.notifyDataSetChanged();
-        if(visibleLabel != null && subfile != null) {
-            int entryCount = 0, translatedCount = 0;
-            for(Map.Entry<String, String> entry : entries) {
-                entryCount+=1;
-                if(patch != null) {
-                    if(patch.getHashFileDictValue(subfile.getHash(), entry.getKey()) != null) {
-                        translatedCount+=1;
-                    }
-                }
-            }
-            int allEntries = 0, allTranslated = 0;
-            if(subfile.getDict() != null) {
-                allEntries = subfile.getDict().size();
-            }
-            if(patch != null) {
-                if(patch.getHashFileDict(subfile.getHash()) != null) {
-                    allTranslated = patch.getHashFileDict(subfile.getHash()).size();
-                }
-            }
-
-            visibleLabel.setText(String.format("Displaying %d/%d ouf of %d/%d", translatedCount, entryCount, allTranslated, allEntries));
-        }
     }
 }

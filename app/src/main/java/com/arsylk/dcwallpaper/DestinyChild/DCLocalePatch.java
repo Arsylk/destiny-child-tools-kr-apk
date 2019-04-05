@@ -71,6 +71,24 @@ public class DCLocalePatch {
         public LinkedHashMap<String, String> getDict() {
             return dict;
         }
+
+        public boolean queryDictKey(String queryKey) {
+            for(String key : dict.keySet()) {
+                if(key.toLowerCase().contains(queryKey.toLowerCase())) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public boolean queryDictVal(String queryVal) {
+            for(String val : dict.values()) {
+                if(val.toLowerCase().contains(queryVal.toLowerCase())) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
     private JSONObject patchJson = null;
     private String name = null, date = null;
@@ -120,6 +138,21 @@ public class DCLocalePatch {
     }
 
     //methods
+    public DCLocalePatch patch(DCLocalePatch patch) {
+        for(Subfile subfile : hashFiles.values()) {
+            Subfile patchSubfile = patch.getHashFile(subfile.getHash());
+            if(patchSubfile != null) {
+                for(Map.Entry<String, String> entry : subfile.getDict().entrySet()) {
+                    if(patchSubfile.getDict().containsKey(entry.getKey())) {
+                        subfile.setValue(entry.getKey(), patchSubfile.getValue(entry.getKey()));
+                    }
+                }
+            }
+        }
+
+        return this;
+    }
+
     public String generate() {
         try {
             JSONObject generated = new JSONObject();
@@ -206,5 +239,18 @@ public class DCLocalePatch {
 
     public String getDate() {
         return date;
+    }
+
+    //static
+    public static DCLocalePatch clone(DCLocalePatch object) {
+        if(object == null) return null;
+
+        DCLocalePatch objectClone = new DCLocalePatch();
+        objectClone.name = object.name;
+        objectClone.date = object.date;
+        for(Subfile subfile : object.getHashFiles().values())
+            objectClone.addSubfile(new Subfile(subfile.getHash(), subfile.getLineType(), new LinkedHashMap<>(subfile.getDict())));
+
+        return objectClone;
     }
 }

@@ -2,11 +2,17 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content">
+              android:layout_height="wrap_content"
+              android:paddingStart="@dimen/item_margin"
+              android:paddingLeft="@dimen/item_margin"
+              android:paddingEnd="@dimen/item_margin"
+              android:paddingRight="@dimen/item_margin">
 
     <TextView
             android:id="@+id/label"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:maxLines="1"/>
 
 </LinearLayout>

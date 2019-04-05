@@ -2,22 +2,32 @@ package com.arsylk.dcwallpaper.Adapters;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.text.Editable;
+import android.text.Html;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.TextView;
 import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
 import com.arsylk.dcwallpaper.R;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class LocaleSubfilesAdapter extends BaseAdapter {
     private Context context;
     private List<DCLocalePatch.Subfile> subfiles;
     private DCLocalePatch locale = null, patch = null;
     private int pickedPosition = -1;
+    private EditText keyField, valField, patchField;
+    private String keyQuery = "", valQuery = "", patchQuery = "";
 
     public LocaleSubfilesAdapter(Context context) {
         this.context = context;
@@ -27,13 +37,11 @@ public class LocaleSubfilesAdapter extends BaseAdapter {
     public void setLocale(DCLocalePatch locale) {
         this.locale = locale;
         this.subfiles = new ArrayList<>(locale.getHashFiles().values());
-
         notifyDataSetChanged();
     }
 
     public void applyPatch(DCLocalePatch patch) {
         this.patch = patch;
-
         notifyDataSetChanged();
     }
 
@@ -41,6 +49,61 @@ public class LocaleSubfilesAdapter extends BaseAdapter {
         this.pickedPosition = position;
         notifyDataSetChanged();
     }
+
+    public void setSearchPanel(View view) {
+        keyField = view.findViewById(R.id.search_key_field);
+        keyField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                keyQuery = s.toString();
+                notifyDataSetChanged();
+            }
+        });
+
+        valField = view.findViewById(R.id.search_val_field);
+        valField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                valQuery = s.toString();
+                notifyDataSetChanged();
+            }
+        });
+
+        patchField = view.findViewById(R.id.search_patch_field);
+        patchField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                patchQuery = s.toString();
+                notifyDataSetChanged();
+            }
+        });
+
+    }
+
 
     @Override
     public int getCount() {
@@ -69,9 +132,11 @@ public class LocaleSubfilesAdapter extends BaseAdapter {
             convertView.setTag(holder);
         }
 
+        //get holder and subfile
         DCLocalePatch.Subfile subfile = getItem(position);
         ViewHolder holder = (ViewHolder) convertView.getTag();
 
+        //update views
         convertView.setBackgroundColor(position == pickedPosition ? Color.DKGRAY : Color.TRANSPARENT);
         holder.label.setText(subfile.getHash().toUpperCase());
         if(patch != null) {
@@ -79,7 +144,14 @@ public class LocaleSubfilesAdapter extends BaseAdapter {
         }else {
             holder.sublabel.setText("Files: "+subfile.getDict().size()+"");
         }
-        holder.indexlabel.setText(String.valueOf(position+1));
+        holder.indexlabel.setText(String.valueOf(position));
+
+        //mark query
+        if(!keyQuery.isEmpty() || !valQuery.isEmpty()) {
+            holder.label.setAlpha((subfile.queryDictKey(keyQuery) && subfile.queryDictVal(valQuery)) ? 1.0f : 0.5f);
+        }else {
+            holder.label.setAlpha(1.0f);
+        }
 
         return convertView;
     }

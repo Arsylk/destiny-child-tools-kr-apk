@@ -353,34 +353,28 @@ public class DCTools {
 
 
     //english patcher
-    public static void asyncEnglishPatch(File src, Context context) {
-        new AsyncPatch(context, true).execute(src);
+    public static void asyncEnglishPatchLocale(File file_locale, Context context) {
+        new AsyncPatch(context, true).execute(file_locale);
     }
 
-    public static void englishPatch(File src_locale_file, Context context) throws Exception {
-        //fileLoad locale.pck
-        DCLocale src_locale = new DCLocale(unpack(src_locale_file, context));
+    public static void patchLocale(File file_locale, DCLocalePatch patch, Context context) throws Exception {
+        //load and patch locale
+        DCLocale locale = new DCLocale(DCTools.unpack(file_locale, context));
+        locale.patch(patch);
 
-        //patch locale
-        src_locale.patch(context);
-
-        //new files
-        File new_locale_file = pack(src_locale.getOutput(), new File(src_locale.getOutput(), src_locale.getSrc().getName()), context);
-        File bak_locale_file = new File(src_locale_file.getParentFile(), src_locale_file.getName()+".bak");
-
-        //remove old backup
-        if(bak_locale_file.exists()) {
-            FileUtils.deleteQuietly(bak_locale_file);
+        //move files
+        File file_backup = new File(file_locale.getParentFile(), "locale_"+Utils.getDateLabel(true)+".pck.bak");
+        if(!file_backup.exists()) {
+            FileUtils.moveFile(file_locale, file_backup);
+        }else {
+            FileUtils.forceDelete(file_locale);
         }
 
-        //source to backup
-        FileUtils.moveFile(src_locale_file, bak_locale_file);
-
-        //new to source
-        FileUtils.moveFile(new_locale_file, src_locale_file);
+        //move patched file
+        File packed_locale = DCTools.pack(locale.getOutput(), file_locale, context);
 
         //write new md5's
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putString("locale_md5", Utils.md5(src_locale_file)).commit();
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putString("locale_md5", Utils.md5(file_locale)).commit();
         Log.d("mTag:Patch", "Patched locale!");
     }
 

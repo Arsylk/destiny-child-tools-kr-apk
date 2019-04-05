@@ -22,7 +22,7 @@ public class AsyncWikiCache extends AsyncWithDialog<DCWiki, DCWiki.Page, DCWiki>
         try {
             dialog.setMessage(String.format("%s <> %d/%d",
                     values[0].getModelId(),
-                    dcWiki.getWikiPages().indexOf(values[0]),
+                    dcWiki.getWikiPages().indexOf(values[0])+1,
                     dcWiki.getWikiPages().size()));
         }catch(Exception e){
             e.printStackTrace();

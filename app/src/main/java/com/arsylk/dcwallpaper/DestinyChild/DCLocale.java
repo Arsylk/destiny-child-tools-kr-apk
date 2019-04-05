@@ -1,12 +1,8 @@
 package com.arsylk.dcwallpaper.DestinyChild;
 
-import android.content.Context;
 import android.util.Log;
-import com.arsylk.dcwallpaper.utils.Define;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -48,37 +44,26 @@ public class DCLocale extends Pck {
         }
     }
 
-    public void patch(Context context) throws Exception {
-        //get patch
-        DCLocalePatch patch = LoadAssets.getDCEnglishPatch();
-        JSONObject jsonPatch = patch.getJson();
-
-        //TODO rework
-        //fileLoad full json
-        if(jsonPatch == null || !jsonPatch.has("files"))
-            return;
-        //get files array
-        JSONObject patch_files = jsonPatch.getJSONObject("files");
+    public void patch(DCLocalePatch patch) throws Exception {
+        //iter over pck files
         for(PckFile pckFile : files) {
             String hash = Utils.bytesToHex(pckFile.getHash()).toLowerCase();
-            //only fileLoad if hash in json
-            if(patch_files.has(hash)) {
-                //get file dict
-                JSONObject patch_file = patch_files.getJSONObject(hash);
-                if(patch_file.has("dict")) {
-                    //fileLoad file to map
-                    Map<String, String> map = loadFile(pckFile);
-                    //iter over dict
-                    JSONObject patch_file_dict = patch_file.getJSONObject("dict");
-                    Iterator<String> keys = patch_file_dict.keys();
-                    while(keys.hasNext()) {
-                        //update map values
-                        String key = keys.next(), value = patch_file_dict.getString(key);
-                        map.put(key, value);
+            DCLocalePatch.Subfile subfile = patch.getHashFile(hash);
+            if(subfile != null) {
+                //pck file to map
+                LinkedHashMap<String, String> defaultDict = loadFile(pckFile);
+                //subfile to map
+                LinkedHashMap<String, String> patchDict = subfile.getDict();
+
+                //replace values found in patch
+                for(Map.Entry<String,String> defaultEntry : defaultDict.entrySet()) {
+                    if(patchDict.containsKey(defaultEntry.getKey())) {
+                        defaultDict.put(defaultEntry.getKey(), patchDict.get(defaultEntry.getKey()));
                     }
-                    //save file with updated map
-                    saveFile(pckFile, map);
                 }
+
+                //save file with updated map
+                saveFile(pckFile, defaultDict);
             }
         }
     }
@@ -87,10 +72,14 @@ public class DCLocale extends Pck {
         LinkedHashMap<String, String> map = new LinkedHashMap<>();
         Log.d("mTag:Read","Reading: "+pckFile.getFile().getName());
         try {
-            BufferedReader br = new BufferedReader(new FileReader(pckFile.getFile()));
-            String line;
+            List<String> lines = FileUtils.readLines(pckFile.getFile(), Charset.forName("utf-8"));
             Pattern pattern = null;
-            while((line = br.readLine()) != null) {
+            for(String line : lines) {
+                if(line.length() > 1) {
+                    if(line.startsWith("/") || line.substring(1).startsWith("/")) {
+                        continue;
+                    }
+                }
                 if(pattern == null) {
                     if(line.contains("=")) {
                         if(LOCALE_DEF_LINE_PATTERN.matcher(line).matches()) {

@@ -14,15 +14,23 @@ import android.os.Build;
 import android.os.Environment;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Toast;
+import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.activities.MainActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -34,6 +42,7 @@ import java.nio.*;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
@@ -418,6 +427,10 @@ public class Utils {
     /*callback end*/
 
     /*date start*/
+    public static String getDateLabel(boolean shortLabel) {
+        return new SimpleDateFormat(shortLabel ? "dd-MM-yyyy" : "HH-mm_dd-MM-yyyy", Locale.ENGLISH).format(Calendar.getInstance().getTime());
+    }
+
     public static String betweenDates(Date startDate, Date endDate) {
         //milliseconds
         long different = endDate.getTime() - startDate.getTime();
@@ -491,16 +504,57 @@ public class Utils {
     /*input start*/
     public static void dismissKeyboard(Context context) {
         try {
-            InputMethodManager imm = (InputMethodManager) context.getSystemService(INPUT_METHOD_SERVICE);
-
-            if(imm.isAcceptingText()) {
-                imm.hideSoftInputFromWindow(((Activity) context).getCurrentFocus().getWindowToken(), 0);
+            InputMethodManager imm = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+            //Find the currently focused view, so we can grab the correct window token from it.
+            View view = ((Activity) context).getCurrentFocus();
+            //If no view currently has focus, create a new one, just so we can grab a window token from it
+            if (view == null) {
+                view = new View(context);
             }
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }catch(Exception e) {
             e.printStackTrace();
         }
     }
+
     /*input end*/
+
+    /*translate start*/
+    public static void translate(Context context, String textInKr, final FutureCallback<String> callback) {
+        new AsyncWithDialog<String, Void, JSONObject>(context, true, "Loading..."){
+            @Override
+            protected JSONObject doInBackground(String... strings) {
+                try {
+                    Document doc = Jsoup.connect("https://openapi.naver.com/v1/papago/n2mt")
+                            .header("Content-Type", "application/x-www-form-urlencoded; charset = UTF-8")
+                            .header("X-Naver-Client-Id", "1jiJsHzsjLWhrVlhILSr")
+                            .header("X-Naver-Client-Secret", "QSRF3gsLOi")
+                            .postDataCharset("utf-8")
+                            .data("source", "ko")
+                            .data("target", "en")
+                            .data("text", strings[0])
+                            .ignoreContentType(true)
+                            .ignoreHttpErrors(true)
+                            .post();
+                    return new JSONObject(doc.body().text());
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(JSONObject response) {
+                super.onPostExecute(response);
+                try {
+                    callback.onCompleted(null, response.getJSONObject("message").getJSONObject("result").getString("translatedText"));
+                }catch(Exception e) {
+                    callback.onCompleted(e, null);
+                }
+            }
+        }.execute(textInKr);
+    }
+    /*translate end*/
 
     /*widget preference start*/
     public static SharedPreferences widgetPref(Context context, int widgetId) {

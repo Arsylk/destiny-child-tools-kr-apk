@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/menu_load_locale" android:title="Load locale"/>
+    <item android:id="@+id/menu_load_locale" android:title="Load locale" android:visible="false"/>
     <item android:id="@+id/menu_load_patch" android:title="Load patch"/>
-    <item android:id="@+id/menu_show_patch" android:title="Show patch"/>
-    <item android:id="@+id/menu_show_patchNew" android:title="Show patch new"/>
-    <item android:id="@+id/menu_show_locale" android:title="Show locale"/>
-    <item android:id="@+id/menu_show_patchLocale" android:title="Show patched locale"/>
+    <item android:id="@+id/menu_show_patches" android:title="Show patches"/>
+    <item android:id="@+id/menu_apply_patch" android:title="Apply patch"/>
     <item android:id="@+id/menu_show_upload" android:title="Upload patch"/>
 </menu>
