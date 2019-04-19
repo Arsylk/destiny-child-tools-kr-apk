@@ -98,6 +98,16 @@ public class DCLocale extends Pck {
                     Matcher matcher = pattern.matcher(line);
                     if(matcher.matches()) {
                         map.put(matcher.group(1), matcher.group(2));
+                    }else if(pattern == LOCALE_DEF_LINE_PATTERN){
+                        //ghetto fix for broken lines
+                        if(line.contains("=")) {
+                            int index = line.indexOf("=");
+                            String key = line.substring(0, index).trim();
+                            String val = line.substring(index+1).trim();
+                            if(val.charAt(0) == '"') val = val.substring(1);
+                            if(val.charAt(val.length()-1) == '"') val = val.substring(0, val.length()-1);
+                            map.put(key, val);
+                        }
                     }
                 }
             }

@@ -198,7 +198,7 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
     public void notifyDataSetChanged() {
         super.notifyDataSetChanged();
         if(visibleLabel != null && subfile != null) {
-            visibleLabel.setText(String.format("Displaying %d ouf of %d", entries.size(), subfile.getDict().size()));
+            visibleLabel.setText(String.format("Displaying %d out of %d", entries.size(), subfile.getDict().size()));
         }
     }
 
