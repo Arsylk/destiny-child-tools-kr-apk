@@ -86,7 +86,7 @@ public class DCWikiActivity extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 item.setChecked(!item.isChecked());
-                item.getIcon().setAlpha(item.getIcon().getAlpha() == 255 ? 127 : 255);
+                item.getIcon().setAlpha(item.isChecked() ? 127 : 255);
                 if(adapter != null)
                     adapter.toggleParameter(item.getItemId());
                 return false;

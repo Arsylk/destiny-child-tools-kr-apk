@@ -204,9 +204,10 @@ public class DCSwapActivity extends AppCompatActivity {
         }
 
 
-        //update _model
+        //update _model & model.json
         String fromId, toId;
-        try(FileOutputStream fos = new FileOutputStream(new File(swapOutput, "_model"))) {
+        try {
+            FileOutputStream fos = new FileOutputStream(new File(swapOutput, "_model"));
             JSONObject toModelJson = Utils.fileToJson(new File(toOutput, "_model"));
             fromId = Utils.fileToJson(new File(fromOutput, "_model")).getString("model_id");
             toId = toModelJson.getString("model_id");
@@ -214,12 +215,14 @@ public class DCSwapActivity extends AppCompatActivity {
             fos.write(toModelJson.toString(4).getBytes());
             fos.flush();
             fos.close();
-        }
 
-        //update model.json
-        try(FileOutputStream fos = new FileOutputStream(new File(swapOutput, "model.json"), false)) {
+            fos = new FileOutputStream(new File(swapOutput, "model.json"), false);
             JSONObject modelJson = Utils.fileToJson(new File(toOutput, "model.json"));
             fos.write(modelJson.toString(4).replaceAll(fromId, toId).getBytes());
+            fos.flush();
+            fos.close();
+        }catch(Exception e) {
+            e.printStackTrace();
         }
 
         //copy preview

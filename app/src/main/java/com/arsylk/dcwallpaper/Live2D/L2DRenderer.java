@@ -269,9 +269,12 @@ public class L2DRenderer implements GLSurfaceView.Renderer {
                 Bitmap test = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);
                 new Canvas(test).drawColor(Color.WHITE);
                 test.compress(Bitmap.CompressFormat.PNG, 0, bos);
-                try(FileOutputStream fos = new FileOutputStream(bg_file)) {
+                try {
+                    FileOutputStream fos = new FileOutputStream(bg_file);
                     bos.writeTo(fos);
                     fos.close();
+                }catch(Exception e) {
+                    e.printStackTrace();
                 }
                 test.recycle();
             }

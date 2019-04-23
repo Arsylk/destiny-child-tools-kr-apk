@@ -27,10 +27,10 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-                android:paddingLeft="?android:attr/listPreferredItemPaddingStart"
-                android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-                android:paddingRight="?android:attr/listPreferredItemPaddingEnd"
+                android:paddingStart="?android:attr/listPreferredItemPaddingLeft"
+                android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+                android:paddingEnd="?android:attr/listPreferredItemPaddingRight"
+                android:paddingRight="?android:attr/listPreferredItemPaddingRight"
                 android:minHeight="?android:attr/listPreferredItemHeightSmall"/>
 
 
@@ -40,10 +40,10 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-                android:paddingLeft="?android:attr/listPreferredItemPaddingStart"
-                android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-                android:paddingRight="?android:attr/listPreferredItemPaddingEnd"
+                android:paddingStart="?android:attr/listPreferredItemPaddingLeft"
+                android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+                android:paddingEnd="?android:attr/listPreferredItemPaddingRight"
+                android:paddingRight="?android:attr/listPreferredItemPaddingRight"
                 android:minHeight="?android:attr/listPreferredItemHeightSmall"
                 android:text="=>"/>
 
@@ -54,10 +54,10 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:textAppearance="?android:attr/textAppearanceListItemSmall"
-                android:paddingStart="?android:attr/listPreferredItemPaddingStart"
-                android:paddingLeft="?android:attr/listPreferredItemPaddingStart"
-                android:paddingEnd="?android:attr/listPreferredItemPaddingEnd"
-                android:paddingRight="?android:attr/listPreferredItemPaddingEnd"
+                android:paddingStart="?android:attr/listPreferredItemPaddingLeft"
+                android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
+                android:paddingEnd="?android:attr/listPreferredItemPaddingRight"
+                android:paddingRight="?android:attr/listPreferredItemPaddingRight"
                 android:minHeight="?android:attr/listPreferredItemHeightSmall"/>
 
     </LinearLayout>

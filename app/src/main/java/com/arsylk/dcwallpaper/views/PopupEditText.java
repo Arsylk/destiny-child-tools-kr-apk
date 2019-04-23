@@ -2,7 +2,7 @@ package com.arsylk.dcwallpaper.views;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.*;
@@ -59,7 +59,7 @@ public class PopupEditText extends android.support.v7.widget.AppCompatTextView i
             }
         };
         editText.setGravity(Gravity.TOP | Gravity.START);
-        editText.setBackground(null);
+        editText.setBackgroundColor(Color.TRANSPARENT);
 
         ((RelativeLayout) dialogView.findViewById(R.id.placeholder_layout))
                 .addView(editText, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));

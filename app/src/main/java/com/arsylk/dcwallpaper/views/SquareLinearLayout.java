@@ -24,11 +24,6 @@ public class SquareLinearLayout extends LinearLayout {
         applyAttributeSet(attrs);
     }
 
-    public SquareLinearLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        applyAttributeSet(attrs);
-    }
-
     private void applyAttributeSet(AttributeSet attrs) {
         TypedArray a = getContext().getTheme().obtainStyledAttributes(attrs, R.styleable.SquareLinearLayout, 0, 0);
         try {
