@@ -65,7 +65,8 @@
         <activity
                 android:name=".activities.LocaleTranslateActivity"
                 android:label="Locale Translate"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
+                android:theme="@style/Theme.AppCompat.NoActionBar"
+                android:configChanges="orientation|keyboardHidden">
         </activity>
 
         <activity

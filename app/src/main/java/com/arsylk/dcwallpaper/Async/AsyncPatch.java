@@ -30,10 +30,10 @@ public class AsyncPatch extends AsyncTask<File, Void, Void> {
         if(showGui) {
             dialog = new AlertDialog.Builder(context)
                     .setTitle("Patching locale...")
-                    .setItems(new String[]{"Support TinyBanana (@bcarter18) on paypal!!!"}, new DialogInterface.OnClickListener() {
+                    .setItems(new String[]{"Join our discord!!!"}, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://www.paypal.me/bcarter18")));
+                            context.startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://discord.gg/wDdq7C8")));
                         }
                     })
                     .setPositiveButton("Close", new DialogInterface.OnClickListener() {

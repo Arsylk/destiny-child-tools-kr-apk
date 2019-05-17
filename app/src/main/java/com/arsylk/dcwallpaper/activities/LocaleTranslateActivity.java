@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.arsylk.dcwallpaper.Adapters.LocaleSubfilesAdapter;
@@ -24,6 +26,7 @@ import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.views.BigTextDialog;
+import com.arsylk.dcwallpaper.views.InputTextDialog;
 import com.arsylk.dcwallpaper.views.PickWhichDialog;
 import com.arsylk.dcwallpaper.views.ResolveConflictsDialog;
 import com.koushikdutta.ion.Ion;
@@ -71,6 +74,12 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Toast.makeText(context, "Orientation: "+newConfig.orientation, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.translate_menu, menu);
         return super.onCreateOptionsMenu(menu);
@@ -86,13 +95,28 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
                 showLoadPatches();
                 return true;
             case R.id.menu_show_patches:
-                showPickPatches();
+                showPickPatches(new PickWhichDialog.Option.OnOptionPicked<DCLocalePatch>() {
+                    @Override
+                    public void onOptionPicked(PickWhichDialog.Option<DCLocalePatch> option) {
+                        if(option != null) {
+                            new BigTextDialog(context, option.getLabel(), option.getObject().generate()).show();
+                        }
+                    }
+                });
                 return true;
             case R.id.menu_apply_patch:
                 showApplyPatches();
                 return true;
             case R.id.menu_show_upload:
-                uploadPatchLocale(patchedNew);
+                showPickPatches(new PickWhichDialog.Option.OnOptionPicked<DCLocalePatch>() {
+                    @Override
+                    public void onOptionPicked(PickWhichDialog.Option<DCLocalePatch> option) {
+                        if(option != null) {
+                            //upload picked patch
+                            uploadPatchLocale(option.getObject());
+                        }
+                    }
+                });
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -232,7 +256,7 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
         }).show();
     }
 
-    private void showPickPatches() {
+    private void showPickPatches(PickWhichDialog.Option.OnOptionPicked<DCLocalePatch> onOptionPicked) {
         //create options
         List<PickWhichDialog.Option<DCLocalePatch>> options = new ArrayList<>();
         options.add(new PickWhichDialog.Option<DCLocalePatch>("patch full", patched));
@@ -242,15 +266,7 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
 
         //show option pick dialog
         new PickWhichDialog<DCLocalePatch>(context, options)
-            .setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<DCLocalePatch>() {
-                @Override
-                public void onOptionPicked(PickWhichDialog.Option<DCLocalePatch> option) {
-                if(option != null) {
-                    //show dialog with text
-                    new BigTextDialog(context, option.getLabel(), option.getObject().generate()).show();
-                }
-                }
-        }).show();
+            .setOnOptionPicked(onOptionPicked).show();
     }
 
     private void showApplyPatches() {
@@ -394,38 +410,46 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
     }
 
     private void uploadPatchLocale(final DCLocalePatch patch) {
-        new AsyncWithDialog<Void, Long, Boolean>(context, true, "Uploading...") {
+        //password dialog
+        new InputTextDialog(context, "Input", "Password", new InputTextDialog.OnInputSubmitted() {
             @Override
-            protected void onProgressUpdate(Long... values) {
-                if(values.length > 1) {
-                    dialog.setMessage("Uploading: "+(values[0].floatValue()/values[1].floatValue())*100+"%");
-                }
-            }
+            public void onInputSubmitted(final String text) {
+                new AsyncWithDialog<Void, Long, Boolean>(context, true, "Uploading...") {
+                    @Override
+                    protected void onProgressUpdate(Long... values) {
+                        if(values.length > 1) {
+                            dialog.setMessage("Uploading: "+(values[0].floatValue()/values[1].floatValue())*100+"%");
+                        }
+                    }
 
-            @Override
-            protected Boolean doInBackground(Void... voids) {
-                try {
-                    Ion.with(context).load(Define.UPLOAD_COMMUNITY_PATCH)
-                            .uploadProgress(new ProgressCallback() {
-                                @Override
-                                public void onProgress(long uploaded, long total) {
-                                    publishProgress(uploaded, total);
-                                }
-                            })
-                            .setBodyParameter("json", patch.generate())
-                            .asString().get();
-                    return true;
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
-                return false;
-            }
+                    @Override
+                    protected Boolean doInBackground(Void... voids) {
+                        try {
+                            String response = Ion.with(context).load(Define.UPLOAD_COMMUNITY_PATCH)
+                                    .uploadProgress(new ProgressCallback() {
+                                        @Override
+                                        public void onProgress(long uploaded, long total) {
+                                            publishProgress(uploaded, total);
+                                        }
+                                    })
+                                    .setBodyParameter("key", text)
+                                    .setBodyParameter("json", patch.generate())
+                                    .asString().get();
+                            Log.d("mTag:Upload", response);
+                            return true;
+                        }catch(Exception e) {
+                            e.printStackTrace();
+                        }
+                        return false;
+                    }
 
-            @Override
-            protected void onPostExecute(Boolean successful) {
-                super.onPostExecute(successful);
-                Toast.makeText(context, successful ? "Upload finished!" : "Upload failed!", Toast.LENGTH_SHORT).show();
+                    @Override
+                    protected void onPostExecute(Boolean successful) {
+                        super.onPostExecute(successful);
+                        Toast.makeText(context, successful ? "Upload finished!" : "Upload failed!", Toast.LENGTH_SHORT).show();
+                    }
+                }.execute();
             }
-        }.execute();
+        }).show();
     }
 }

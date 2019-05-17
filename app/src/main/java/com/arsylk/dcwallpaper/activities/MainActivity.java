@@ -9,9 +9,11 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,12 +33,17 @@ import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
+import com.arsylk.dcwallpaper.views.BigTextDialog;
+import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.ProgressCallback;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
 import java.io.File;
-import java.nio.charset.Charset;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.Locale;
 
 import static com.arsylk.dcwallpaper.utils.Define.REQUEST_FILE_PACK;
 import static com.arsylk.dcwallpaper.utils.Define.REQUEST_FILE_UNPACK;
@@ -92,9 +99,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+
+        //setup apk-wide settings
+        Locale.setDefault(Locale.US);
+        getBaseContext().getResources().getConfiguration().setLocale(Locale.US);
         Utils.requestPermission(context);
         Utils.initDirectories();
         Ion.getDefault(context).getConscryptMiddleware().enable(false);
+
+        //init activity
         initViews();
         if(!handleIntent()) {
             //check for updates
