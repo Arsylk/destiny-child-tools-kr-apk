@@ -37,7 +37,7 @@ public class AsyncAnnouncements extends AsyncWithDialog<Integer, DCAnnouncementI
         try {
             Document document = Jsoup.connect("https://m.cafe.naver.com/NoticeList.nhn?search.clubid=27917479").get();
             Elements elements = document.select("#articleListArea > ul.list_area li.board_box");
-            publishProgress(null);
+            publishProgress();
             for(Element element : elements) {
                 String id, title, url, author, date, views, thumb = null;
                 id = element.selectFirst("a[href]").attr("data-article-id");

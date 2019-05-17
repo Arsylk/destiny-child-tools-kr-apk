@@ -1,5 +1,6 @@
 package com.arsylk.dcwallpaper.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncemen
         if(autoLoad) loadAnnouncements();
     }
 
+    @SuppressLint("InflateParams")
     public View getLoaderView() {
         if(loaderView == null) {
             loaderView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
@@ -50,7 +52,7 @@ public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncemen
 
     @Override
     public void onProgressUpdate(DCAnnouncementItem... announcements) {
-        if(announcements == null) {
+        if(announcements.length == 0) {
             announcementList.clear();
             return;
         }
