@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
+            android:layout_width="match_parent"
               android:layout_height="match_parent">
 
     <LinearLayout
@@ -14,7 +14,7 @@
                 android:text="Background path:"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"/>
+                android:textSize="16sp" />
 
         <EditText
                 android:id="@+id/input_bg_path"
@@ -35,21 +35,21 @@
                     android:id="@+id/radio_bg_0"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
             <RadioButton
                     android:text="Fit X"
                     android:id="@+id/radio_bg_1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
             <RadioButton
                     android:text="Fit Y"
                     android:id="@+id/radio_bg_2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
         </LinearLayout>
 
@@ -63,7 +63,7 @@
                     android:text="Scale:"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
 
             <EditText
                     android:id="@+id/input_scale"
@@ -76,7 +76,7 @@
                     android:text="Offset X:"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
 
             <EditText
                     android:id="@+id/input_offset_x"
@@ -89,7 +89,7 @@
                     android:text="Offset Y:"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"/>
+                    android:textSize="16sp" />
 
             <EditText
                     android:id="@+id/input_offset_y"
@@ -112,21 +112,21 @@
                     android:id="@+id/check_animated"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
             <CheckBox
                     android:text="Tappable"
                     android:id="@+id/check_tappable"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
             <CheckBox
                     android:text="Sounds"
                     android:id="@+id/check_sounds"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
         </LinearLayout>
 

@@ -9,7 +9,7 @@
             android:text="Model name:"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
     <EditText
             android:id="@+id/input_name"
@@ -17,13 +17,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
-            android:inputType="text"/>
+            android:inputType="text" />
 
     <TextView
             android:text="Model id:"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
     <EditText
             android:id="@+id/input_id"
@@ -31,13 +31,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
-            android:inputType="textNoSuggestions"/>
+            android:inputType="textNoSuggestions" />
 
     <TextView
             android:text="Folder name:"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
     <EditText
             android:id="@+id/input_folder"
@@ -45,7 +45,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
-            android:inputType="textNoSuggestions"/>
+            android:inputType="textNoSuggestions" />
 
 
 

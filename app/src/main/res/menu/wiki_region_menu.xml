@@ -6,11 +6,11 @@
           android:icon="@drawable/ic_flag_kr"
           android:title="Korea"
           app:showAsAction="always"
-          android:enabled="false"/>
+          android:enabled="false" />
 
     <item android:id="@+id/wiki_region_jp"
           android:icon="@drawable/ic_flag_jp"
           android:title="Japan"
           app:showAsAction="always"
-          android:visible="false"/>
+          android:visible="false" />
 </menu>

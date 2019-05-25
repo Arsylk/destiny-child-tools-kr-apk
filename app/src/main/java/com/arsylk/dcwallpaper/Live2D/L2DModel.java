@@ -15,7 +15,7 @@ public class L2DModel {
     private List<File> textures;
     private Map<String, String> motions;
     private String modelName, modelId;
-    private JSONObject _modelJson = null;
+    private JSONObject _modelJson = null, infoJson = null;
 
     public L2DModel(String model) {
         load(new File(model));
@@ -46,6 +46,13 @@ public class L2DModel {
                             e.printStackTrace();
                         }
                     }
+                    if(_modelJson.has("model_info")) {
+                        try {
+                            this.infoJson = _modelJson.getJSONObject("model_info");
+                        }catch(Exception e) {
+                            return;
+                        }
+                    }
                 }
             }
         }
@@ -62,6 +69,10 @@ public class L2DModel {
 
     public JSONObject getModelConfigJson() {
         return _modelJson != null ? _modelJson : new JSONObject();
+    }
+
+    public JSONObject getModelInfoJson() {
+        return infoJson != null ? infoJson : new JSONObject();
     }
 
     public File getModel() {

@@ -45,7 +45,7 @@
                 android:paddingEnd="?android:attr/listPreferredItemPaddingRight"
                 android:paddingRight="?android:attr/listPreferredItemPaddingRight"
                 android:minHeight="?android:attr/listPreferredItemHeightSmall"
-                android:text="=>"/>
+                android:text="=>" />
 
         <TextView
                 android:id="@+id/label_right"

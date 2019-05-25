@@ -87,7 +87,7 @@
                                 android:inputType="text"
                                 android:lines="1"
                                 android:maxLines="1"
-                                android:hint="Search key..."/>
+                                android:hint="Search key..." />
 
                         <EditText
                                 android:id="@+id/search_val_field"
@@ -97,7 +97,7 @@
                                 android:inputType="text"
                                 android:lines="1"
                                 android:maxLines="1"
-                                android:hint="Search value..."/>
+                                android:hint="Search value..." />
 
                     </LinearLayout>
 
@@ -114,7 +114,7 @@
                                 android:inputType="text"
                                 android:lines="1"
                                 android:maxLines="1"
-                                android:hint="Search patch..."/>
+                                android:hint="Search patch..." />
 
                         <ToggleButton
                                 android:id="@+id/toggle_translated"
@@ -127,7 +127,7 @@
                                 android:layout_weight="1"
                                 android:textOn="Hide patched"
                                 android:textOff="Show patched"
-                                android:text="Show translated"/>
+                                android:text="Show translated" />
 
                         <ToggleButton
                                 android:id="@+id/toggle_non_translated"
@@ -140,7 +140,7 @@
                                 android:layout_weight="1"
                                 android:textOn="Hide empty"
                                 android:textOff="Show empty"
-                                android:text="Show non translated"/>
+                                android:text="Show non translated" />
 
                     </LinearLayout>
 

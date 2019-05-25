@@ -1,61 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Elements" android:menuCategory="container">
+    <item android:title="Elements" android:menuCategory="container" >
         <menu>
 
                 <item
                         android:id="@+id/search_element_fire"
                         android:icon="@drawable/ic_element_fire"
-                        android:title="Fire"/>
+                        android:title="Fire" />
 
                 <item
                         android:id="@+id/search_element_water"
                         android:icon="@drawable/ic_element_water"
-                        android:title="Water"/>
+                        android:title="Water" />
 
                 <item
                         android:id="@+id/search_element_wind"
                         android:icon="@drawable/ic_element_wind"
-                        android:title="Wind"/>
+                        android:title="Wind" />
 
                 <item
                         android:id="@+id/search_element_light"
                         android:icon="@drawable/ic_element_light"
-                        android:title="Light"/>
+                        android:title="Light" />
                 <item
                         android:id="@+id/search_element_dark"
                         android:icon="@drawable/ic_element_dark"
-                        android:title="Dark"/>
+                        android:title="Dark" />
         </menu>
     </item>
 
-    <item android:title="Types" android:menuCategory="container">
+    <item android:title="Types" android:menuCategory="container" >
         <menu>
             <group android:id="@+id/group2" android:checkableBehavior="single">
                 <item
                         android:id="@+id/search_type_attacker"
                         android:icon="@drawable/ic_type_attacker"
-                        android:title="Attacker"/>
+                        android:title="Attacker" />
 
                 <item
                         android:id="@+id/search_type_tank"
                         android:icon="@drawable/ic_type_tank"
-                        android:title="Tank"/>
+                        android:title="Tank" />
 
                 <item
                         android:id="@+id/search_type_healer"
                         android:icon="@drawable/ic_type_healer"
-                        android:title="Healer"/>
+                        android:title="Healer" />
 
                 <item
                         android:id="@+id/search_type_debuffer"
                         android:icon="@drawable/ic_type_debuffer"
-                        android:title="Debuffer"/>
+                        android:title="Debuffer" />
                 <item
                         android:id="@+id/search_type_support"
                         android:icon="@drawable/ic_type_support"
-                        android:title="Support"/>
+                        android:title="Support" />
             </group>
         </menu>
     </item>

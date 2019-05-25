@@ -51,6 +51,7 @@ public class DCWikiPageActivity extends AppCompatActivity implements FutureCallb
     public void onCompleted(Exception e, DCWiki.Page result) {
         if(e == null) {
             Log.d("mTag:Wiki", "Found wiki page");
+            Log.d("mTag:Wiki", result.getKrName()+" - "+result.getName());
             wikiItem = result;
             runOnUiThread(new Runnable() {
                 @Override

@@ -1,13 +1,12 @@
 package com.arsylk.dcwallpaper.DestinyChild;
 
-import android.util.Log;
+import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.util.*;
 
@@ -108,6 +107,7 @@ public class DCModel extends Pck {
             return isLoaded() ? expressions : null;
         }
     }
+
     private boolean loaded = false;
     private DCModelJson modelJson;
     private PckFile modelFile;
@@ -117,7 +117,7 @@ public class DCModel extends Pck {
 
     public DCModel(Pck pck) {
         super(pck);
-        this.loaded = loadAsModel();
+        loaded = loadAsModel();
         generateHeader();
     }
 
@@ -257,7 +257,10 @@ public class DCModel extends Pck {
                 output = output.getParentFile();
             }
             FileUtils.write(new File(output, "_model"),
-                    new JSONObject().put("model_id", modelId).put("model_name", name)
+                    new JSONObject()
+                            .put("model_id", modelId)
+                            .put("model_name", name)
+                            .put("model_info", LoadAssets.getDCModelInfoInstance().getModelInfo(modelId))
                             .toString(4), Charset.forName("utf-8"));
         }catch(Exception e) {
             e.printStackTrace();

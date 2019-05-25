@@ -61,9 +61,7 @@ public class L2DModelsAdapter extends BaseAdapter {
 
         label.setText(item.getModelName());
         sublabel.setText(item.getModelId());
-        if(item.getPreview() != null) {
-            imglabel.setImageBitmap(item.getPreview());
-        }
+        imglabel.setImageBitmap(item.getPreview());
 
         return convertView;
     }

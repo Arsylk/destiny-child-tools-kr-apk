@@ -1,72 +1,73 @@
 package com.arsylk.dcwallpaper.Adapters;
 
-import com.google.gson.JsonObject;
+import android.graphics.Bitmap;
+import com.arsylk.dcwallpaper.utils.Define;
+import org.json.JSONObject;
+
+import java.util.Locale;
+
 
 public class OnlineModelItem {
-    private JsonObject json;
-    private String fileModel, filePreview;
-    private String modTitle, modCreator, modDescription;
-    private String modelRegion, modelId;
+    private String modelUrl = null, previewUrl = null;
+    private int id;
+    private String modelId;
+    private String modelName, creator, description;
     private float modelScale, modelOffsetX, modelOffsetY;
+    private Bitmap bitmap = null;
 
     //constructors
-    public OnlineModelItem(JsonObject json) {
-        this.json = json;
-        load();
+    public OnlineModelItem(JSONObject json) {
+        load(json);
     }
 
-    private void load() {
+    private void load(JSONObject json) {
         try {
-            //files
-            fileModel = json.get("file_model").getAsString();
-            filePreview = json.get("file_preview").getAsString();
+            //model
+            id = json.getInt("id");
+            modelId = json.getString("model_id");
+            modelName = "["+id+"] "+json.getString("model_name");
 
             //mod
-            modTitle = json.get("mod_title").getAsString();
-            modCreator = json.get("mod_creator").getAsString();
-            modDescription = json.get("mod_description").getAsString();
+            creator = json.getString("creator");
+            if(!json.isNull("description"))
+                description = json.getString("description");
+            else
+                description = "";
 
-            //model
-            modelRegion = "";
-            int modelRegionFlags = json.get("model_region").getAsInt();
-            if((modelRegionFlags & 1) != 0)
-                modelRegion += "\uD83C\uDDF0\uD83C\uDDF7 ";
-            if((modelRegionFlags & 2) != 0)
-                modelRegion += "\uD83C\uDDEF\uD83C\uDDF5 ";
-            modelRegion = modelRegion.trim();
-            modelId = json.get("model_id").getAsString();
+            //files
+            modelUrl = String.format(Locale.US, Define.ONLINE_MODEL_FILE_URL, id);
+            if(!json.isNull("model_preview")) {
+                previewUrl = String.format(Locale.US, Define.ONLINE_MODEL_PREVIEW_URL, id);
+            }
         }catch(Exception e) {
             e.printStackTrace();
         }
     }
 
+    //setters
+    public void setPreviewBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
+
     //getters
-    public String getFileModel() {
-        return fileModel;
-    }
-
-    public String getFilePreview() {
-        return filePreview;
-    }
-
-    public String getModTitle() {
-        return modTitle;
-    }
-
-    public String getModCreator() {
-        return modCreator;
-    }
-
-    public String getModDescription() {
-        return modDescription;
-    }
-
-    public String getModelRegion() {
-        return modelRegion;
+    public int getId() {
+        return id;
     }
 
     public String getModelId() {
         return modelId;
+    }
+
+    public String getModelName() {
+        return modelName;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public float getModelScale() {
@@ -79,5 +80,17 @@ public class OnlineModelItem {
 
     public float getModelOffsetY() {
         return modelOffsetY;
+    }
+
+    public String getModelUrl() {
+        return modelUrl;
+    }
+
+    public String getPreviewUrl() {
+        return previewUrl;
+    }
+
+    public Bitmap getPreviewBitmap() {
+        return bitmap;
     }
 }

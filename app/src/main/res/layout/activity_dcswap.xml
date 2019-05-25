@@ -14,14 +14,14 @@
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Swap from:"/>
+                android:text="Swap from:" />
 
         <include layout="@layout/item_l2d_model" android:id="@+id/item_from"/>
 
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Swap to:"/>
+                android:text="Swap to:" />
 
         <include layout="@layout/item_l2d_model" android:id="@+id/item_to"/>
 
@@ -65,6 +65,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:text="Swap"/>
+            android:text="Swap" />
 
 </RelativeLayout>

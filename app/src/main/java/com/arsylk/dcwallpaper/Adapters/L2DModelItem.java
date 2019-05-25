@@ -42,7 +42,6 @@ public class L2DModelItem {
 
     public void loadPreview() {
         _preview = new File(output, "_preview.png");
-        System.out.println(_preview+" "+_preview.exists());
         if(_preview.exists()) {
             try{
                 preview = BitmapFactory.decodeFile(_preview.getAbsolutePath());

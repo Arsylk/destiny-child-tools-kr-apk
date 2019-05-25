@@ -36,6 +36,6 @@
             android:layout_width="0dp"
             android:layout_height="100dp"
             android:scaleType="fitCenter"
-            android:contentDescription="Model preview image"/>
+            android:contentDescription="Model preview image" />
 
 </LinearLayout>

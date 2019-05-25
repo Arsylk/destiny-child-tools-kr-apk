@@ -41,6 +41,10 @@ public class DCTools {
                 "/Android/data/"+DCPACKAGE+"/files/asset/character/");
     }
 
+    public static File getDCModelInfoPath() {
+        return new File(getDCModelsPath(), "model_info.json");
+    }
+
     public static String getDCLocalePath() {
         return Environment.getExternalStorageDirectory().toString()+
                 "/Android/data/"+DCPACKAGE+"/files/locale.pck";
@@ -258,6 +262,7 @@ public class DCTools {
             Log.d("mTag:Unpack", "Unpacking finished: "+pck.getOutput());
         }else {
             Log.d("mTag:Unpack", "Inccorect file!");
+            return null;
         }
         mbb.clear();
         fs.close();
@@ -296,19 +301,19 @@ public class DCTools {
 //
 //        //try get textures
 //        List<Pck.PckFile> textureFiles = pck.getFiles(HASH_MODEL_OR_TEXTURE, PNG);
-//        JSONArray jsonTextures = dcModel.getJson().getJSONArray("textures");
+//        JSONArray jsonTextures = dcModel.getNamesJson().getJSONArray("textures");
 //        for(int i = 0; i < jsonTextures.length(); i++) {
 //            dcModel.addTexture(textureFiles.get(i).rename(jsonTextures.getString(i)));
 //        }
 //
 //        //try get character.dat
 //        for(Pck.PckFile pckFile : pck.getFiles(HASH_CHARACTER, DAT)) {
-//            dcModel.setCharacter(pckFile.rename(dcModel.getJson().getString("model")));
+//            dcModel.setCharacter(pckFile.rename(dcModel.getNamesJson().getString("model")));
 //            break;
 //        }
 //
 //        //get motions
-//        JSONObject jsonMotions = dcModel.getJson().getJSONObject("motions");
+//        JSONObject jsonMotions = dcModel.getNamesJson().getJSONObject("motions");
 //
 //        //try get idle mtn
 //        for(Pck.PckFile pckFile : pck.getFiles(HASH_IDLE, MTN)) {

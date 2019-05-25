@@ -11,6 +11,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -18,17 +19,22 @@ import android.widget.Toast;
 import com.arsylk.dcwallpaper.Adapters.L2DModelItem;
 import com.arsylk.dcwallpaper.Adapters.L2DModelsAdapter;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
+import com.arsylk.dcwallpaper.DestinyChild.DCModelInfo;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.Live2D.L2DConfig;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.Live2D.LiveWallpaperService;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
+import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.koushikdutta.async.future.FutureCallback;
 import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class L2DModelsActivity extends AppCompatActivity {
@@ -150,6 +156,7 @@ public class L2DModelsActivity extends AppCompatActivity {
                                 }
                                 Toast.makeText(context, "Packed to: "+file.getName(), Toast.LENGTH_SHORT).show();
                                 try {
+                                    //backup game pck file
                                     File dcPckFile = new File(DCTools.getDCModelsPath(), file.getName());
                                     File bakPckFile = new File(file.getParentFile(), "_"+file.getName()+".bak");
                                     if(dcPckFile.exists()) {
@@ -166,6 +173,37 @@ public class L2DModelsActivity extends AppCompatActivity {
                                 }catch(Exception e) {
                                     e.printStackTrace();
                                 }
+//                                try {
+//                                    //update model_info.json values
+//                                    JSONObject dcInfoJson = LoadAssets.getDCModelInfoInstance().getInfoJson();
+//                                    JSONObject myInfoJson = l2dModel.getModelInfoJson();
+//                                    Iterator<String> keys = myInfoJson.keys();
+//                                    Log.d("mTag:ModelInfo", "dcinfo: "+dcInfoJson.length());
+//                                    Log.d("mTag:ModelInfo", "myinfo: "+myInfoJson.length());
+//                                    while(keys.hasNext()) {
+//                                        String key = keys.next();
+//                                        Object value = myInfoJson.get(key);
+//                                        if(dcInfoJson.getJSONObject(l2dModel.getModelId()).has(key)) {
+//                                            if(value instanceof JSONObject) {
+//                                                dcInfoJson.getJSONObject(l2dModel.getModelId()).put(key, (JSONObject) value);
+//                                            }else if(value instanceof String) {
+//                                                dcInfoJson.getJSONObject(l2dModel.getModelId()).put(key, (String) value);
+//                                            }else {
+//                                                dcInfoJson.getJSONObject(l2dModel.getModelId()).put(key, value);
+//                                            }
+//                                            Log.d("mTag:ModelInfo", key+": "+String.valueOf(value));
+//                                        }
+//                                    }
+//                                    //backup for now full model_info.json
+//                                    FileUtils.moveFile(DCTools.getDCModelInfoPath(), new File(l2dModel.getOutput(), "_model_info.json"));
+//
+//                                    //save changed json
+//                                    FileUtils.write(DCTools.getDCModelInfoPath(), dcInfoJson.toString(4), Charset.forName("utf-8"));
+//                                    LoadAssets.setDCModelInfoInstance(new DCModelInfo());
+//                                    Toast.makeText(context, "Model Info updated!", Toast.LENGTH_SHORT).show();
+//                                }catch(Exception e) {
+//                                    e.printStackTrace();
+//                                }
                             }
                         });
                         break;
@@ -173,6 +211,7 @@ public class L2DModelsActivity extends AppCompatActivity {
                         //restore backup model to game
                         try {
                             File bakPckFile = new File(l2dModel.getOutput(), "_"+l2dModel.getModelId()+".pck.bak");
+                            File bakModelInfo = new File(l2dModel.getOutput(), "_model_info.json");
                             if(bakPckFile.exists()) {
                                 File dcPckFile = new File(DCTools.getDCModelsPath(), l2dModel.getModelId()+".pck");
                                 if(dcPckFile.exists()) {
@@ -183,6 +222,14 @@ public class L2DModelsActivity extends AppCompatActivity {
                             }else {
                                 Toast.makeText(context, "No backup file found!", Toast.LENGTH_SHORT).show();
                             }
+//                            if(bakModelInfo.exists()) {
+//                                File dcModelInfo = DCTools.getDCModelInfoPath();
+//                                if(dcModelInfo.exists()) {
+//                                    FileUtils.deleteQuietly(dcModelInfo);
+//                                }
+//                                FileUtils.copyFile(bakModelInfo, dcModelInfo);
+//                                Toast.makeText(context, "Restored Model Info!", Toast.LENGTH_SHORT).show();
+//                            }
                         }catch(Exception e) {
                             e.printStackTrace();
                         }

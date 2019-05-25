@@ -41,6 +41,7 @@ public class OnlineModelsAdapter extends BaseAdapter {
         this.onlineModels = onlineModels;
     }
 
+    //methods
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView == null)
@@ -48,33 +49,30 @@ public class OnlineModelsAdapter extends BaseAdapter {
                 .inflate(R.layout.item_online_model, parent, false);
 
         final OnlineModelItem onlineModel = onlineModels.get(position);
-        final TextView mod_title, mod_creator, mod_description, model_region, model_id;
+        final TextView mod_title, mod_creator, mod_description, model_id;
         final ImageView image_preview;
         try {
             //metadata layout
+            model_id = convertView.findViewById(R.id.model_id);
             mod_title = convertView.findViewById(R.id.mod_tile);
             mod_creator = convertView.findViewById(R.id.mod_creator);
             mod_description = convertView.findViewById(R.id.mod_description);
 
-            model_region = convertView.findViewById(R.id.model_region);
-            model_id = convertView.findViewById(R.id.model_id);
 
-            mod_title.setText(onlineModel.getModTitle());
-            mod_creator.setText(String.format("by %s", onlineModel.getModCreator()));
-            mod_description.setText(onlineModel.getModDescription());
-
-            model_region.setText(onlineModel.getModelRegion());
             model_id.setText(onlineModel.getModelId());
+            mod_title.setText(onlineModel.getModelName());
+            mod_creator.setText(String.format("by %s", onlineModel.getCreator()));
+            mod_description.setText(onlineModel.getDescription());
+
 
             convertView.findViewById(R.id.layout_mod_metadata).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     final ProgressDialog progressDialog = new ProgressDialog(context);
-                    progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     progressDialog.setCancelable(false);
-                    progressDialog.setTitle("Downloading...");
+                    progressDialog.setMessage("Downloading...");
                     progressDialog.show();
-                    Ion.with(context).load(onlineModel.getFileModel())
+                    Ion.with(context).load(onlineModel.getModelUrl())
                             .progressDialog(progressDialog)
                             .asInputStream().setCallback(new FutureCallback<InputStream>() {
                         @Override
@@ -92,18 +90,20 @@ public class OnlineModelsAdapter extends BaseAdapter {
 
             //image layout
             image_preview = convertView.findViewById(R.id.image_preview);
-
-            Ion.with(context).load(onlineModel.getFilePreview())
+            Ion.with(context).load(onlineModel.getPreviewUrl())
                     .asBitmap().setCallback(new FutureCallback<Bitmap>() {
                 @Override
                 public void onCompleted(Exception e, Bitmap bitmap) {
                     if(e == null) {
-                        onBitmapLoaded(image_preview, bitmap);
+                        onlineModel.setPreviewBitmap(bitmap);
+                        notifyDataSetChanged();
                     } else {
-                        image_preview.setImageResource(R.drawable.ic_error_outline_black);
+                        //image_preview.setImageBitmap(null);
+                        //image_preview.setImageResource(R.drawable.ic_error_outline_black);
                     }
                 }
             });
+            onBitmapLoaded(image_preview, onlineModel.getPreviewBitmap());
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -144,7 +144,7 @@ public class OnlineModelsAdapter extends BaseAdapter {
     private void onFileLoaded(OnlineModelItem modelItem, InputStream in) {
         try {
             File file = new File(Define.ONLINE_DIRECTORY,
-                    modelItem.getModelId()+"."+modelItem.getModCreator().toLowerCase()+".pck");
+                    modelItem.getModelId()+"."+modelItem.getCreator().toLowerCase()+".pck");
             FileUtils.copyInputStreamToFile(in, file);
             DCTools.asyncUnpack(file, context, new OnUnpackFinishedListener() {
                 @Override
@@ -172,6 +172,11 @@ public class OnlineModelsAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
+    public void addItems(List<OnlineModelItem> onlineModels) {
+        this.onlineModels.addAll(onlineModels);
+        this.notifyDataSetChanged();
+    }
+
     @Override
     public OnlineModelItem getItem(int position) {
         return onlineModels.get(position);
@@ -179,7 +184,7 @@ public class OnlineModelsAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return onlineModels.get(position).getId();
     }
 }
 

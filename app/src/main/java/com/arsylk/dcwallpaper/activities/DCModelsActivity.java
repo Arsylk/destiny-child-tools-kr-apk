@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -182,9 +183,12 @@ public class DCModelsActivity extends AppCompatActivity {
                         }catch(Exception e) {
                         }
                         try {
-                            context.startActivity(new Intent(Intent.ACTION_VIEW)
-                                    .setFlags(Intent.URI_ALLOW_UNSAFE)
-                                    .setDataAndType(Uri.fromFile(dcModel.getOutput()), "resource/folder"));
+                            Intent intent = new Intent(Intent.ACTION_VIEW)
+                                    .setDataAndType(Uri.fromFile(dcModel.getOutput()), "resource/folder");
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
+                                intent.setFlags(Intent.URI_ALLOW_UNSAFE);
+                            }
+                            context.startActivity(intent);
                         }catch(Exception e) {
                             Toast.makeText(context, "No file explorer found!", Toast.LENGTH_SHORT).show();
                         }

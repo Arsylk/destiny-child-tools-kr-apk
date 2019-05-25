@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -102,7 +103,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //setup apk-wide settings
         Locale.setDefault(Locale.US);
-        getBaseContext().getResources().getConfiguration().setLocale(Locale.US);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            getBaseContext().getResources().getConfiguration().setLocale(Locale.US);
+        }else {
+            getBaseContext().getResources().getConfiguration().locale = Locale.US;
+        }
         Utils.requestPermission(context);
         Utils.initDirectories();
         Ion.getDefault(context).getConscryptMiddleware().enable(false);

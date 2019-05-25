@@ -1,6 +1,7 @@
 package com.arsylk.dcwallpaper.views;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,6 +21,11 @@ public class DCSwapFileView extends LinearLayout {
         this.from = from;
         initViews();
     }
+
+    public DCSwapFileView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
 
     private void initViews() {
         addView(inflate(getContext(), R.layout.item_draglist, null));

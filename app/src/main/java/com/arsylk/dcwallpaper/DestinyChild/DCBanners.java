@@ -84,14 +84,14 @@ public class DCBanners {
                 for(int i = 0; i < asInts.length; i++) {
                     asInts[i] = Integer.valueOf(dateTimeMatcher.group(i+1));
                 }
-                dateStart = String.format("%04d %02d/%02d %02d:00 +0900", Calendar.getInstance().get(Calendar.YEAR), asInts[0], asInts[1], asInts[2]);
-                dateEnd = String.format("%04d %02d/%02d %02d:00 +0900", Calendar.getInstance().get(Calendar.YEAR), asInts[3], asInts[4], asInts[5]);
+                dateStart = String.format(Locale.US, "%04d %02d/%02d %02d:00 +0900", Calendar.getInstance().get(Calendar.YEAR), asInts[0], asInts[1], asInts[2]);
+                dateEnd = String.format(Locale.US, "%04d %02d/%02d %02d:00 +0900", Calendar.getInstance().get(Calendar.YEAR), asInts[3], asInts[4], asInts[5]);
             }else {
-                dateStart = String.format("%04d %02d/%02d 04:00 +0900",
+                dateStart = String.format(Locale.US, "%04d %02d/%02d 04:00 +0900",
                         Calendar.getInstance().get(Calendar.YEAR),
                         Integer.valueOf(dateMatcher.group(1)),
                         Integer.valueOf(dateMatcher.group(2)));
-                dateEnd = String.format("%04d %02d/%02d 04:00 +0900",
+                dateEnd = String.format(Locale.US, "%04d %02d/%02d 04:00 +0900",
                         Calendar.getInstance().get(Calendar.YEAR),
                         Integer.valueOf(dateMatcher.group(3)),
                         Integer.valueOf(dateMatcher.group(4)));
@@ -103,8 +103,8 @@ public class DCBanners {
             //TODO check if isn't called to often
             //date string to actual date
             try {
-                SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy MM/dd HH:mm Z");
-                SimpleDateFormat destFormat = new SimpleDateFormat("yyyy MM/dd HH:mm Z");
+                SimpleDateFormat sourceFormat = new SimpleDateFormat("yyyy MM/dd HH:mm Z", Locale.US);
+                SimpleDateFormat destFormat = new SimpleDateFormat("yyyy MM/dd HH:mm Z", Locale.US);
 
                 Date parsedStart = sourceFormat.parse(dateStart);
                 Date parsedEnd = sourceFormat.parse(dateEnd);
