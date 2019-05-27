@@ -10,7 +10,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -25,29 +24,30 @@ import android.widget.Toast;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
 import com.arsylk.dcwallpaper.Async.AsyncBanners;
-import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
+import com.arsylk.dcwallpaper.Async.AsyncPatch;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.BuildConfig;
+import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.R;
+import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
-import com.arsylk.dcwallpaper.views.BigTextDialog;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.ProgressCallback;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import jp.live2d.Def;
+import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
-import static com.arsylk.dcwallpaper.utils.Define.REQUEST_FILE_PACK;
-import static com.arsylk.dcwallpaper.utils.Define.REQUEST_FILE_UNPACK;
+import static com.arsylk.dcwallpaper.utils.Define.*;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private Context context = MainActivity.this;
@@ -198,6 +198,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.english_patch:
                 openEnglishPatcher();
                 break;
+            case R.id.russian_patch:
+                openRussianPatcher();
+                break;
             case R.id.dcbanner_widget_open:
                 openDCBannerWidget();
                 break;
@@ -297,7 +300,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             Toast.makeText(context, "Wait for update to finish!", Toast.LENGTH_SHORT).show();
             return;
         }
-        DCTools.asyncEnglishPatchLocale(new File(DCTools.getDCLocalePath()), context);
+        new AsyncPatch(context, true).execute(LoadAssets.getDCEnglishPatch());
+    }
+
+    private void openRussianPatcher() {
+        LoadAssets.updateRussianPatch(context, new FutureCallback<Void>() {
+            @Override
+            public void onCompleted(Exception e, Void result) {
+                DCLocalePatch dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_RUSSIAN_PATCH));
+                new AsyncPatch(context, true).execute(dcLocalePatch);
+            }
+        });
+
     }
 
     private void openDCWiki() {

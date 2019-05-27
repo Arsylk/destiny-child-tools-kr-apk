@@ -36,18 +36,30 @@
         </menu>
     </item>
 
-    <item android:title="Magic" android:menuCategory="container" >
+
+    <item android:title="Patches" android:menuCategory="container" >
         <menu>
             <group android:checkableBehavior="none">
-                <item
-                        android:id="@+id/wiki_open"
-                        android:title="Wiki" />
+
                 <item
                         android:id="@+id/translate_locale"
                         android:title="Translate Locale" />
                 <item
                         android:id="@+id/english_patch"
                         android:title="English Patch" />
+                <item
+                        android:id="@+id/russian_patch"
+                        android:title="Russian Patch" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="Magic" android:menuCategory="container" >
+        <menu>
+            <group android:checkableBehavior="none">
+                <item
+                        android:id="@+id/wiki_open"
+                        android:title="Wiki" />
 
                 <item
                         android:id="@+id/dcbanner_widget_open"

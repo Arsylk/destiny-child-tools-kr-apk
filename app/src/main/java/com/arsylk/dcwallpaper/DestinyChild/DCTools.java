@@ -357,11 +357,6 @@ public class DCTools {
     }
 
 
-    //english patcher
-    public static void asyncEnglishPatchLocale(File file_locale, Context context) {
-        new AsyncPatch(context, true).execute(file_locale);
-    }
-
     public static void patchLocale(File file_locale, DCLocalePatch patch, Context context) throws Exception {
         //load and patch locale
         DCLocale locale = new DCLocale(DCTools.unpack(file_locale, context));

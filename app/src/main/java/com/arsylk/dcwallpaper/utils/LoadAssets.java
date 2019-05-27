@@ -93,6 +93,31 @@ public class LoadAssets  {
         }
     }
 
+    public static void updateRussianPatch(Context context, final FutureCallback<Void> callback) {
+        Ion.with(context).load(String.format(REMOTE_ASSET_RUSSIAN_PATCH, Utils.md5(ASSET_RUSSIAN_PATCH))).group(TAG_ASSETS)
+                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        if(e == null) {
+                            if(result.isEmpty()) {
+                                Log.d("mTag:Assets", "Russian patch is up-to-date!");
+                                callback.onCompleted(null, null);
+                                return;
+                            }
+                            try {
+                                FileUtils.write(ASSET_RUSSIAN_PATCH, result, Charset.forName("utf-8"));
+                                Log.d("mTag:Assets", "Russian patch updated!");
+                                callback.onCompleted(null, null);
+                            }catch(Exception e1) {
+                                e1.printStackTrace();
+                            }
+                        }else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
     public static boolean updateInProgress(Context context) {
         return Ion.getDefault(context).getPendingRequestCount(TAG_ASSETS) != 0;
     }

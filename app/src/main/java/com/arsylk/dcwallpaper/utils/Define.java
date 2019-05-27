@@ -25,16 +25,20 @@ public final class Define {
 
     public static final String UPLOAD_COMMUNITY_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/post_locale_patch.php";
     public static final String REMOTE_ASSET_COMMUNITY_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_community_patch.php";
-    public static final File ASSET_UNPACKED_LOCALE = new File(ASSETS_DIRECTORY, "unpacked_locale.json");
 
+    //regional assets
+    public static final String REMOTE_ASSET_LOCALE = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_locale.php?md5=%s";
+    public static final File ASSET_LOCALE = new File(ASSETS_DIRECTORY, "locale.json");
+
+    public static final String REMOTE_ASSET_RUSSIAN_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_russian_patch.php?md5=%s";
+    public static final File ASSET_RUSSIAN_PATCH = new File(ASSETS_DIRECTORY, "russian_patch.json");
+
+    //public assets
     public static final String REMOTE_ASSET_CHILD_NAMES = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_child_names.php?md5=%s";
     public static final File ASSET_CHILD_NAMES = new File(ASSETS_DIRECTORY, "child_names.json");
 
     public static final String REMOTE_ASSET_CHILD_SKILLS = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_child_skills.php?md5=%s";
     public static final File ASSET_CHILD_SKILLS = new File(ASSETS_DIRECTORY, "child_skills.json");
-
-    public static final String REMOTE_ASSET_LOCALE = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_locale.php?md5=%s";
-    public static final File ASSET_LOCALE = new File(ASSETS_DIRECTORY, "locale.json");
 
     public static final File ASSET_EXTRACTED_CHILD_NAMES = new File(ASSETS_DIRECTORY, "extracted_child_names.json");
     public static final File ASSET_EVENT_BANNERS = new File(ASSETS_DIRECTORY, "banner_events.json");

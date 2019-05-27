@@ -6,15 +6,16 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import com.arsylk.dcwallpaper.DestinyChild.DCDefine;
+import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 
 import java.io.File;
 
-public class AsyncPatch extends AsyncTask<File, Void, Void> {
+public class AsyncPatch extends AsyncTask<DCLocalePatch, Void, Boolean> {
     private Context context;
     private boolean showGui = false;
-    private long time_start = 0L, time_now = 0L;
 
     private AlertDialog dialog = null;
 
@@ -26,7 +27,6 @@ public class AsyncPatch extends AsyncTask<File, Void, Void> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        this.time_start = System.currentTimeMillis();
         if(showGui) {
             dialog = new AlertDialog.Builder(context)
                     .setTitle("Patching locale...")
@@ -47,26 +47,20 @@ public class AsyncPatch extends AsyncTask<File, Void, Void> {
     }
 
     @Override
-    protected Void doInBackground(File... files) {
-        if(files.length < 1)
-            return null;
+    protected Boolean doInBackground(DCLocalePatch... patches) {
         try {
-            DCTools.patchLocale(files[0], LoadAssets.getDCEnglishPatch(), context);
-            this.time_now = System.currentTimeMillis();
-            if(time_now-time_start < 5000L) {
-                Thread.sleep(5000L - (time_now-time_start));
-            }
+            DCTools.patchLocale(new File(DCTools.getDCLocalePath()), patches[0], context);
+            return true;
         }catch(Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return false;
     }
 
     @Override
-    protected void onPostExecute(Void aVoid) {
-        super.onPostExecute(aVoid);
+    protected void onPostExecute(Boolean success) {
         if(showGui) {
-            dialog.setTitle("Finished");
+            dialog.setTitle(success ? "Finished" : "Failed");
             dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
         }
     }
