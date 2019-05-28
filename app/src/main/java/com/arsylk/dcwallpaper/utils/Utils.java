@@ -12,6 +12,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -556,7 +557,22 @@ public class Utils {
     }
     /*translate end*/
 
-    /*widget preference start*/
+    /*preference start*/
+    public static String getDeviceToken(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        if(prefs.contains("device_token")) {
+            return prefs.getString("device_token", "");
+        }
+        Random r = new Random();
+        StringBuilder sb = new StringBuilder();
+        while(sb.length() < 32){
+            sb.append(Integer.toHexString(r.nextInt()));
+        }
+        String s = sb.toString().substring(0, 32);
+        prefs.edit().putString("device_token", s).commit();
+        return s;
+    }
+
     public static SharedPreferences widgetPref(Context context, int widgetId) {
         return context.getSharedPreferences("appwidget_" + widgetId, 0);
     }
@@ -576,5 +592,5 @@ public class Utils {
         SharedPreferences prefs = widgetPref(context, widgetId);
         prefs.edit().clear().apply();
     }
-    /*widget preference end*/
+    /*preference end*/
 }

@@ -167,6 +167,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.dev_extract_new:
                 DCTools.asyncExtractMissing(new File(DCTools.getDCLocalePath()), context, true);
                 return true;
+            case R.id.dev_swap_activity:
+                startActivity(new Intent(context, DCSwapActivity.class));
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -236,6 +239,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.getMenu().findItem(R.id.menu_version).setTitle("v"+BuildConfig.VERSION_NAME);
 
         adapter = new DCAnnouncementsAdapter(context, false);
 

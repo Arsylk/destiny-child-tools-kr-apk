@@ -88,18 +88,18 @@ public class DCModelsActivity extends AppCompatActivity {
 
             }
         });
-        search_input.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                if(adapter != null) {
-                    Utils.dismissKeyboard(context);
-                    search_advance_layout.setVisibility((search_advance_layout.getVisibility() == View.GONE) ? View.VISIBLE : View.GONE);
-                    adapter.applyFilterOption(R.id.search_advance_layout);
-                    return true;
-                }
-                return false;
-            }
-        });
+//        search_input.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View view) {
+//                if(adapter != null) {
+//                    Utils.dismissKeyboard(context);
+//                    search_advance_layout.setVisibility((search_advance_layout.getVisibility() == View.GONE) ? View.VISIBLE : View.GONE);
+//                    adapter.applyFilterOption(R.id.search_advance_layout);
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
 
         //TODO find a better way for dealing with that
         model_list = findViewById(R.id.model_list);

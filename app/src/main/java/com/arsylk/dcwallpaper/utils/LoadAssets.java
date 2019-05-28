@@ -140,9 +140,6 @@ public class LoadAssets  {
         }
         return info;
     }
-    public static void setDCModelInfoInstance(DCModelInfo dcModelInfo) {
-        info = dcModelInfo;
-    }
 
     //patch
     private static DCLocalePatch patch = null;

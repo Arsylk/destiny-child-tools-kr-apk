@@ -274,86 +274,10 @@ public class DCTools {
     //pck files to models
     public static DCModel pckToModel(Pck pck) throws Exception {
         //create new model
-        DCModel dcModel2 = new DCModel(pck);
-//        DCModel dcModel = new DCModel(pck.getSrc(), pck.getOutput());
-//
-//        //try get model json
-//        List<Pck.PckFile> jsonFiles = pck.getFiles(HASH_MODEL_OR_TEXTURE, JSON);
-//        long maxSize = 0L;
-//        Pck.PckFile maxFile = null;
-//        for(Pck.PckFile pckFile : jsonFiles) {
-//            long testSize = pckFile.getFile().length();
-//            if(testSize > maxSize) {
-//                maxSize = testSize;
-//                maxFile = pckFile;
-//            }
-//        }
-//        JSONObject modelJson = Utils.fileToJson(maxFile.getFile());
-//        if(!(modelJson.has("model") && modelJson.has("textures") && modelJson.has("motions"))) {
-//            for(Pck.PckFile pckFile : jsonFiles) {
-//                modelJson = Utils.fileToJson(pckFile.getFile());
-//                if(modelJson.has("model") && modelJson.has("textures") && modelJson.has("motions")) {
-//                    maxFile = pckFile;
-//                }
-//            }
-//        }
-//        dcModel.setModelJson(maxFile.rename("model.json"), modelJson);
-//
-//        //try get textures
-//        List<Pck.PckFile> textureFiles = pck.getFiles(HASH_MODEL_OR_TEXTURE, PNG);
-//        JSONArray jsonTextures = dcModel.getNamesJson().getJSONArray("textures");
-//        for(int i = 0; i < jsonTextures.length(); i++) {
-//            dcModel.addTexture(textureFiles.get(i).rename(jsonTextures.getString(i)));
-//        }
-//
-//        //try get character.dat
-//        for(Pck.PckFile pckFile : pck.getFiles(HASH_CHARACTER, DAT)) {
-//            dcModel.setCharacter(pckFile.rename(dcModel.getNamesJson().getString("model")));
-//            break;
-//        }
-//
-//        //get motions
-//        JSONObject jsonMotions = dcModel.getNamesJson().getJSONObject("motions");
-//
-//        //try get idle mtn
-//        for(Pck.PckFile pckFile : pck.getFiles(HASH_IDLE, MTN)) {
-//            if(jsonMotions.has("idle")) {
-//                File file =  pckFile.rename(jsonMotions.getJSONArray("idle").getJSONObject(0).getString("file"));
-//                dcModel.addMotion("idle", file);
-//            }
-//            break;
-//        }
-//
-//        //try get attack mtn
-//        for(Pck.PckFile pckFile : pck.getFiles(HASH_ATTACK, MTN)) {
-//            if(jsonMotions.has("attack")) {
-//                File file = pckFile.rename(jsonMotions.getJSONArray("attack").getJSONObject(0).getString("file"));
-//                dcModel.addMotion("attack", file);
-//            }
-//            break;
-//        }
-//
-//        //2nd try get motions
-//        if(jsonMotions.has("idle") && dcModel.getMotion("idle") == null) {
-//            //motions iter
-//            List<Pck.PckFile> mtnList = pck.getFiles(MTN);
-//            Iterator<String> keys = jsonMotions.keys();
-//            int i = 0;
-//            while(keys.hasNext()) {
-//                String key = keys.next();
-//                switch(key) {
-//                    default: {
-//                        File file = mtnList.get(i).rename(jsonMotions.getJSONArray(key).getJSONObject(0).getString("file"));
-//                        Log.d("mJson", file.getAbsolutePath());
-//                        dcModel.addMotion(key, file);
-//                    }
-//                }
-//                i++;
-//            }
-//        }
+        DCModel dcModel = new DCModel(pck);
         pck.generateHeader();
 
-        return dcModel2;
+        return dcModel;
     }
 
 

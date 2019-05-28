@@ -16,9 +16,10 @@ public final class DCDefine {
             HASH_LOCALE_MODELIDS = new byte[] {(byte)0x30, (byte)0x0f, (byte)0x00, (byte)0x24};
     //extensions
     public static final int UNKNOWN = 0, DAT = 1, MTN = 2, PNG = 3, JSON = 4, LOCALE_DEF = 12, LOCALE_TAB = 11;
-    //line patterns
+    //patterns
     public static final Pattern LOCALE_DEF_LINE_PATTERN = Pattern.compile("^(?!/)(\\S+)\\s*?=\\s*?\"(.*?)\"\\s*?$");
     public static final Pattern LOCALE_TAB_LINE_PATTERN = Pattern.compile("^(?!/)(\\S+)\\s(.*?)$");
+    public static final Pattern MODEL_ID_PATTERN = Pattern.compile("^.*\\d{3}_\\d{2}$");
 
     public static final String DCPACKAGE = "com.NextFloor.DestinyChild";
 }

@@ -1,5 +1,6 @@
 package com.arsylk.dcwallpaper.Adapters;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,9 +15,11 @@ import android.widget.*;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
+import com.arsylk.dcwallpaper.Live2D.L2DRenderer;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.activities.DCModelsActivity;
 import com.arsylk.dcwallpaper.utils.Define;
+import com.arsylk.dcwallpaper.utils.Utils;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
@@ -29,6 +32,7 @@ import java.util.List;
 public class OnlineModelsAdapter extends BaseAdapter {
     private Context context;
     private List<OnlineModelItem> onlineModels;
+    private View loaderView = null;
 
     //constructors
     public OnlineModelsAdapter(Context context) {
@@ -42,6 +46,16 @@ public class OnlineModelsAdapter extends BaseAdapter {
     }
 
     //methods
+    @SuppressLint("InflateParams")
+    public View getLoaderView() {
+        if(loaderView == null) {
+            loaderView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
+                    .inflate(R.layout.footer_progress, null);
+            loaderView.findViewById(R.id.footer_progressbar).setVisibility(View.VISIBLE);
+        }
+        return loaderView;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView == null)
@@ -74,6 +88,7 @@ public class OnlineModelsAdapter extends BaseAdapter {
                     progressDialog.show();
                     Ion.with(context).load(onlineModel.getModelUrl())
                             .progressDialog(progressDialog)
+                            .setBodyParameter("Device-Token", Utils.getDeviceToken(context))
                             .asInputStream().setCallback(new FutureCallback<InputStream>() {
                         @Override
                         public void onCompleted(Exception e, InputStream in) {
@@ -95,11 +110,8 @@ public class OnlineModelsAdapter extends BaseAdapter {
                 @Override
                 public void onCompleted(Exception e, Bitmap bitmap) {
                     if(e == null) {
-                        onlineModel.setPreviewBitmap(bitmap);
+                        onlineModel.setPreviewBitmap(Utils.trim(bitmap));
                         notifyDataSetChanged();
-                    } else {
-                        //image_preview.setImageBitmap(null);
-                        //image_preview.setImageResource(R.drawable.ic_error_outline_black);
                     }
                 }
             });
@@ -125,6 +137,8 @@ public class OnlineModelsAdapter extends BaseAdapter {
                 ImageView zoomImageView = new ImageView(context);
                 zoomImageView.setImageBitmap(bitmap);
                 final PopupWindow zoomPopup = new PopupWindow(zoomImageView, (int) (metrics.widthPixels * 0.8), (int) (metrics.heightPixels * 0.6), false);
+
+                //dismiss if any window clicked
                 View.OnClickListener onClickListener = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -135,8 +149,21 @@ public class OnlineModelsAdapter extends BaseAdapter {
                 dimPopup.getContentView().setOnClickListener(onClickListener);
                 zoomPopup.getContentView().setOnClickListener(onClickListener);
 
+                //dismiss if any window disappeared
+                PopupWindow.OnDismissListener onDismiss = new PopupWindow.OnDismissListener() {
+                    @Override
+                    public void onDismiss() {
+                        zoomPopup.dismiss();
+                        dimPopup.dismiss();
+                    }
+                };
+                dimPopup.setOnDismissListener(onDismiss);
+                zoomPopup.setOnDismissListener(onDismiss);
+
                 dimPopup.showAtLocation(dimPopup.getContentView(), Gravity.CENTER, 0, 0);
                 zoomPopup.showAtLocation(zoomPopup.getContentView(), Gravity.CENTER, 0, 0);
+
+
             }
         });
     }
@@ -173,6 +200,9 @@ public class OnlineModelsAdapter extends BaseAdapter {
     }
 
     public void addItems(List<OnlineModelItem> onlineModels) {
+        if(loaderView != null) {
+            loaderView.findViewById(R.id.footer_progressbar).setVisibility(onlineModels.isEmpty() ? View.GONE : View.VISIBLE);
+        }
         this.onlineModels.addAll(onlineModels);
         this.notifyDataSetChanged();
     }

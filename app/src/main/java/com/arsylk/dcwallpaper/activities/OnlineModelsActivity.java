@@ -1,21 +1,16 @@
 package com.arsylk.dcwallpaper.activities;
 
-import android.app.ProgressDialog;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.LinearLayout;
+import android.widget.AbsListView;
 import android.widget.ListView;
-import android.widget.Toast;
 import com.arsylk.dcwallpaper.Adapters.OnlineModelItem;
 import com.arsylk.dcwallpaper.Adapters.OnlineModelsAdapter;
 import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -25,33 +20,49 @@ import java.util.List;
 
 public class OnlineModelsActivity extends AppCompatActivity {
     private Context context = OnlineModelsActivity.this;
-    private ProgressDialog progressDialog;
 
+    private AsyncWithDialog<Integer, Void, List<OnlineModelItem>> asyncLoading = null;
     private ListView list_view;
     private OnlineModelsAdapter adapter;
-    private List<OnlineModelItem> onlineModelItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_online_models);
         initViews();
-        loadViews();
+        loadOnlineModels(0);
     }
 
     private void initViews() {
-        list_view = findViewById(R.id.online_models_list);
         adapter = new OnlineModelsAdapter(context);
+
+        list_view = findViewById(R.id.online_models_list);
+        list_view.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+                if((view.getLastVisiblePosition() == adapter.getCount())) {
+                    if(asyncLoading != null) {
+                        if(asyncLoading.getStatus() == AsyncTask.Status.FINISHED) {
+                            loadOnlineModels(adapter.getCount());
+                        }
+                    }
+                }
+            }
+        });
         list_view.setAdapter(adapter);
+        list_view.addFooterView(adapter.getLoaderView());
     }
 
-    private void loadViews() {
-        new AsyncWithDialog<Void, Void, List<OnlineModelItem>>(context, true, "Loading models...") {
+    private void loadOnlineModels(int offset) {
+        asyncLoading = new AsyncWithDialog<Integer, Void, List<OnlineModelItem>>(context, true, "Loading models...") {
             @Override
-            protected List<OnlineModelItem> doInBackground(Void... voids) {
+            protected List<OnlineModelItem> doInBackground(Integer... integers) {
                 List<OnlineModelItem> onlineModels = new ArrayList<>();
                 try {
-                    String response = Jsoup.connect(Define.ONLINE_MODELS_URL).execute().body();
+                    String response = Jsoup.connect(String.format(Define.ONLINE_MODELS_URL, integers[0])).execute().body();
                     JSONObject json = new JSONObject(response);
                     JSONArray modelsJson = json.getJSONArray("models");
                     for(int i = 0; i < modelsJson.length(); i++) {
@@ -68,26 +79,7 @@ public class OnlineModelsActivity extends AppCompatActivity {
                 super.onPostExecute(onlineModelItems);
                 adapter.addItems(onlineModelItems);
             }
-        }.execute();
-//        onlineModelItems = new ArrayList<>();
-//        Ion.with(context).load(Define.ONLINE_MODELS_URL)
-//                .progressDialog(progressDialog)
-//                .asJsonObject().setCallback(new FutureCallback<JsonObject>() {
-//            @Override
-//            public void onCompleted(Exception e, JsonObject json) {
-//                progressDialog.dismiss();
-//                if(json != null) {
-//                    JsonArray jsonArrayModels = json.getAsJsonArray("models");
-//                    for(int i = 0; i < jsonArrayModels.size(); i++) {
-//                        JsonObject jsonModel = jsonArrayModels.get(i).getAsJsonObject();
-//                        onlineModelItems.add(new OnlineModelItem(jsonModel));
-//                        adapter.addItem(onlineModelItems.get(i));
-//                    }
-//                }else {
-//                    Toast.makeText(context, "Failed to fileLoad!", Toast.LENGTH_SHORT).show();
-//                    finish();
-//                }
-//            }
-//        });
+        };
+        asyncLoading.execute(offset);
     }
 }

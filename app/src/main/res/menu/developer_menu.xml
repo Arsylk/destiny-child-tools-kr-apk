@@ -2,4 +2,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/dev_md5" android:title="MD5 all files" />
     <item android:id="@+id/dev_extract_new" android:title="Extract new locale" />
+    <item android:id="@+id/dev_swap_activity" android:title="Swap Activity" />
 </menu>

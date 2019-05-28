@@ -55,11 +55,9 @@ public class DCLocale extends Pck {
                 //subfile to map
                 LinkedHashMap<String, String> patchDict = subfile.getDict();
 
-                //replace values found in patch
-                for(Map.Entry<String,String> defaultEntry : defaultDict.entrySet()) {
-                    if(patchDict.containsKey(defaultEntry.getKey())) {
-                        defaultDict.put(defaultEntry.getKey(), patchDict.get(defaultEntry.getKey()));
-                    }
+                //add & replace values found in patch
+                for(Map.Entry<String,String> patchEntry : patchDict.entrySet()) {
+                    defaultDict.put(patchEntry.getKey(), patchEntry.getValue());
                 }
 
                 //save file with updated map

@@ -80,4 +80,14 @@
             </group>
         </menu>
     </item>
+
+    <item android:title="Version" android:menuCategory="container" >
+        <menu>
+            <group>
+                <item android:id="@+id/menu_version"
+                      android:title=""
+                      android:enabled="false" />
+            </group>
+        </menu>
+    </item>
 </menu>

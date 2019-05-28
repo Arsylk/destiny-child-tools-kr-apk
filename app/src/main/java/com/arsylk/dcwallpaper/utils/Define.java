@@ -19,7 +19,7 @@ public final class Define {
 
     public static final int REQUEST_FILE_UNPACK = 227, REQUEST_FILE_PACK = 228, REQUEST_WALLPAPER_SET = 229, REQUEST_FILE_PATCH = 230;
 
-    public static final String ONLINE_MODELS_URL = "https://arsylk.pythonanywhere.com/api/get_models";
+    public static final String ONLINE_MODELS_URL = "https://arsylk.pythonanywhere.com/api/get_models?offset=%s";
     public static final String ONLINE_MODEL_FILE_URL = "https://arsylk.pythonanywhere.com/api/get_model_file/%s";
     public static final String ONLINE_MODEL_PREVIEW_URL = "https://arsylk.pythonanywhere.com/api/get_model_preview/%s";
 
@@ -27,8 +27,8 @@ public final class Define {
     public static final String REMOTE_ASSET_COMMUNITY_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_community_patch.php";
 
     //regional assets
-    public static final String REMOTE_ASSET_LOCALE = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_locale.php?md5=%s";
-    public static final File ASSET_LOCALE = new File(ASSETS_DIRECTORY, "locale.json");
+    public static final String REMOTE_ASSET_LOCALE = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_english_patch.php?md5=%s";
+    public static final File ASSET_LOCALE = new File(ASSETS_DIRECTORY, "english_patch.json");
 
     public static final String REMOTE_ASSET_RUSSIAN_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_russian_patch.php?md5=%s";
     public static final File ASSET_RUSSIAN_PATCH = new File(ASSETS_DIRECTORY, "russian_patch.json");
