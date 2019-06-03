@@ -168,7 +168,7 @@ public class L2DModelsActivity extends AppCompatActivity {
                         break;
                     //remove saved model
                     case 3:
-                        actionDelete(context, l2DModel);
+                        actionDelete(l2DModel.getOutput());
                         break;
                     //set as wallpaper
                     case 4:
@@ -409,12 +409,12 @@ public class L2DModelsActivity extends AppCompatActivity {
         }
     }
 
-    public static void actionDelete(Context context, L2DModel l2DModel) {
+    public static void actionDelete(File output) {
         try {
-            for(File file : l2DModel.getOutput().listFiles()) {
+            for(File file : output.listFiles()) {
                 FileUtils.deleteQuietly(file);
             }
-            l2DModel.getOutput().delete();
+            output.delete();
         }catch(Exception e) {
             e.printStackTrace();
         }

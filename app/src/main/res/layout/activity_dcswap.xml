@@ -27,15 +27,24 @@
 
     </LinearLayout>
 
-    <TextView
-            android:id="@+id/scroll_output"
+    <ScrollView
+            android:id="@+id/scroll"
+            android:fillViewport="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/layout_models"
-            android:layout_above="@+id/swap_try"
-            android:padding="10dp"
-            android:textSize="12sp"
-            android:background="@drawable/border_frame_black_full_blue"/>
+            android:layout_above="@+id/swap_try">
+
+        <TextView
+                android:id="@+id/scroll_output"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:background="@drawable/border_frame_black_full_blue"/>
+
+    </ScrollView>
+
 
     <Button
             android:id="@+id/swap_try"

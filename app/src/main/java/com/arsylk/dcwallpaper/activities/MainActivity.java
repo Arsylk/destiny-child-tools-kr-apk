@@ -34,6 +34,7 @@ import com.arsylk.dcwallpaper.BuildConfig;
 import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
+import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
@@ -45,9 +46,12 @@ import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.Headers;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
+import org.apache.commons.io.FileUtils;
 import org.jsoup.Jsoup;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.io.FilenameFilter;
 import java.util.Locale;
 
 import static com.arsylk.dcwallpaper.utils.Define.*;
@@ -106,9 +110,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
-        //TODO testing
-        startActivity(new Intent(context, DCSwapActivity.class));
-
         //setup apk-wide settings
         Locale.setDefault(Locale.US);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -130,6 +131,47 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return request;
             }
         });
+
+
+//        //TODO testing
+//        String[] fnames = {"c0", "c1", "c2", "c3", "c4", "m0", "m1", "m2"};
+//        for(String fname : fnames) {
+//            File gamefile = new File(DCTools.getDCFilesPath() + "/asset/icon/portrait/_" + fname + ".pck");
+//            File memefile = new File(DCTools.getDCFilesPath() + "/asset/icon/portrait/" + fname + ".pck");
+//            try {
+//                FileUtils.moveFile(memefile, new File(memefile+".meme"));
+//                FileUtils.moveFile(gamefile, memefile);
+//            }catch(Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//            File[] sfiles = folder.listFiles(new FilenameFilter() {
+//                @Override
+//                public boolean accept(File dir, String name) {
+//                    return name.startsWith("_");
+//                }
+//            });
+//            for(File file : sfiles) {
+//                try {
+//                    FileUtils.deleteQuietly(file);
+//                    FileUtils.copyFile(new File(Define.BASE_DIRECTORY, "icon_battle.png"), file);
+//                }catch(Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//
+//            System.out.println(folder);
+//            try {
+//                File newpck = DCTools.pack(new File(folder, "_header"), context);
+//                File gamepck = new File(DCTools.getDCFilesPath()+"/asset/icon/portrait_battle/"+fname+".pck");
+//                FileUtils.deleteQuietly(gamepck);
+//                FileUtils.moveFile(newpck, gamepck);
+//                System.out.println(gamepck);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        //TODO tending
 
         //init activity
         initViews();
@@ -188,8 +230,39 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.dev_extract_new:
                 DCTools.asyncExtractMissing(new File(DCTools.getDCLocalePath()), context, true);
                 return true;
-            case R.id.dev_swap_activity:
-                startActivity(new Intent(context, DCSwapActivity.class));
+            case R.id.dev_swap_all:
+                DCTools.fullPckSwap(context, new L2DModel(new File(Define.MODELS_DIRECTORY, "yukine")));
+                return true;
+            case R.id.dev_swap_all_restore:
+                File[] backups = DCTools.getDCModelsPath().listFiles(new FileFilter() {
+                    @Override
+                    public boolean accept(File file) {
+                        return file.getName().startsWith("_") && file.getName().endsWith(".pck");
+                    }
+                });
+
+                //restore model_info.json
+                try {
+                    File modelInfoBackup = new File(DCTools.getDCModelInfoPath().getParentFile(), "_"+DCTools.getDCModelInfoPath().getName());
+                    if(modelInfoBackup.exists()) {
+                        FileUtils.forceDelete(DCTools.getDCModelInfoPath());
+                        FileUtils.moveFile(modelInfoBackup, DCTools.getDCModelInfoPath());
+                    }
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+
+                //restore pck files
+                for(File backup : backups) {
+                    try {
+                        File file = new File(backup.getParentFile(), backup.getName().replaceFirst("_", ""));
+                        FileUtils.forceDelete(file);
+                        FileUtils.moveFile(backup, file);
+                        Log.d("mTag:FullPck", "restored: "+file);
+                    }catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);

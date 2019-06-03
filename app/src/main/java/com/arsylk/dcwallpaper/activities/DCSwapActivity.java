@@ -97,7 +97,7 @@ public class DCSwapActivity extends AppCompatActivity {
                     swapper.setOutputView((TextView) findViewById(R.id.scroll_output));
                     swapper.matchFiles();
                     Toast.makeText(context, swapper.swapModels() ? "Swap successful!" : "Swap failed!", Toast.LENGTH_SHORT).show();
-                    L2DModelsActivity.actionOpen(context, swapper.getLastSwapFolder());
+                    //L2DModelsActivity.actionOpen(context, swapper.getLastSwapFolder());
                     //TODO here actually ends
                 }else {
                     Toast.makeText(context, "Pick models first!", Toast.LENGTH_SHORT).show();

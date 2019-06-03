@@ -11,6 +11,8 @@ import com.arsylk.dcwallpaper.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
+import com.arsylk.dcwallpaper.activities.DCModelsActivity;
+import com.arsylk.dcwallpaper.activities.L2DModelsActivity;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
@@ -611,5 +613,80 @@ public class DCTools {
                 return null;
             }
         }.execute("all");
+    }
+
+    public static void fullPckSwap(Context context, final L2DModel fromL2D) {
+        Log.d("mTag:FullSwap", "name: "+fromL2D.getModelName() + " " + fromL2D.getModelId());
+        Log.d("mTag:FullSwap", "path: "+fromL2D.getOutput().getName());
+        final JSONObject fromModelInfo = LoadAssets.getDCModelInfoInstance().getModelInfo(fromL2D.getModelId());
+        final File[] pckFiles = getDCModelsPath().listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return !file.getName().startsWith("_") && file.getName().endsWith(".pck");
+            }
+        });
+        new AsyncWithDialog<File, String, Void>(context, true) {
+            @Override
+            protected void onProgressUpdate(String... values) {
+                if(showGui && values.length > 0) {
+                    dialog.setMessage(values[0]);
+                    Log.d("mTag:FullSwap", values[0]);
+                }
+            }
+            @Override
+            protected Void doInBackground(File... files) {
+                //backup full model_info.json
+                try{
+                    File modelInfoBackup = new File(DCTools.getDCModelInfoPath().getParentFile(), "_"+DCTools.getDCModelInfoPath().getName());
+                    FileUtils.deleteQuietly(modelInfoBackup);
+                    FileUtils.copyFile(DCTools.getDCModelInfoPath(), modelInfoBackup);
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+                for(File file : files) {
+                    try {
+                        //backup file
+                        File backup = new File(file.getParentFile(), "_"+file.getName());
+
+                        //unpack pck file
+                        DCModel dcModel = DCTools.pckToModel(DCTools.unpack(file, context));
+                        L2DModel toL2D = dcModel.asL2DModel();
+                        publishProgress(toL2D.getModelName()+" "+toL2D.getModelId());
+
+                        //swap
+                        DCSwapper swapper = new DCSwapper(fromL2D, toL2D);
+                        swapper.matchFiles();
+                        boolean noErrors = swapper.swapModels();
+                        if(noErrors && !backup.exists()) {
+                            publishProgress("swapping: "+fromL2D.getModelName()+" ~> "+toL2D.getModelName());
+
+                            //pack swap to pck
+                            File swapPck = DCTools.pack(swapper.getLastSwapFolder(), context);
+                            publishProgress("swap pck: "+swapPck.getAbsolutePath());
+
+                            //update model info
+                            applyModelInfo(toL2D.getModelId(), fromModelInfo);
+
+                            //backup original
+                            FileUtils.moveFile(file, backup);
+                            publishProgress("backup: "+backup);
+
+                            //load to game
+                            FileUtils.copyFile(swapPck, file);
+                            publishProgress("loaded: "+file.getAbsolutePath());
+                        }else {
+                            publishProgress("ignored: "+file.getAbsolutePath());
+                        }
+
+                        //clean up
+                        L2DModelsActivity.actionDelete(toL2D.getOutput());
+                        L2DModelsActivity.actionDelete(swapper.getLastSwapFolder());
+                    }catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                return null;
+            }
+        }.execute(pckFiles);
     }
 }
