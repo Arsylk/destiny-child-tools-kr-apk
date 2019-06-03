@@ -1,14 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     buildToolsVersion "28.0.3"
     defaultConfig {
         applicationId 'com.arsylk.dcwallpaper'
         minSdkVersion 15
-        targetSdkVersion 27
-        versionCode 24
-        versionName '2.141'
+        targetSdkVersion 28
+        versionCode 27
+        versionName '3.1'
     }
     buildTypes {
         release {
@@ -31,9 +31,9 @@ allprojects {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:27.1.1'
-    compile 'com.android.support:design:27.1.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
+    compile 'com.android.support:appcompat-v7:28.0.0'
+    compile 'com.android.support:design:28.0.0'
+
     compile 'commons-io:commons-io:2.6'
     compile 'com.jmedeisis:draglinearlayout:1.1.0'
     compile 'com.koushikdutta.ion:ion:2.2.1'

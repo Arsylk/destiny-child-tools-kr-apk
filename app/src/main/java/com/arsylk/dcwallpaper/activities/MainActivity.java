@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +14,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -25,6 +27,7 @@ import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
 import com.arsylk.dcwallpaper.Async.AsyncBanners;
 import com.arsylk.dcwallpaper.Async.AsyncPatch;
+import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.BuildConfig;
@@ -35,17 +38,17 @@ import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
+import com.arsylk.dcwallpaper.views.BigTextDialog;
+import com.google.gson.Gson;
 import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.async.http.AsyncHttpRequest;
+import com.koushikdutta.async.http.Headers;
 import com.koushikdutta.ion.Ion;
-import jp.live2d.Def;
-import org.apache.commons.io.FileUtils;
-import org.json.JSONObject;
+import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
+import org.jsoup.Jsoup;
 
 import java.io.File;
-import java.nio.charset.Charset;
-import java.util.Arrays;
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import static com.arsylk.dcwallpaper.utils.Define.*;
 
@@ -69,7 +72,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         @Override
                         public void onFinished(DCModel dcModel) {
                             if(dcModel != null) {
-                                DCModelsActivity.showPickAction(context, dcModel);
+                                if(dcModel.isLoaded()) {
+                                    DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                                }
                             }else {
                                 Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                             }
@@ -101,6 +106,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
+        //TODO testing
+        startActivity(new Intent(context, DCSwapActivity.class));
+
         //setup apk-wide settings
         Locale.setDefault(Locale.US);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -111,6 +119,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Utils.requestPermission(context);
         Utils.initDirectories();
         Ion.getDefault(context).getConscryptMiddleware().enable(false);
+        Ion.getDefault(context).configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
+            @Override
+            public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, Headers headers) {
+                AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers);
+                request.getHeaders().set("Apk-Name", BuildConfig.APPLICATION_ID);
+                request.getHeaders().set("Apk-Version", BuildConfig.VERSION_NAME);
+                request.getHeaders().set("Device-Token", Utils.getDeviceToken(context));
+
+                return request;
+            }
+        });
 
         //init activity
         initViews();
@@ -135,7 +154,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 @Override
                 public void onFinished(DCModel dcModel) {
                     if(dcModel != null) {
-                        DCModelsActivity.showPickAction(context, dcModel);
+                        if(dcModel.isLoaded()) {
+                            DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                        }
                     }else {
                         Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                     }
@@ -191,6 +212,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.file_pack:
                 pickFileIntent(REQUEST_FILE_PACK);
+                break;
+            case R.id.dcmodels_swap:
+                startActivity(new Intent(context, DCSwapActivity.class));
                 break;
             case R.id.wiki_open:
                 openDCWiki();
@@ -291,7 +315,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("application/octet-stream");
+        intent.setType("*/*");
         startActivityForResult(Intent.createChooser(intent, "Pick file"), requestCode);
     }
 
@@ -300,19 +324,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void openEnglishPatcher() {
-        if(LoadAssets.updateInProgress(context)) {
-            Toast.makeText(context, "Wait for update to finish!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        new AsyncPatch(context, true).execute(LoadAssets.getDCEnglishPatch());
+        LoadAssets.updateEnglishPatch(context, new FutureCallback<DCLocalePatch>() {
+            @Override
+            public void onCompleted(Exception e, DCLocalePatch patch) {
+                new AsyncPatch(context, true).execute(patch);
+            }
+        });
     }
 
     private void openRussianPatcher() {
-        LoadAssets.updateRussianPatch(context, new FutureCallback<Void>() {
+        LoadAssets.updateRussianPatch(context, new FutureCallback<DCLocalePatch>() {
             @Override
-            public void onCompleted(Exception e, Void result) {
-                DCLocalePatch dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_RUSSIAN_PATCH));
-                new AsyncPatch(context, true).execute(dcLocalePatch);
+            public void onCompleted(Exception e, DCLocalePatch patch) {
+                new AsyncPatch(context, true).execute(patch);
             }
         });
 

@@ -12,10 +12,6 @@ public class DCModelItem {
     private int wikiElement = 0, wikiType= 0;
     private boolean loaded = false, wikiLoaded = false;
 
-    public DCModelItem(String path) {
-        load(new File(path));
-    }
-
     public DCModelItem(File file) {
         load(file);
     }

@@ -58,9 +58,18 @@ public class DCModelInfo {
         }
     }
 
-    public JSONObject getModelInfo(String full_model_id) {
+    public String getModelFull(String modelIdx) {
+        try {
+            String parts[] = modelIdx.split("_");
+            return getModelTitle(parts[0], parts[1]) + " " + getModelName(parts[0]);
+        }catch(Exception e) {
+            return null;
+        }
+    }
+
+    public JSONObject getModelInfo(String modelIdx) {
         try{
-            return infoJson.getJSONObject(full_model_id);
+            return infoJson.getJSONObject(modelIdx);
         }catch(Exception e) {
             return null;
         }

@@ -15,6 +15,7 @@ import android.widget.*;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
+import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.Live2D.L2DRenderer;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.activities.DCModelsActivity;
@@ -88,7 +89,6 @@ public class OnlineModelsAdapter extends BaseAdapter {
                     progressDialog.show();
                     Ion.with(context).load(onlineModel.getModelUrl())
                             .progressDialog(progressDialog)
-                            .setBodyParameter("Device-Token", Utils.getDeviceToken(context))
                             .asInputStream().setCallback(new FutureCallback<InputStream>() {
                         @Override
                         public void onCompleted(Exception e, InputStream in) {
@@ -168,16 +168,20 @@ public class OnlineModelsAdapter extends BaseAdapter {
         });
     }
 
-    private void onFileLoaded(OnlineModelItem modelItem, InputStream in) {
+    private void onFileLoaded(final OnlineModelItem modelItem, InputStream in) {
         try {
-            File file = new File(Define.ONLINE_DIRECTORY,
-                    modelItem.getModelId()+"."+modelItem.getCreator().toLowerCase()+".pck");
-            FileUtils.copyInputStreamToFile(in, file);
-            DCTools.asyncUnpack(file, context, new OnUnpackFinishedListener() {
+            //save file
+            File downloadedFile = new File(Define.ONLINE_DIRECTORY,modelItem.getModelId()+"."+modelItem.getCreator().toLowerCase()+".pck");
+            FileUtils.copyInputStreamToFile(in, downloadedFile);
+            DCTools.asyncUnpack(downloadedFile, context, new OnUnpackFinishedListener() {
                 @Override
                 public void onFinished(DCModel dcModel) {
                     if(dcModel != null) {
-                        DCModelsActivity.showPickAction(context, dcModel);
+                        if(dcModel.isLoaded()) {
+                            L2DModel l2DModel = dcModel.asL2DModel();
+                            l2DModel.setModelInfoJson(modelItem.getModelInfo());
+                            DCModelsActivity.showPickAction(context, l2DModel);
+                        }
                     }else {
                         Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                     }

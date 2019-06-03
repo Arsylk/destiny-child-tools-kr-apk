@@ -27,38 +27,15 @@
 
     </LinearLayout>
 
-    <ScrollView
-            android:id="@+id/scroll_layout"
+    <TextView
+            android:id="@+id/scroll_output"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/layout_models"
-            android:layout_above="@+id/swap_try">
-
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:baselineAligned="false">
-
-            <com.jmedeisis.draglinearlayout.DragLinearLayout
-                    android:id="@+id/drag_list_from"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-            </com.jmedeisis.draglinearlayout.DragLinearLayout>
-
-            <com.jmedeisis.draglinearlayout.DragLinearLayout
-                    android:id="@+id/drag_list_to"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1">
-
-            </com.jmedeisis.draglinearlayout.DragLinearLayout>
-
-        </LinearLayout>
-
-    </ScrollView>
+            android:layout_below="@+id/layout_models"
+            android:layout_above="@+id/swap_try"
+            android:padding="10dp"
+            android:textSize="12sp"
+            android:background="@drawable/border_frame_black_full_blue"/>
 
     <Button
             android:id="@+id/swap_try"

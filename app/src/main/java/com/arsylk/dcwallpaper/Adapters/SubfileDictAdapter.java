@@ -1,9 +1,9 @@
 package com.arsylk.dcwallpaper.Adapters;
 
 import android.content.Context;
-import android.text.Editable;
-import android.text.InputType;
-import android.text.TextWatcher;
+import android.graphics.Color;
+import android.text.*;
+import android.text.style.BackgroundColorSpan;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +18,7 @@ import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.views.PopupEditText;
+import com.arsylk.dcwallpaper.views.TabSpannableFactory;
 import com.koushikdutta.async.future.FutureCallback;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -31,7 +32,7 @@ import java.util.Map;
 public class SubfileDictAdapter extends BaseAdapter implements Filterable {
     //list adapter
     private Context context;
-    private DCLocalePatch.Subfile subfile;
+    private DCLocalePatch.Subfile subfile = null;
     private List<Map.Entry<String, String>> entries;
     private DCLocalePatch patch = null;
     //search panel
@@ -167,16 +168,26 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
-    private void updatePatch(String key, String val) {
+    public void updatePatch(String key, String val) {
         //notify about patch update
-        if(onPatchChangedListener != null) onPatchChangedListener.onPatchChanged(patch, subfile, key, val);
+        if(onPatchChangedListener != null) {
+            onPatchChangedListener.onPatchChanged(patch, subfile, key, val);
+        }
 
         //update inner patch
-        if(patch.getHashFile(subfile.getHash()) == null) {
-            patch.addSubfile(new DCLocalePatch.Subfile(subfile.getHash(), subfile.getLineType(), new LinkedHashMap<String, String>()));
+        if(val != null) {
+            if(patch.getHashFile(subfile.getHash()) == null) {
+                patch.addSubfile(new DCLocalePatch.Subfile(subfile.getHash(), subfile.getLineType(), new LinkedHashMap<String, String>()));
+            }
+            patch.getHashFile(subfile.getHash()).setValue(key, val);
+        }else {
+            if(patch.getHashFileDictValue(subfile.getHash(), key) != null) {
+                patch.getHashFile(subfile.getHash()).delValue(key);
+                if(patch.getHashFileDict(subfile.getHash()).size() == 0) {
+                    patch.delSubfile(patch.getHashFile(subfile.getHash()));
+                }
+            }
         }
-        patch.getHashFile(subfile.getHash()).setValue(key, val);
-
     }
 
     public void resetSearchPanel() {
@@ -245,7 +256,7 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
                     @Override
                     public void onCompleted(Exception e, String result) {
                         if(e == null) {
-                            holder.popupfield.setText(result);
+                            holder.popupfield.setText(result, TextView.BufferType.SPANNABLE);
                         }else {
                             Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
                         }
@@ -256,15 +267,24 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
         });
 
         //update value field
-        holder.defaultfield.setText(entry.getValue());
+        holder.defaultfield.setSpannableFactory(new TabSpannableFactory());
+        holder.defaultfield.setText(entry.getValue(), TextView.BufferType.SPANNABLE);
 
         //update popup translated field
         holder.popupfield.setDialogTitle(entry.getKey());
-        holder.popupfield.setText(patch.getHashFileDictValue(subfile.getHash(), entry.getKey()));
+        holder.popupfield.setSpannableFactory(new TabSpannableFactory());
+        holder.popupfield.setText(patch.getHashFileDictValue(subfile.getHash(), entry.getKey()), TextView.BufferType.SPANNABLE);
         holder.popupfield.setOnTextChangedListener(new PopupEditText.OnTextChangedListener() {
             @Override
             public void onTextChanged(String text) {
-                if(!text.isEmpty()) updatePatch(entry.getKey(), text);
+                updatePatch(entry.getKey(), !text.isEmpty() ? text : null);
+            }
+        });
+        holder.popupfield.setOnTitleLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                holder.popupfield.setDialogText(entry.getValue());
+                return true;
             }
         });
 
@@ -326,5 +346,9 @@ public class SubfileDictAdapter extends BaseAdapter implements Filterable {
                 }
             }
         };
+    }
+
+    public DCLocalePatch.Subfile getSubfile() {
+        return subfile;
     }
 }

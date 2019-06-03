@@ -31,13 +31,6 @@ public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
 //            error = true;
 //        }
         try {
-            publishProgress("Updating english patch...");
-            LoadAssets.updateEnglishPatch(context).get();
-        }catch(Exception e) {
-            e.printStackTrace();
-            error = true;
-        }
-        try {
             publishProgress("Updating child skills...");
             LoadAssets.updateChildSkills(context).get();
         }catch(Exception e) {

@@ -1,5 +1,6 @@
 package com.arsylk.dcwallpaper.utils;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -10,6 +11,7 @@ import com.koushikdutta.async.future.Future;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -27,29 +29,6 @@ public class LoadAssets  {
                 if(callback != null) callback.onCall();
             }
         }.execute();
-    }
-
-    public static Future updateEnglishPatch(Context context) {
-        return Ion.with(context).load(String.format(REMOTE_ASSET_LOCALE, Utils.md5(ASSET_LOCALE))).group(TAG_ASSETS)
-                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
-                    @Override
-                    public void onCompleted(Exception e, String result) {
-                        if(e == null) {
-                            if(result.isEmpty()) {
-                                Log.d("mTag:Assets", "English patch is up-to-date!");
-                                return;
-                            }
-                            try {
-                                FileUtils.write(ASSET_LOCALE, result, Charset.forName("utf-8"));
-                                Log.d("mTag:Assets", "English patch updated!");
-                            }catch(Exception e1) {
-                                e1.printStackTrace();
-                            }
-                        }else {
-                            e.printStackTrace();
-                        }
-                    }
-                });
     }
 
     public static Future updateChildSkills(Context context) {
@@ -78,14 +57,15 @@ public class LoadAssets  {
     public static void updateChildNames(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         File locale = new File(DCTools.getDCLocalePath());
-        String oldLocaleMd5 = prefs.getString("locale_md5", "");
-        String newLocaleMd5 = Utils.md5(locale);
-        if(newLocaleMd5.equalsIgnoreCase(oldLocaleMd5) && ASSET_EXTRACTED_CHILD_NAMES.exists()) {
+        if(!prefs.getBoolean("update_child_names", true) && ASSET_EXTRACTED_CHILD_NAMES.exists()) {
             Log.d("mTag:Assets", "Child names are up-to-date!");
         }else {
             try {
                 DCTools.extractChildNames(locale, context);
-                prefs.edit().putString("locale_md5", newLocaleMd5).commit();
+                prefs.edit()
+                        .putString("locale_md5", prefs.getString("locale_md5", Utils.md5(locale)))
+                        .putBoolean("update_child_names", false)
+                        .apply();
                 Log.d("mTag:Assets", "Child names updated!");
             }catch(Exception e) {
                 e.printStackTrace();
@@ -93,29 +73,72 @@ public class LoadAssets  {
         }
     }
 
-    public static void updateRussianPatch(Context context, final FutureCallback<Void> callback) {
-        Ion.with(context).load(String.format(REMOTE_ASSET_RUSSIAN_PATCH, Utils.md5(ASSET_RUSSIAN_PATCH))).group(TAG_ASSETS)
+    public static void updateEnglishPatch(Context context, final FutureCallback<DCLocalePatch> callback) {
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle("Loading...");
+        progressDialog.setMessage("Updating english patch...");
+        progressDialog.show();
+        Ion.with(context).load(String.format(REMOTE_ASSET_ENGLISH_PATCH, Utils.md5(ASSET_ENGLISH_PATCH))).group(TAG_ASSETS)
                 .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
-                    @Override
-                    public void onCompleted(Exception e, String result) {
-                        if(e == null) {
-                            if(result.isEmpty()) {
-                                Log.d("mTag:Assets", "Russian patch is up-to-date!");
-                                callback.onCompleted(null, null);
-                                return;
-                            }
-                            try {
-                                FileUtils.write(ASSET_RUSSIAN_PATCH, result, Charset.forName("utf-8"));
-                                Log.d("mTag:Assets", "Russian patch updated!");
-                                callback.onCompleted(null, null);
-                            }catch(Exception e1) {
-                                e1.printStackTrace();
-                            }
-                        }else {
-                            e.printStackTrace();
+            @Override
+            public void onCompleted(Exception e, String result) {
+                if(e == null) {
+                    DCLocalePatch dcLocalePatch = null;
+                    if(result.isEmpty()) {
+                        Log.d("mTag:Assets", "English patch is up-to-date!");
+                        dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_ENGLISH_PATCH));
+                    }else {
+                        try {
+                            Log.d("mTag:Assets", "English patch updated!");
+                            FileUtils.write(ASSET_ENGLISH_PATCH, result, Charset.forName("utf-8"));
+                            dcLocalePatch = new DCLocalePatch(new JSONObject(result));
+                        }catch(Exception e1) {
+                            e1.printStackTrace();
                         }
                     }
-                });
+                    //finish update
+                    progressDialog.dismiss();
+                    callback.onCompleted(null, dcLocalePatch);
+                }else {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    public static void updateRussianPatch(Context context, final FutureCallback<DCLocalePatch> callback) {
+        final ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setCancelable(false);
+        progressDialog.setTitle("Loading...");
+        progressDialog.setMessage("Updating russian patch...");
+        progressDialog.show();
+        Ion.with(context).load(String.format(REMOTE_ASSET_RUSSIAN_PATCH, Utils.md5(ASSET_RUSSIAN_PATCH))).group(TAG_ASSETS)
+                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
+            @Override
+            public void onCompleted(Exception e, String result) {
+                if(e == null) {
+                    DCLocalePatch dcLocalePatch = null;
+                    if(result.isEmpty()) {
+                        Log.d("mTag:Assets", "Russian patch is up-to-date!");
+                        dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_RUSSIAN_PATCH));
+                    }else {
+                        try {
+                            Log.d("mTag:Assets", "Russian patch updated!");
+                            FileUtils.write(ASSET_RUSSIAN_PATCH, result, Charset.forName("utf-8"));
+                            dcLocalePatch = new DCLocalePatch(new JSONObject(result));
+                        }catch(Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                    //finish update
+                    progressDialog.dismiss();
+                    callback.onCompleted(null, dcLocalePatch);
+                }else {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     public static boolean updateInProgress(Context context) {
@@ -139,14 +162,5 @@ public class LoadAssets  {
             info = new DCModelInfo();
         }
         return info;
-    }
-
-    //patch
-    private static DCLocalePatch patch = null;
-    public static DCLocalePatch getDCEnglishPatch() {
-        if(patch ==  null) {
-            patch = new DCLocalePatch(Utils.fileToJson(ASSET_LOCALE));
-        }
-        return patch;
     }
 }

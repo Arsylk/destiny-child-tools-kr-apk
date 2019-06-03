@@ -12,7 +12,7 @@ public class OnlineModelItem {
     private int id;
     private String modelId;
     private String modelName, creator, description;
-    private float modelScale, modelOffsetX, modelOffsetY;
+    private JSONObject modelInfo = null;
     private Bitmap bitmap = null;
 
     //constructors
@@ -38,6 +38,11 @@ public class OnlineModelItem {
             modelUrl = String.format(Locale.US, Define.ONLINE_MODEL_FILE_URL, id);
             if(!json.isNull("model_preview")) {
                 previewUrl = String.format(Locale.US, Define.ONLINE_MODEL_PREVIEW_URL, id);
+            }
+
+            //model info
+            if(!json.isNull("model_info")) {
+                modelInfo = json.getJSONObject("model_info");
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -70,16 +75,8 @@ public class OnlineModelItem {
         return description;
     }
 
-    public float getModelScale() {
-        return modelScale;
-    }
-
-    public float getModelOffsetX() {
-        return modelOffsetX;
-    }
-
-    public float getModelOffsetY() {
-        return modelOffsetY;
+    public JSONObject getModelInfo() {
+        return modelInfo;
     }
 
     public String getModelUrl() {

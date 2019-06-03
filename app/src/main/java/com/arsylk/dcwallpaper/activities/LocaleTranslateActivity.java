@@ -91,6 +91,9 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            case R.id.menu_add_key:
+                showAddKey();
+                return true;
             case R.id.menu_load_patch:
                 showLoadPatches();
                 return true;
@@ -189,7 +192,6 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
                         patchedNew.getHashFile(subfile.getHash()).delValue(key);
                         if(patchedNew.getHashFileDict(subfile.getHash()).size() == 0) {
                             patchedNew.delSubfile(patchedNew.getHashFile(subfile.getHash()));
-
                         }
                     }
                 }
@@ -204,6 +206,12 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
 
     @Override
     public void onFinished(DCLocalePatch locale) {
+        //check if not null
+        if(locale == null) {
+            Toast.makeText(context, "Failed to load locale!", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
         //assign loaded locale
         original = locale;
 
@@ -228,6 +236,26 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
     }
 
     //options menu choices
+    private void showAddKey() {
+        new InputTextDialog(context, "Add Key", "Key", new InputTextDialog.OnInputSubmitted() {
+            @Override
+            public void onInputSubmitted(final String key) {
+                if(!key.isEmpty()) {
+                    new InputTextDialog(context, "Add Key", "Value", new InputTextDialog.OnInputSubmitted() {
+                        @Override
+                        public void onInputSubmitted(String val) {
+                            dictAdapter.updatePatch(key, val);
+                            DCLocalePatch.Subfile subfile = dictAdapter.getSubfile();
+                            subfile.setValue(key, "");
+                            dictAdapter.setSubfile(subfile);
+                        }
+                    }).show();
+                }
+            }
+        }).show();
+
+    }
+
     private void showLoadPatches() {
         //create options
         List<PickWhichDialog.Option<Integer>> options = new ArrayList<>();

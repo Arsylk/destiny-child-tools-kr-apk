@@ -1,6 +1,6 @@
 package com.arsylk.dcwallpaper.DestinyChild;
 
-import com.arsylk.dcwallpaper.utils.LoadAssets;
+import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.utils.Utils;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
@@ -17,6 +17,7 @@ public class DCModel extends Pck {
     public static class DCModelJson {
         private JSONObject json;
         private boolean tested = false, loaded = false;
+        private String modelIdx;
 
         private String model;
         private String[] textures;
@@ -75,6 +76,14 @@ public class DCModel extends Pck {
                         expressions.put(jsonExp.getString("name"), jsonExp.getString("file"));
                     }
                 }
+                //model idx
+                for(String motion : motions.values()) {
+                    if(motion.split("_").length > 2) {
+                        modelIdx = motion.substring(0, motion.indexOf("_", motion.indexOf("_")+1));
+                        break;
+                    }
+                }
+
                 return true;
             }catch(Exception e) {
                 e.printStackTrace();
@@ -89,6 +98,10 @@ public class DCModel extends Pck {
 
         public boolean isLoaded() {
             return loaded;
+        }
+
+        public String getModelIdx() {
+            return isLoaded() ? modelIdx : null;
         }
 
         public String getModel() {
@@ -115,11 +128,13 @@ public class DCModel extends Pck {
     private PckFile modelCharacter;
     private Map<String, PckFile> modelMotions;
 
+    //constructors
     public DCModel(Pck pck) {
         super(pck);
         loaded = loadAsModel();
         generateHeader();
     }
+
 
     //methods
     private boolean loadAsModel() {
@@ -131,6 +146,7 @@ public class DCModel extends Pck {
                 if(tryGetCharacter()) {
                     //try get motions
                     if(tryGetMotions()) {
+                        //try ignore get expressions
                         tryGetExpressions();
                         return true;
                     }
@@ -250,22 +266,10 @@ public class DCModel extends Pck {
 
     }
 
-    public static void generateModel(String modelPath, String modelId, String name) {
-        try{
-            File output = new File(modelPath);
-            if(output.isFile()) {
-                output = output.getParentFile();
-            }
-            FileUtils.write(new File(output, "_model"),
-                    new JSONObject()
-                            .put("model_id", modelId)
-                            .put("model_name", name)
-                            .put("model_info", LoadAssets.getDCModelInfoInstance().getModelInfo(modelId))
-                            .toString(4), Charset.forName("utf-8"));
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
+    public L2DModel asL2DModel() {
+        return isLoaded() ? new L2DModel(output, modelJson) : null;
     }
+
 
     //getters
     public boolean isLoaded() {

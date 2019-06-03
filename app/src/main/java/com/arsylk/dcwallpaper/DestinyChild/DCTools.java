@@ -10,9 +10,11 @@ import com.arsylk.dcwallpaper.Async.*;
 import com.arsylk.dcwallpaper.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
+import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
+import com.koushikdutta.async.future.FutureCallback;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
@@ -24,6 +26,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import static com.arsylk.dcwallpaper.utils.Define.ASSET_ENGLISH_PATCH;
 import static com.arsylk.dcwallpaper.utils.Utils.bytesToHex;
 import static com.arsylk.dcwallpaper.utils.Utils.getUnpackPath;
 import static com.arsylk.dcwallpaper.DestinyChild.DCDefine.*;
@@ -176,6 +179,10 @@ public class DCTools {
     }
 
     public static Pck unpack(File src, Context context) throws Exception {
+        return unpack(src, context, null);
+    }
+
+    public static Pck unpack(File src, Context context, FutureCallback<String> progressCallback) throws Exception {
         //create folder name
         String output = src.getName().replace(".pck", "");
 
@@ -242,9 +249,12 @@ public class DCTools {
                     file_bytes = after_yappy;
                 }
 
-
                 ext = getExtId(file_bytes[0] & 0xFF);
-                Log.d("mTag:File", String.format("File %2d/%d %s [%016X | %6d] %02d %s", i+1, count, hashs, offset, size, flag, getExtStr(ext)));
+
+                //display progress
+                String logLine = String.format("File %2d/%d %s [%016X | %6d] %02d %s", i+1, count, hashs, offset, size, flag, getExtStr(ext));
+                Log.d("mTag:File", logLine);
+                if(progressCallback != null) progressCallback.onCompleted(null, logLine);
 
                 //save extracted file (files starting with _ are unprocessed)
                 File filepath = getUnpackPath(output, String.format("%08d.%s", i, getExtStr(ext)));
@@ -281,6 +291,54 @@ public class DCTools {
     }
 
 
+    //file updating actions
+    public static void asyncApplyModelInfo(L2DModel l2DModel, Context context, final boolean restore) {
+        new AsyncWithDialog<L2DModel, String, L2DModel>(context, true, "Applying model info...") {
+            @Override
+            protected L2DModel doInBackground(L2DModel... l2DModels) {
+                L2DModel l2DModel = l2DModels[0];
+                try {
+                    if(!restore) {
+                        //apply new info
+                        if(l2DModel.getModelInfoJson().length() > 0) {
+                            JSONObject modelInfoBak = DCTools.applyModelInfo(l2DModel.getModelId(), l2DModel.getModelInfoJson());
+                            l2DModel.setModelInfoBakJson(modelInfoBak);
+                            l2DModel.generateModel();
+                        }
+                    }else {
+                        //restore bak info
+                        if(l2DModel.getModelInfoBakJson().length() > 0) {
+                            DCTools.applyModelInfo(l2DModel.getModelId(), l2DModel.getModelInfoBakJson());
+                        }
+                    }
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+
+                return l2DModel;
+            }
+        }.execute(l2DModel);
+    }
+
+    public static JSONObject applyModelInfo(String modelIdx, JSONObject mode_info_values) throws Exception {
+        JSONObject model_info = Utils.fileToJson(getDCModelInfoPath());
+        JSONObject model_info_original = model_info.getJSONObject(modelIdx);
+
+        //change value
+        model_info.put(modelIdx, mode_info_values);
+
+        //backup old file
+        File bakFile = new File(getDCModelInfoPath().getAbsolutePath()+".bak");
+        if(!bakFile.exists()) {
+            FileUtils.moveFile(getDCModelInfoPath(), bakFile);
+        }
+
+        //write new json
+        FileUtils.write(getDCModelInfoPath(), model_info.toString(2), Charset.forName("utf-8"));
+
+        return model_info_original;
+    }
+
     public static void patchLocale(File file_locale, DCLocalePatch patch, Context context) throws Exception {
         //load and patch locale
         DCLocale locale = new DCLocale(DCTools.unpack(file_locale, context));
@@ -298,7 +356,10 @@ public class DCTools {
         File packed_locale = DCTools.pack(locale.getOutput(), file_locale, context);
 
         //write new md5's
-        PreferenceManager.getDefaultSharedPreferences(context).edit().putString("locale_md5", Utils.md5(file_locale)).commit();
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putString("locale_md5", Utils.md5(file_locale))
+                .putBoolean("update_child_names", true)
+                .commit();
         Log.d("mTag:Patch", "Patched locale!");
     }
 
@@ -344,33 +405,39 @@ public class DCTools {
             //iter lines
             LinkedHashMap<String, String> mapModelIds = srcLocale.loadFile(pckModelIds);
             for(Map.Entry<String, String> entry : mapModelIds.entrySet()) {
-                String key = entry.getKey(); String value = entry.getValue();
-                //only if matches format
-                if(key.contains("_") && value.contains("\t")) {
-                    value = value.substring(0, value.indexOf("\t"));
-                    String modelId = key.substring(0, key.indexOf("_")),
-                            modelFlag = key.substring(key.indexOf("_")+1),
-                            modelTitle = value.substring(0, value.indexOf("_")),
-                            modelName = value.substring(value.indexOf("_")+1);
-                    value = value.replace("_", " ").trim();
-                    //adding to new json
-                    if(!jsonWikiBase.has(modelId)) {
-                        jsonWikiBase.put(modelId, new JSONObject());
-                    }
-                    JSONObject jsonModelId = jsonWikiBase.getJSONObject(modelId);
-                    if(jsonModelId.has("name")) {
-                        if(jsonModelId.getString("name").isEmpty()) {
+                //try/catch for safety
+                try {
+                    String key = entry.getKey(); String value = entry.getValue();
+                    //only if matches format
+                    if(key.contains("_") && value.contains("\t")) {
+                        value = value.substring(0, value.indexOf("\t"));
+                        String modelId = key.substring(0, key.indexOf("_")),
+                                modelFlag = key.substring(key.indexOf("_")+1),
+                                modelTitle = value.substring(0, value.indexOf("_")),
+                                modelName = value.substring(value.indexOf("_")+1);
+                        value = value.replace("_", " ").trim();
+                        //adding to new json
+                        if(!jsonWikiBase.has(modelId)) {
+                            jsonWikiBase.put(modelId, new JSONObject());
+                        }
+                        JSONObject jsonModelId = jsonWikiBase.getJSONObject(modelId);
+                        if(jsonModelId.has("name")) {
+                            if(jsonModelId.getString("name").isEmpty()) {
+                                jsonModelId.put("name", modelName);
+                            }
+                        }else {
                             jsonModelId.put("name", modelName);
                         }
-                    }else {
-                        jsonModelId.put("name", modelName);
-                    }
 
-                    if(!jsonModelId.has("variants")) {
-                        jsonModelId.put("variants", new JSONObject());
+                        if(!jsonModelId.has("variants")) {
+                            jsonModelId.put("variants", new JSONObject());
+                        }
+                        JSONObject jsonModelVariants = jsonModelId.getJSONObject("variants");
+                        jsonModelVariants.put(modelFlag, new JSONObject().put("title", modelTitle));
                     }
-                    JSONObject jsonModelVariants = jsonModelId.getJSONObject("variants");
-                    jsonModelVariants.put(modelFlag, new JSONObject().put("title", modelTitle));
+                }catch(Exception e) {
+                    System.err.append("key: "+entry.getKey()+"  val: "+entry.getValue()+"\n");
+                    e.printStackTrace();
                 }
             }
             //save to file
@@ -458,8 +525,11 @@ public class DCTools {
     }
 
     public static File extractMissing(File src, Context context) throws Exception {
+        //load patch if present
+        DCLocalePatch patch = new DCLocalePatch(Utils.fileToJson(ASSET_ENGLISH_PATCH));
+
+        //load locale
         DCLocale srcLocale = new DCLocale(unpack(src, context));
-        DCLocalePatch patch = LoadAssets.getDCEnglishPatch();
         new DCLocalePatch(srcLocale).save(new File(Define.BASE_DIRECTORY, "extracted_current.json"));
 
         JSONObject generated = new JSONObject();

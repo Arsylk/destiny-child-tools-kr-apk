@@ -6,20 +6,6 @@
               android:padding="8dp">
 
     <TextView
-            android:text="Model name:"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp" />
-
-    <EditText
-            android:id="@+id/input_name"
-            android:hint="Davi, Red Cross ..."
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lines="1"
-            android:inputType="text" />
-
-    <TextView
             android:text="Model id:"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,6 +18,21 @@
             android:layout_height="wrap_content"
             android:lines="1"
             android:inputType="textNoSuggestions" />
+
+
+    <TextView
+            android:text="Model name:"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+
+    <EditText
+            android:id="@+id/input_name"
+            android:hint="Davi, Red Cross ..."
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="text" />
 
     <TextView
             android:text="Folder name:"

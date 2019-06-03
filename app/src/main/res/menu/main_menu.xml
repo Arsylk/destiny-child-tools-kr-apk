@@ -58,6 +58,9 @@
         <menu>
             <group android:checkableBehavior="none">
                 <item
+                        android:id="@+id/dcmodels_swap"
+                        android:title="Swap Models" />
+                <item
                         android:id="@+id/wiki_open"
                         android:title="Wiki" />
 

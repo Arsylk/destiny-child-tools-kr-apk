@@ -1,22 +1,23 @@
 package com.arsylk.dcwallpaper.Live2D;
 
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
+import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
-import java.util.List;
-import java.util.Map;
+import java.nio.charset.Charset;
+import java.util.*;
 
 public class L2DModel {
     private DCModel.DCModelJson modelJson;
-    private File output, model, _model;
-    private List<File> textures;
-    private Map<String, String> motions;
-    private String modelName, modelId;
-    private JSONObject _modelJson = null, infoJson = null;
+    private File output;
+    private String modelName, modelIdx;
+    private JSONObject _modelJson = null, infoJson = null, infoBakJson = null;
 
+    //constructors
     public L2DModel(String model) {
         load(new File(model));
     }
@@ -25,46 +26,104 @@ public class L2DModel {
         load(model);
     }
 
+    public L2DModel(File output, DCModel.DCModelJson modelJson) {
+        this.output = output;
+        this.modelJson = modelJson;
+        this.modelIdx = modelJson.getModelIdx();
+        this.modelName = LoadAssets.getDCModelInfoInstance().getModelFull(modelIdx);
+    }
+
+
     //methods
     private void load(File model) {
+        //fail safe
         if(model.isDirectory())
             model = new File(model, "model.json");
-        this.model = model;
-        this.modelJson = new DCModel.DCModelJson(Utils.fileToJson(model));
+        modelJson = new DCModel.DCModelJson(Utils.fileToJson(model));
+
+        //only if correct model
         if(modelJson.isLoaded()) {
-            this.output = model.getParentFile();
-            this.motions = modelJson.getMotions();
-            this._model = new File(output, "_model");
-            if(_model.exists()) {
-                _modelJson = Utils.fileToJson(_model);
+            modelIdx = modelJson.getModelIdx();
+            output = model.getParentFile();
+
+            if(getModelConfig().exists()) {
+                //load from saved file
+                _modelJson = Utils.fileToJson(getModelConfig());
                 if(_modelJson != null) {
                     if(_modelJson.has("model_name") && _modelJson.has("model_id")) {
                         try {
-                            this.modelId = _modelJson.getString("model_id");
-                            this.modelName = _modelJson.getString("model_name");
+                            modelIdx = _modelJson.getString("model_id");
+                            modelName = _modelJson.getString("model_name");
                         }catch(Exception e) {
                             e.printStackTrace();
                         }
                     }
                     if(_modelJson.has("model_info")) {
                         try {
-                            this.infoJson = _modelJson.getJSONObject("model_info");
+                            infoJson = _modelJson.getJSONObject("model_info");
+                            infoBakJson = _modelJson.getJSONObject("model_info_bak");
                         }catch(Exception e) {
                             return;
                         }
                     }
                 }
+            }else {
+                //load default params
+                modelName = LoadAssets.getDCModelInfoInstance().getModelFull(modelIdx);
             }
         }
     }
 
-    //getters
-    public boolean isLoaded() {
-        return modelJson.isLoaded();
+    public synchronized void generateModel() {
+        try{
+            //generate json
+            JSONObject _model = new JSONObject()
+                    .put("model_id", modelIdx)
+                    .put("model_name", modelName);
+            if(infoJson != null) {
+                _model.put("model_info", infoJson);
+            }
+            if(infoBakJson != null) {
+                _model.put("model_info_bak", infoBakJson);
+            }
+
+            //write json to file
+            FileUtils.write(getModelConfig(), _model.toString(4), Charset.forName("utf-8"));
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public File getModelConfig() {
-        return _model != null ? _model : new File(model.getParentFile(), "_model");
+
+    //setters
+    public void setOutput(File output) {
+        this.output = output;
+    }
+
+    public void setModelName(String modelName) {
+        this.modelName = modelName;
+    }
+
+    public void setModelInfoJson(JSONObject infoJson) {
+        this.infoJson = infoJson;
+    }
+
+    public void setModelInfoBakJson(JSONObject infoBakJson) {
+        this.infoBakJson = infoBakJson;
+    }
+
+
+    //getters
+    public boolean isLoaded() {
+        return modelJson.isLoaded() && modelIdx != null;
+    }
+
+    public String getModelId() {
+        return modelIdx;
+    }
+
+    public String getModelName() {
+        return modelName != null ? modelName : getModelId();
     }
 
     public JSONObject getModelConfigJson() {
@@ -75,12 +134,25 @@ public class L2DModel {
         return infoJson != null ? infoJson : new JSONObject();
     }
 
-    public File getModel() {
-        return model;
+    public JSONObject getModelInfoBakJson() {
+        return infoBakJson != null ? infoBakJson : new JSONObject();
     }
 
+    //getters files
     public File getOutput() {
         return output;
+    }
+
+    public File getModelHeader() {
+        return new File(output, "_header");
+    }
+
+    public File getModelConfig() {
+        return new File(output, "_model");
+    }
+
+    public File getModel() {
+        return new File(output, "model.json");
     }
 
     public File getCharacter() {
@@ -95,18 +167,35 @@ public class L2DModel {
         return textures;
     }
 
+    public File[] getMotions() {
+        List<String> motions = new ArrayList<>(modelJson.getMotions().values());
+        File[] motionFiles = new File[motions.size()];
+        for(int i = 0; i < motionFiles.length; i++) {
+            motionFiles[i] = new File(output, motions.get(i));
+        }
+        return motionFiles;
+    }
+
     public File getMotion(String name) {
-        if(motions.containsKey(name)) {
-            return new File(output, motions.get(name));
+        if(modelJson.getMotions().containsKey(name)) {
+            return new File(output, modelJson.getMotions().get(name));
         }
         return null;
     }
 
-    public String getModelId() {
-        return modelId;
+    public File[] getExpressions() {
+        List<String> expressions = new ArrayList<>(modelJson.getExpressions().values());
+        File[] expressionFiles = new File[expressions.size()];
+        for(int i = 0; i < expressionFiles.length; i++) {
+            expressionFiles[i] = new File(output, expressions.get(i));
+        }
+        return expressionFiles;
     }
 
-    public String getModelName() {
-        return modelName;
+    public File getExpression(String name) {
+        if(modelJson.getExpressions().containsKey(name)) {
+            return new File(output, modelJson.getExpressions().get(name));
+        }
+        return null;
     }
 }

@@ -19,6 +19,7 @@ public class PopupEditText extends android.support.v7.widget.AppCompatTextView i
     private RelativeLayout dialogView;
     private EditText editText;
     private OnTextChangedListener onTextChangedListener = null;
+    private OnLongClickListener onTitleLongClickListener = null;
 
     public PopupEditText(Context context) {
         super(context);
@@ -54,8 +55,9 @@ public class PopupEditText extends android.support.v7.widget.AppCompatTextView i
             @Override
             protected void onTextChanged(CharSequence text, int start, int lengthBefore, int lengthAfter) {
                 String formatted = text.toString().replace("\n", "\t");
-                PopupEditText.this.setText(formatted);
-                if(onTextChangedListener != null) onTextChangedListener.onTextChanged(formatted);
+                PopupEditText.this.setText(formatted, BufferType.SPANNABLE);
+                if(onTextChangedListener != null)
+                    onTextChangedListener.onTextChanged(formatted);
             }
         };
         editText.setGravity(Gravity.TOP | Gravity.START);
@@ -78,18 +80,33 @@ public class PopupEditText extends android.support.v7.widget.AppCompatTextView i
     public void onClick(View view) {
         if(!dialog.isShowing()) {
             dialog.show();
-            editText.setText(getText().toString().replace("\t", "\n"));
+            editText.setText(getText().toString().replace("\\t", "\n"));
             editText.setSelection(editText.getText().length());
+            View dialogTitleView = dialog.findViewById(R.id.alertTitle);
+            if(dialogTitleView != null && onTitleLongClickListener != null) {
+                dialogTitleView.setOnLongClickListener(onTitleLongClickListener);
+            }
         }else {
             dialog.dismiss();
         }
     }
 
+
+
+    //setters
     public void setDialogTitle(String title) {
         dialog.setTitle(title);
     }
 
+    public void setDialogText(String text) {
+        editText.setText(text.replace("\t", "\n"));
+    }
+
     public void setOnTextChangedListener(OnTextChangedListener onTextChangedListener) {
         this.onTextChangedListener = onTextChangedListener;
+    }
+
+    public void setOnTitleLongClickListener(View.OnLongClickListener onTitleLongClickListener) {
+        this.onTitleLongClickListener = onTitleLongClickListener;
     }
 }

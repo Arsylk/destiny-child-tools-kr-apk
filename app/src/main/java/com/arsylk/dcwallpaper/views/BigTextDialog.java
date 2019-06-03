@@ -1,12 +1,13 @@
 package com.arsylk.dcwallpaper.views;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.view.*;
+import android.widget.*;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import org.apache.commons.io.FileUtils;
@@ -20,12 +21,14 @@ public class BigTextDialog extends AlertDialog.Builder {
     private String bigText;
     private String[] lines;
 
+
     public BigTextDialog(Context context, String title, String bigText) {
         super(context);
         this.context = context;
         this.title = title;
         this.bigText = bigText;
         this.lines = bigText.split("\n");
+
         initViews();
     }
 
@@ -34,16 +37,64 @@ public class BigTextDialog extends AlertDialog.Builder {
         setTitle(title);
         setCancelable(false);
 
-        //list view with lines
-        ListView listView = new ListView(context);
-        int padding = (int) context.getResources().getDimension(R.dimen.item_margin);
-        listView.setPadding(0, padding, 0, padding);
-        listView.setDividerHeight(0);
-        listView.setClickable(false);
-        listView.setSelector(android.R.color.transparent);
-        listView.setCacheColorHint(Color.TRANSPARENT);
-        listView.setAdapter(new ArrayAdapter<>(context, R.layout.item_textline, R.id.label, lines));
-        setView(listView);
+        //meme recycler view solution
+        class LineAdapter extends RecyclerView.Adapter<LineAdapter.Holder> {
+            class Holder extends RecyclerView.ViewHolder {
+                protected TextView label;
+                private Holder(View view) {
+                    super(view);
+                    this.label = view.findViewById(R.id.label);
+                }
+            }
+            protected String[] rows;
+            public LineAdapter(String[] lines) {
+                this.rows = lines;
+            }
+            @Override
+            public Holder onCreateViewHolder(ViewGroup viewGroup, int i) {
+                return new LineAdapter.Holder(LayoutInflater.from(context).inflate(R.layout.item_textline, viewGroup, false));
+            }
+
+            @Override
+            public void onBindViewHolder(final Holder holder, int i) {
+                holder.label.setText(rows[i]);
+            }
+
+            @Override
+            public int getItemCount() {
+                return rows.length;
+            }
+        }
+        class LineListAdapter extends RecyclerView.Adapter<LineListAdapter.Holder> {
+            class Holder extends RecyclerView.ViewHolder {
+                protected RecyclerView rv;
+                private Holder(View view) {
+                    super(view);
+                    this.rv = (RecyclerView) view;
+                }
+            }
+            @Override
+            public Holder onCreateViewHolder(ViewGroup viewGroup, int i) {
+                return new LineListAdapter.Holder(new RecyclerView(context));
+            }
+
+            @Override
+            public void onBindViewHolder(final Holder holder, int i) {
+                LinearLayoutManager layoutManager = new LinearLayoutManager(context, LinearLayoutManager.VERTICAL,false);
+                holder.rv.setLayoutManager(layoutManager);
+                holder.rv.setAdapter(new LineAdapter(lines));
+            }
+
+            @Override
+            public int getItemCount() {
+                return 1;
+            }
+        }
+        RecyclerView rv = new RecyclerView(context);
+        rv.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,false));
+        rv.setAdapter(new LineListAdapter());
+        setView(rv);
+
 
         //buttons
         setPositiveButton("Save", new DialogInterface.OnClickListener() {

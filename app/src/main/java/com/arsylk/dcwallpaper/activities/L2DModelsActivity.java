@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
@@ -27,8 +28,11 @@ import com.arsylk.dcwallpaper.Live2D.LiveWallpaperService;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
+import com.arsylk.dcwallpaper.views.BigTextDialog;
+import com.arsylk.dcwallpaper.views.PickWhichDialog;
 import com.koushikdutta.async.future.FutureCallback;
 import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -130,172 +134,370 @@ public class L2DModelsActivity extends AppCompatActivity {
         showPickAction(context, l2DModel, null);
     }
 
-    public static void showPickAction(final Context context, final L2DModel l2dModel, final FutureCallback<Integer> callback) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle("Choose action:");
-        builder.setItems(new String[]{"Preview", "Load", "Restore", "Delete", "Wallpaper"}, new DialogInterface.OnClickListener() {
+    //action picker dialog
+    public static void showPickAction(final Context context, final L2DModel l2DModel, final FutureCallback<Integer> callback) {
+        //create options
+        List<PickWhichDialog.Option<Integer>> options = new ArrayList<>();
+        options.add(new PickWhichDialog.Option<Integer>("Preview", 0));
+        options.add(new PickWhichDialog.Option<Integer>("Load", 1));
+        options.add(new PickWhichDialog.Option<Integer>("Restore", 2));
+        options.add(new PickWhichDialog.Option<Integer>("Delete", 3));
+        options.add(new PickWhichDialog.Option<Integer>("Wallpaper", 4));
+        options.add(new PickWhichDialog.Option<Integer>("Info", 5));
+        options.add(new PickWhichDialog.Option<Integer>("Open", 6));
+
+
+        //create dialog
+        PickWhichDialog<Integer> pickAction = new PickWhichDialog<>(context, options);
+        pickAction.setTitle("Pick Action");
+        pickAction.setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                switch(i) {
+            public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
+                switch(option.getObject()) {
+                    //start preview activty
                     case 0:
-                        //start preview activity
-                        PreferenceManager.getDefaultSharedPreferences(context).edit()
-                                .putString("model_id", l2dModel.getModelId())
-                                .putString("preview_model", l2dModel.getModel().getAbsolutePath())
-                                .commit();
-                        context.startActivity(new Intent(context, L2DPreviewActivity.class).putExtra("mode", L2DConfig.MODE_PREVIEW));
+                        actionPreview(context, l2DModel);
                         break;
+                    //pack and load to game
                     case 1:
-                        //pack and fileLoad model to game
-                        File packTo = new File(l2dModel.getOutput(), l2dModel.getModelId()+".pck");
-                        DCTools.asyncPack(l2dModel.getOutput(), packTo, context, new OnPackFinishedListener() {
-                            @Override
-                            public void onFinished(File file) {
-                                if(file == null || !file.exists() || file.isDirectory() || !file.canRead()) {
-                                    return;
-                                }
-                                Toast.makeText(context, "Packed to: "+file.getName(), Toast.LENGTH_SHORT).show();
-                                try {
-                                    //backup game pck file
-                                    File dcPckFile = new File(DCTools.getDCModelsPath(), file.getName());
-                                    File bakPckFile = new File(file.getParentFile(), "_"+file.getName()+".bak");
-                                    if(dcPckFile.exists()) {
-                                        if(!bakPckFile.exists()) {
-                                            Toast.makeText(context, "Backup to: "+bakPckFile.getName(), Toast.LENGTH_SHORT).show();
-                                            FileUtils.copyFile(dcPckFile, bakPckFile);
-                                        }
-                                        FileUtils.deleteQuietly(dcPckFile);
-                                        FileUtils.moveFile(file, dcPckFile);
-                                        Toast.makeText(context, "Loaded model: "+dcPckFile.getName(), Toast.LENGTH_SHORT).show();
-                                    }else {
-                                        Toast.makeText(context, "Failed to find DC model!", Toast.LENGTH_SHORT).show();
-                                    }
-                                }catch(Exception e) {
-                                    e.printStackTrace();
-                                }
-//                                try {
-//                                    //update model_info.json values
-//                                    JSONObject dcInfoJson = LoadAssets.getDCModelInfoInstance().getInfoJson();
-//                                    JSONObject myInfoJson = l2dModel.getModelInfoJson();
-//                                    Iterator<String> keys = myInfoJson.keys();
-//                                    Log.d("mTag:ModelInfo", "dcinfo: "+dcInfoJson.length());
-//                                    Log.d("mTag:ModelInfo", "myinfo: "+myInfoJson.length());
-//                                    while(keys.hasNext()) {
-//                                        String key = keys.next();
-//                                        Object value = myInfoJson.get(key);
-//                                        if(dcInfoJson.getJSONObject(l2dModel.getModelId()).has(key)) {
-//                                            if(value instanceof JSONObject) {
-//                                                dcInfoJson.getJSONObject(l2dModel.getModelId()).put(key, (JSONObject) value);
-//                                            }else if(value instanceof String) {
-//                                                dcInfoJson.getJSONObject(l2dModel.getModelId()).put(key, (String) value);
-//                                            }else {
-//                                                dcInfoJson.getJSONObject(l2dModel.getModelId()).put(key, value);
-//                                            }
-//                                            Log.d("mTag:ModelInfo", key+": "+String.valueOf(value));
-//                                        }
-//                                    }
-//                                    //backup for now full model_info.json
-//                                    FileUtils.moveFile(DCTools.getDCModelInfoPath(), new File(l2dModel.getOutput(), "_model_info.json"));
+                        actionLoad(context, l2DModel);
+                        break;
+                    //load backup to game
+                    case 2:
+                        actionRestore(context, l2DModel);
+                        break;
+                    //remove saved model
+                    case 3:
+                        actionDelete(context, l2DModel);
+                        break;
+                    //set as wallpaper
+                    case 4:
+                        actionWallpaper(context, l2DModel);
+                        break;
+                    //show model info
+                    case 5:
+                        actionInfo(context, l2DModel);
+                        break;
+                    //open unpack folder
+                    case 6:
+                        actionOpen(context, l2DModel);
+                        break;
+                }
+
+                //notify action picked
+                if(callback != null) {
+                    callback.onCompleted(null, option.getObject());
+                }
+            }
+        });
+        pickAction.show();
+        //
+//        if(true) return;
 //
-//                                    //save changed json
-//                                    FileUtils.write(DCTools.getDCModelInfoPath(), dcInfoJson.toString(4), Charset.forName("utf-8"));
-//                                    LoadAssets.setDCModelInfoInstance(new DCModelInfo());
-//                                    Toast.makeText(context, "Model Info updated!", Toast.LENGTH_SHORT).show();
+//
+//
+//        //TODO old way trying new
+//        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//        builder.setTitle("Choose action:");
+//        builder.setItems(new String[]{"Preview", "Load", "Restore", "Delete", "Wallpaper", "Info"}, new DialogInterface.OnClickListener() {
+//            @Override
+//            public void onClick(DialogInterface dialogInterface, int i) {
+//                switch(i) {
+//                    case 0:
+//                        //start preview activity
+//                        PreferenceManager.getDefaultSharedPreferences(context).edit()
+//                                .putString("model_id", l2DModel.getModelId())
+//                                .putString("preview_model", l2DModel.getModel().getAbsolutePath())
+//                                .commit();
+//                        context.startActivity(new Intent(context, L2DPreviewActivity.class).putExtra("mode", L2DConfig.MODE_PREVIEW));
+//                        break;
+//                    case 1:
+//                        //pack and fileLoad model to game
+//                        File packTo = new File(l2DModel.getOutput(), l2DModel.getModelId()+".pck");
+//                        DCTools.asyncPack(l2DModel.getOutput(), packTo, context, new OnPackFinishedListener() {
+//                            @Override
+//                            public void onFinished(File file) {
+//                                if(file == null || !file.exists() || file.isDirectory() || !file.canRead()) {
+//                                    return;
+//                                }
+//                                Toast.makeText(context, "Packed to: "+file.getName(), Toast.LENGTH_SHORT).show();
+//                                try {
+//                                    //backup game pck file
+//                                    File dcPckFile = new File(DCTools.getDCModelsPath(), file.getName());
+//                                    File bakPckFile = new File(file.getParentFile(), "_"+file.getName()+".bak");
+//                                    if(dcPckFile.exists()) {
+//                                        if(!bakPckFile.exists()) {
+//                                            Toast.makeText(context, "Backup to: "+bakPckFile.getName(), Toast.LENGTH_SHORT).show();
+//                                            FileUtils.copyFile(dcPckFile, bakPckFile);
+//                                        }
+//                                        FileUtils.deleteQuietly(dcPckFile);
+//                                        FileUtils.moveFile(file, dcPckFile);
+//                                        Toast.makeText(context, "Loaded model: "+dcPckFile.getName(), Toast.LENGTH_SHORT).show();
+//                                    }else {
+//                                        Toast.makeText(context, "Failed to find DC model!", Toast.LENGTH_SHORT).show();
+//                                    }
 //                                }catch(Exception e) {
 //                                    e.printStackTrace();
 //                                }
-                            }
-                        });
-                        break;
-                    case 2:
-                        //restore backup model to game
-                        try {
-                            File bakPckFile = new File(l2dModel.getOutput(), "_"+l2dModel.getModelId()+".pck.bak");
-                            File bakModelInfo = new File(l2dModel.getOutput(), "_model_info.json");
-                            if(bakPckFile.exists()) {
-                                File dcPckFile = new File(DCTools.getDCModelsPath(), l2dModel.getModelId()+".pck");
-                                if(dcPckFile.exists()) {
-                                    FileUtils.deleteQuietly(dcPckFile);
-                                }
-                                FileUtils.copyFile(bakPckFile, dcPckFile);
-                                Toast.makeText(context, "Restored model: "+dcPckFile.getName(), Toast.LENGTH_SHORT).show();
-                            }else {
-                                Toast.makeText(context, "No backup file found!", Toast.LENGTH_SHORT).show();
-                            }
-//                            if(bakModelInfo.exists()) {
-//                                File dcModelInfo = DCTools.getDCModelInfoPath();
-//                                if(dcModelInfo.exists()) {
-//                                    FileUtils.deleteQuietly(dcModelInfo);
-//                                }
-//                                FileUtils.copyFile(bakModelInfo, dcModelInfo);
-//                                Toast.makeText(context, "Restored Model Info!", Toast.LENGTH_SHORT).show();
 //                            }
-                        }catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case 3:
-                        //remove model files
-                        try {
-                            for(File file : l2dModel.getOutput().listFiles()) {
-                                FileUtils.deleteQuietly(file);
-                            }
-                            l2dModel.getOutput().delete();
-                        }catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
-                    case 4:
-                        //set as wallpaper
-                        new L2DConfig(context, L2DConfig.MODE_WALLPAPER, l2dModel.getModel().getAbsolutePath()).writeToPrefs(context);
-                        try {
-                            //check if wallpaper is already set
-                            boolean isSet = false;
-                            try {
-                                WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
-                                if(wallpaperManager != null) {
-                                    if(wallpaperManager.getWallpaperInfo() != null) {
-                                        ComponentName componentName = wallpaperManager.getWallpaperInfo().getComponent();
-                                        if(componentName != null) {
-                                            if(componentName.equals(new ComponentName(context, LiveWallpaperService.class))) {
-                                                isSet = true;
-                                            }
-                                        }
-                                    }
-                                }
-                            }catch(Exception e) {
-                                e.printStackTrace();
-                                isSet = false;
-                            }
-                            if(!isSet) {
-                                //pick wallpaper intent
-                                Intent intent;
-                                if(Build.VERSION.SDK_INT >= 16) {
-                                    intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
-                                    intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
-                                            new ComponentName(context, LiveWallpaperService.class));
-                                }else {
-                                    intent = new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER);
-                                }
-                                if(context instanceof Activity)
-                                    ((Activity) context).startActivityForResult(intent, Define.REQUEST_WALLPAPER_SET);
-                                else
-                                    context.startActivity(intent);
-                            }else {
-                                //request wallpaper reload
-                                if(LiveWallpaperService.getInstance() != null) {
-                                    LiveWallpaperService.getInstance().requestReload();
-                                }
-                                Toast.makeText(context, "Wallpaper updated!", Toast.LENGTH_SHORT).show();
-                            }
-                        }catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                        break;
+//                        });
+//                        break;
+//                    case 2:
+//                        //restore backup model to game
+//                        try {
+//                            File bakPckFile = new File(l2DModel.getOutput(), "_"+l2DModel.getModelId()+".pck.bak");
+//                            if(bakPckFile.exists()) {
+//                                File dcPckFile = new File(DCTools.getDCModelsPath(), l2DModel.getModelId()+".pck");
+//                                if(dcPckFile.exists()) {
+//                                    FileUtils.deleteQuietly(dcPckFile);
+//                                }
+//                                FileUtils.copyFile(bakPckFile, dcPckFile);
+//                                Toast.makeText(context, "Restored model: "+dcPckFile.getName(), Toast.LENGTH_SHORT).show();
+//                            }else {
+//                                Toast.makeText(context, "No backup file found!", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }catch(Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                        break;
+//                    case 3:
+//                        //remove model files
+//                        try {
+//                            for(File file : l2DModel.getOutput().listFiles()) {
+//                                FileUtils.deleteQuietly(file);
+//                            }
+//                            l2DModel.getOutput().delete();
+//                        }catch(Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                        break;
+//                    case 4:
+//                        //set as wallpaper
+//                        new L2DConfig(context, L2DConfig.MODE_WALLPAPER, l2DModel.getModel().getAbsolutePath()).writeToPrefs(context);
+//                        try {
+//                            //check if wallpaper is already set
+//                            boolean isSet = false;
+//                            try {
+//                                WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+//                                if(wallpaperManager != null) {
+//                                    if(wallpaperManager.getWallpaperInfo() != null) {
+//                                        ComponentName componentName = wallpaperManager.getWallpaperInfo().getComponent();
+//                                        if(componentName != null) {
+//                                            if(componentName.equals(new ComponentName(context, LiveWallpaperService.class))) {
+//                                                isSet = true;
+//                                            }
+//                                        }
+//                                    }
+//                                }
+//                            }catch(Exception e) {
+//                                e.printStackTrace();
+//                                isSet = false;
+//                            }
+//                            if(!isSet) {
+//                                //pick wallpaper intent
+//                                Intent intent;
+//                                if(Build.VERSION.SDK_INT >= 16) {
+//                                    intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+//                                    intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+//                                            new ComponentName(context, LiveWallpaperService.class));
+//                                }else {
+//                                    intent = new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER);
+//                                }
+//                                if(context instanceof Activity)
+//                                    ((Activity) context).startActivityForResult(intent, Define.REQUEST_WALLPAPER_SET);
+//                                else
+//                                    context.startActivity(intent);
+//                            }else {
+//                                //request wallpaper reload
+//                                if(LiveWallpaperService.getInstance() != null) {
+//                                    LiveWallpaperService.getInstance().requestReload();
+//                                }
+//                                Toast.makeText(context, "Wallpaper updated!", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }catch(Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                        break;
+//                    case 5:
+//                        //show model info
+//                        try {
+//                            BigTextDialog infoDialog = new BigTextDialog(context, "model_info.json", l2DModel.getModelInfoJson().toString(4));
+//                            infoDialog.setPositiveButton("Load", new DialogInterface.OnClickListener() {
+//                                @Override
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    try {
+//                                        DCTools.asyncApplyModelInfo(l2DModel, context);
+//                                    }catch(Exception e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                            });
+//                            infoDialog.show();
+//                        }catch(Exception e) {
+//                            e.printStackTrace();
+//                        }
+//
+//                        break;
+//                }
+//                if(callback != null) callback.onCompleted(null, i);
+//            }
+//        });
+//        builder.create().show();
+    }
+
+    //all actions
+    public static void actionPreview(Context context, L2DModel l2DModel) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit()
+                .putString("model_id", l2DModel.getModelId())
+                .putString("preview_model", l2DModel.getModel().getAbsolutePath())
+                .commit();
+        context.startActivity(new Intent(context, L2DPreviewActivity.class).putExtra("mode", L2DConfig.MODE_PREVIEW));
+    }
+
+    public static void actionLoad(final Context context, L2DModel l2DModel) {
+        File packTo = new File(l2DModel.getOutput(), l2DModel.getModelId()+".pck");
+        DCTools.asyncPack(l2DModel.getOutput(), packTo, context, new OnPackFinishedListener() {
+            @Override
+            public void onFinished(File file) {
+                if(file == null || !file.exists() || file.isDirectory() || !file.canRead()) {
+                    return;
                 }
-                if(callback != null) callback.onCompleted(null, i);
+                Toast.makeText(context, "Packed to: "+file.getName(), Toast.LENGTH_SHORT).show();
+                try {
+                    //backup game pck file
+                    File dcPckFile = new File(DCTools.getDCModelsPath(), file.getName());
+                    File bakPckFile = new File(file.getParentFile(), "_"+file.getName()+".bak");
+                    if(dcPckFile.exists()) {
+                        if(!bakPckFile.exists()) {
+                            Toast.makeText(context, "Backup to: "+bakPckFile.getName(), Toast.LENGTH_SHORT).show();
+                            FileUtils.copyFile(dcPckFile, bakPckFile);
+                        }else {
+                            Toast.makeText(context, "Backup already exists", Toast.LENGTH_SHORT).show();
+                        }
+                        FileUtils.deleteQuietly(dcPckFile);
+                        FileUtils.moveFile(file, dcPckFile);
+                        Toast.makeText(context, "Loaded model: "+dcPckFile.getName(), Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(context, "Failed to find DC model!", Toast.LENGTH_SHORT).show();
+                    }
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
-        builder.create().show();
+    }
+
+    public static void actionRestore(Context context, L2DModel l2DModel) {
+        try {
+            File bakPckFile = new File(l2DModel.getOutput(), "_"+l2DModel.getModelId()+".pck.bak");
+            if(bakPckFile.exists()) {
+                File dcPckFile = new File(DCTools.getDCModelsPath(), l2DModel.getModelId()+".pck");
+                if(dcPckFile.exists()) {
+                    FileUtils.deleteQuietly(dcPckFile);
+                }
+                FileUtils.copyFile(bakPckFile, dcPckFile);
+                Toast.makeText(context, "Restored model: "+dcPckFile.getName(), Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(context, "No backup file found!", Toast.LENGTH_SHORT).show();
+            }
+            if(l2DModel.getModelInfoBakJson().length() > 0) {
+                DCTools.asyncApplyModelInfo(l2DModel, context, true);
+                Toast.makeText(context, "Restored model info!", Toast.LENGTH_SHORT).show();
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void actionDelete(Context context, L2DModel l2DModel) {
+        try {
+            for(File file : l2DModel.getOutput().listFiles()) {
+                FileUtils.deleteQuietly(file);
+            }
+            l2DModel.getOutput().delete();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void actionWallpaper(Context context, L2DModel l2DModel) {
+        //write new config to shared prefs
+        new L2DConfig(context, L2DConfig.MODE_WALLPAPER, l2DModel.getModel().getAbsolutePath()).writeToPrefs(context);
+        try {
+            //check if wallpaper is already set
+            boolean isSet = false;
+            try {
+                WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+                if(wallpaperManager != null) {
+                    if(wallpaperManager.getWallpaperInfo() != null) {
+                        ComponentName componentName = wallpaperManager.getWallpaperInfo().getComponent();
+                        if(componentName != null) {
+                            if(componentName.equals(new ComponentName(context, LiveWallpaperService.class))) {
+                                isSet = true;
+                            }
+                        }
+                    }
+                }
+            }catch(Exception e) {
+                isSet = false;
+            }
+            if(!isSet) {
+                //pick wallpaper intent
+                Intent intent;
+                if(Build.VERSION.SDK_INT >= 16) {
+                    intent = new Intent(WallpaperManager.ACTION_CHANGE_LIVE_WALLPAPER);
+                    intent.putExtra(WallpaperManager.EXTRA_LIVE_WALLPAPER_COMPONENT,
+                            new ComponentName(context, LiveWallpaperService.class));
+                }else {
+                    intent = new Intent(WallpaperManager.ACTION_LIVE_WALLPAPER_CHOOSER);
+                }
+                if(context instanceof Activity)
+                    ((Activity) context).startActivityForResult(intent, Define.REQUEST_WALLPAPER_SET);
+                else
+                    context.startActivity(intent);
+            }else {
+                //request wallpaper reload
+                if(LiveWallpaperService.getInstance() != null) {
+                    LiveWallpaperService.getInstance().requestReload();
+                }
+                Toast.makeText(context, "Wallpaper updated!", Toast.LENGTH_SHORT).show();
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void actionInfo(final Context context, final L2DModel l2DModel) {
+        try {
+            BigTextDialog infoDialog = new BigTextDialog(context, "_model", l2DModel.getModelConfigJson().toString(4));
+            infoDialog.setPositiveButton("Load", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        DCTools.asyncApplyModelInfo(l2DModel, context, false);
+                    }catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            infoDialog.show();
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void actionOpen(Context context, L2DModel l2DModel) {
+        actionOpen(context, l2DModel.getOutput());
+    }
+
+    public static void actionOpen(Context context, File folder) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse(folder.getAbsolutePath()), "resource/folder");
+        if(intent.resolveActivityInfo(context.getPackageManager(), 0) != null) {
+            context.startActivity(Intent.createChooser(intent, "Open Folder"));
+        }else {
+            Toast.makeText(context, "No file explorer found!", Toast.LENGTH_SHORT).show();
+        }
     }
 }

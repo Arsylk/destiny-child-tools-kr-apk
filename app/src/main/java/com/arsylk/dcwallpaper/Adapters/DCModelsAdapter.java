@@ -16,16 +16,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_ELEMENT;
-import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_TYPE;
 
 public class DCModelsAdapter extends BaseAdapter implements Filterable {
     private Context context;
     private List<DCModelItem> srcModels = null;
     private List<DCModelItem> models = null;
-
-    private List<Integer> filterOptions = null;
-    private String filterString = "";
 
     public DCModelsAdapter(Context context, File dir) {
         this.context = context;
@@ -44,28 +39,6 @@ public class DCModelsAdapter extends BaseAdapter implements Filterable {
             }
         });
         models = srcModels;
-
-        //turn on all filter options
-        filterOptions = new ArrayList<>();
-        filterOptions.add(R.id.search_element_fire);
-        filterOptions.add(R.id.search_element_water);
-        filterOptions.add(R.id.search_element_wind);
-        filterOptions.add(R.id.search_element_light);
-        filterOptions.add(R.id.search_element_dark);
-        filterOptions.add(R.id.search_type_attacker);
-        filterOptions.add(R.id.search_type_tank);
-        filterOptions.add(R.id.search_type_healer);
-        filterOptions.add(R.id.search_type_debuffer);
-        filterOptions.add(R.id.search_type_support);
-    }
-
-    public void applyFilterOption(int id) {
-        if(filterOptions.contains(id)) {
-            filterOptions.remove(Integer.valueOf(id));
-        }else {
-            filterOptions.add(id);
-        }
-        getFilter().filter(filterString);
     }
 
     @Override
@@ -107,19 +80,10 @@ public class DCModelsAdapter extends BaseAdapter implements Filterable {
                 FilterResults results = new FilterResults();
                 List<DCModelItem> filterList = new ArrayList<>();
                 if(query != null) {
-                    filterString = query.toString();
                     String fixQuery = query.toString().toLowerCase();
                     for(DCModelItem item : srcModels) {
                         if(item.getFormatted().toLowerCase().contains(fixQuery) || item.getFile().getName().toLowerCase().contains(fixQuery)) {
-                            if(filterOptions.contains(R.id.search_advance_layout)) {
-                                if(item.isWikiLoaded()) {
-                                    if(filterOptions.contains(CONVERT_ID_ELEMENT[item.getWikiElement()]) && filterOptions.contains(CONVERT_ID_TYPE[item.getWikiType()])) {
-                                        filterList.add(item);
-                                    }
-                                }
-                            }else {
-                                filterList.add(item);
-                            }
+                            filterList.add(item);
                         }
                     }
                     results.count = filterList.size();
@@ -138,7 +102,6 @@ public class DCModelsAdapter extends BaseAdapter implements Filterable {
                     if(results.values != null)
                         models = (ArrayList<DCModelItem>) results.values;
                 notifyDataSetChanged();
-
             }
         };
     }
