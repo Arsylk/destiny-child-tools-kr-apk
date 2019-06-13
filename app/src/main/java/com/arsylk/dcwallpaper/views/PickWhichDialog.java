@@ -69,7 +69,7 @@ public class PickWhichDialog<T> extends AlertDialog.Builder {
         setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(onOptionPicked != null) onOptionPicked.onOptionPicked(null);
+                dialog.dismiss();
             }
         });
         dialog = create();

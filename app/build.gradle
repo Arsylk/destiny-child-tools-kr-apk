@@ -7,8 +7,8 @@ android {
         applicationId 'com.arsylk.dcwallpaper'
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 28
-        versionName '3.1'
+        versionCode 29
+        versionName '3.2'
     }
     buildTypes {
         release {
@@ -31,11 +31,11 @@ allprojects {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    compile 'com.android.support:appcompat-v7:28.0.0'
+    compile 'com.android.support:appcompat-v7:28.0.0-alpha1'
     compile 'com.android.support:design:28.0.0'
-
     compile 'commons-io:commons-io:2.6'
-    compile 'com.jmedeisis:draglinearlayout:1.1.0'
+
     compile 'com.koushikdutta.ion:ion:2.2.1'
     compile 'org.jsoup:jsoup:1.11.3'
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-alpha8'
 }

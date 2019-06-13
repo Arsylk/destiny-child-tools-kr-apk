@@ -17,23 +17,10 @@ import com.arsylk.dcwallpaper.DestinyChild.DCSwapper;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
-import com.arsylk.dcwallpaper.utils.Utils;
-import com.arsylk.dcwallpaper.views.BigTextDialog;
-import com.arsylk.dcwallpaper.views.DCSwapFileView;
-import com.jmedeisis.draglinearlayout.DragLinearLayout;
-import org.apache.commons.io.FileUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static com.arsylk.dcwallpaper.utils.Define.MODELS_DIRECTORY;
 
 public class DCSwapActivity extends AppCompatActivity {
     private interface OnModelItemPick {

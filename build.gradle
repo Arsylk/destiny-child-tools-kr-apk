@@ -20,9 +20,6 @@ allprojects {
             name 'Google'
         }
     }
-    configurations.all {
-        resolutionStrategy.force "com.android.support:support-v4:27.1.1"
-    }
 }
 
 task clean(type: Delete) {

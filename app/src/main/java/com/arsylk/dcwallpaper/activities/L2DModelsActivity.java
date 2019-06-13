@@ -153,6 +153,9 @@ public class L2DModelsActivity extends AppCompatActivity {
         pickAction.setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
             @Override
             public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
+                //if null
+                if(option == null) return;
+
                 switch(option.getObject()) {
                     //start preview activty
                     case 0:
