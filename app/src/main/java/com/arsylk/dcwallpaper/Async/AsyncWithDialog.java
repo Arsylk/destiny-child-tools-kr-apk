@@ -3,28 +3,15 @@ package com.arsylk.dcwallpaper.Async;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import com.arsylk.dcwallpaper.utils.Utils;
 
 public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
     protected Context context;
     protected boolean showGui = true;
     protected String message = "";
     protected ProgressDialog dialog = null;
-
-    //static quick init
-    public interface AsyncWithDialogBg {
-        void doInBackground();
-    }
-    public static void execute(Context context, AsyncWithDialogBg asyncWithDialogBg) {
-        new AsyncWithDialog<AsyncWithDialogBg, Void, Void>(context, true, "Loading...") {
-            @Override
-            protected Void doInBackground(AsyncWithDialogBg... asyncWithDialogBgs) {
-                for(AsyncWithDialogBg asyncWithDialogBg : asyncWithDialogBgs) {
-                    asyncWithDialogBg.doInBackground();
-                }
-                return null;
-            }
-        }.execute(asyncWithDialogBg);
-    }
+    protected Utils.OnProgressUpdate<Progress> onProgressUpdate = null;
+    protected Utils.OnPostExecute<Result> onPostExecute = null;
 
     public AsyncWithDialog(Context context, boolean showGui) {
         init(context, showGui, "");
@@ -40,6 +27,16 @@ public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTas
         this.message = message;
     }
 
+    public AsyncWithDialog<Params, Progress, Result> setOnProgressUpdate(Utils.OnProgressUpdate<Progress> onProgressUpdate) {
+        this.onProgressUpdate = onProgressUpdate;
+        return this;
+    }
+
+    public AsyncWithDialog<Params, Progress, Result> setOnPostExecute(Utils.OnPostExecute<Result> onPostExecute) {
+        this.onPostExecute = onPostExecute;
+        return this;
+    }
+
     @Override
     protected void onPreExecute() {
         if(showGui) {
@@ -53,9 +50,21 @@ public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTas
     }
 
     @Override
+    protected void onProgressUpdate(Progress... values) {
+        if(onProgressUpdate != null && values != null) {
+            for(Progress value : values) {
+                onProgressUpdate.onProgressUpdate(value);
+            }
+        }
+    }
+
+    @Override
     protected void onPostExecute(Result result) {
         if(showGui) {
             dialog.dismiss();
+        }
+        if(onPostExecute != null) {
+            onPostExecute.onPostExecute(result);
         }
     }
 }

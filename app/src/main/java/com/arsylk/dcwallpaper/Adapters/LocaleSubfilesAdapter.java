@@ -2,24 +2,19 @@ package com.arsylk.dcwallpaper.Adapters;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
 import com.arsylk.dcwallpaper.R;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 public class LocaleSubfilesAdapter extends BaseAdapter {
     private Context context;

@@ -10,9 +10,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import com.arsylk.dcwallpaper.Async.AsyncAnnouncements;
 import com.arsylk.dcwallpaper.Async.interfaces.OnAnnouncementPost;
-import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
-import com.koushikdutta.ion.Ion;
 
 import java.util.ArrayList;
 import java.util.List;

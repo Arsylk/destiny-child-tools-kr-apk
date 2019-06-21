@@ -4,13 +4,13 @@
 
     <item android:id="@+id/wiki_region_kr"
           android:icon="@drawable/ic_flag_kr"
-          android:title="Korea"
+          android:title="@string/text_korea"
           app:showAsAction="always"
           android:enabled="false" />
 
     <item android:id="@+id/wiki_region_jp"
           android:icon="@drawable/ic_flag_jp"
-          android:title="Japan"
-          app:showAsAction="always"
+          android:title="@string/text_japan"
+          app:showAsAction="ifRoom"
           android:visible="false" />
 </menu>

@@ -16,7 +16,6 @@ import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
-import com.arsylk.dcwallpaper.Live2D.L2DRenderer;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.activities.DCModelsActivity;
 import com.arsylk.dcwallpaper.utils.Define;
@@ -34,16 +33,12 @@ public class OnlineModelsAdapter extends BaseAdapter {
     private Context context;
     private List<OnlineModelItem> onlineModels;
     private View loaderView = null;
+    private boolean fullyLoaded = false;
 
     //constructors
     public OnlineModelsAdapter(Context context) {
         this.context = context;
         this.onlineModels = new ArrayList<>();
-    }
-
-    public OnlineModelsAdapter(Context context, List<OnlineModelItem> onlineModels) {
-        this.context = context;
-        this.onlineModels = onlineModels;
     }
 
     //methods
@@ -53,6 +48,8 @@ public class OnlineModelsAdapter extends BaseAdapter {
             loaderView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                     .inflate(R.layout.footer_progress, null);
             loaderView.findViewById(R.id.footer_progressbar).setVisibility(View.VISIBLE);
+            loaderView.setClickable(false);
+            loaderView.setEnabled(false);
         }
         return loaderView;
     }
@@ -103,19 +100,12 @@ public class OnlineModelsAdapter extends BaseAdapter {
                 }
             });
 
-            //image layout
+            // image layout
             image_preview = convertView.findViewById(R.id.image_preview);
-            Ion.with(context).load(onlineModel.getPreviewUrl())
-                    .asBitmap().setCallback(new FutureCallback<Bitmap>() {
-                @Override
-                public void onCompleted(Exception e, Bitmap bitmap) {
-                    if(e == null) {
-                        onlineModel.setPreviewBitmap(Utils.trim(bitmap));
-                        notifyDataSetChanged();
-                    }
-                }
-            });
-            onBitmapLoaded(image_preview, onlineModel.getPreviewBitmap());
+            if(onlineModel.getPreviewBitmap() != null) {
+                // handle zoom on click
+                onBitmapLoaded(image_preview, onlineModel.getPreviewBitmap());
+            }
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -162,8 +152,6 @@ public class OnlineModelsAdapter extends BaseAdapter {
 
                 dimPopup.showAtLocation(dimPopup.getContentView(), Gravity.CENTER, 0, 0);
                 zoomPopup.showAtLocation(zoomPopup.getContentView(), Gravity.CENTER, 0, 0);
-
-
             }
         });
     }
@@ -193,22 +181,9 @@ public class OnlineModelsAdapter extends BaseAdapter {
     }
 
     //setters & getters
-    @Override
-    public int getCount() {
-        return onlineModels.size();
-    }
-
     public void addItem(OnlineModelItem modelItem) {
         onlineModels.add(modelItem);
         notifyDataSetChanged();
-    }
-
-    public void addItems(List<OnlineModelItem> onlineModels) {
-        if(loaderView != null) {
-            loaderView.findViewById(R.id.footer_progressbar).setVisibility(onlineModels.isEmpty() ? View.GONE : View.VISIBLE);
-        }
-        this.onlineModels.addAll(onlineModels);
-        this.notifyDataSetChanged();
     }
 
     @Override
@@ -219,6 +194,23 @@ public class OnlineModelsAdapter extends BaseAdapter {
     @Override
     public long getItemId(int position) {
         return onlineModels.get(position).getId();
+    }
+
+    @Override
+    public int getCount() {
+        return onlineModels.size();
+    }
+
+    public void setFullyLoaded(boolean fullyLoaded) {
+        // hide footer if created
+        if(loaderView != null) {
+            loaderView.findViewById(R.id.footer_progressbar).setVisibility(fullyLoaded ? View.GONE : View.VISIBLE);
+        }
+        this.fullyLoaded = fullyLoaded;
+    }
+
+    public boolean isFullyLoaded() {
+        return fullyLoaded;
     }
 }
 

@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Utils;
 
@@ -72,7 +71,7 @@ public class DCBannerWidget extends AppWidgetProvider {
         }
         //apply new values
         if(intent.getAction().equals(ACTION_DATA_VALUES_CHANGED)) {
-            int widgetIds[] = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+            int[] widgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
             if(widgetIds != null)
                 for(int widgetIdd : widgetIds)
                     appWidgetManager.notifyAppWidgetViewDataChanged(widgetIdd, R.id.dcbanner_view_flipper);

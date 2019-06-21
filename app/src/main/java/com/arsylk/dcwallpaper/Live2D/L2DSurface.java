@@ -2,13 +2,11 @@ package com.arsylk.dcwallpaper.Live2D;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.*;
-import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.views.MyGestureListener;

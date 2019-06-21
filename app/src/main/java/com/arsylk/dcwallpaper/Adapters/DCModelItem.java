@@ -61,7 +61,7 @@ public class DCModelItem {
     }
 
     public String getFormatted() {
-        return (loaded) ? String.valueOf((getTitle() + " " + getName()).trim()) : getFile().getName().replace(".pck", "");
+        return (loaded) ? (getTitle() + " " + getName()).trim() : getFile().getName().replace(".pck", "");
     }
 
     public boolean isLoaded() {

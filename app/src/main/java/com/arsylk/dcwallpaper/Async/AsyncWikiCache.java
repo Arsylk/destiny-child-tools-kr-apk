@@ -36,8 +36,8 @@ public class AsyncWikiCache extends AsyncWithDialog<DCWiki, DCWiki.Page, DCWiki>
         for(int i = 0; i < dcWiki.getWikiPages().size(); i++) {
             try {
                 DCWiki.Page page = dcWiki.getWikiPages().get(i);
-                page.loadBitmap(context);
                 publishProgress(page);
+                page.loadBitmap(context);
             }catch(Exception e) {
                 e.printStackTrace();
             }

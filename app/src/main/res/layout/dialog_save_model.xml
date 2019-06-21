@@ -6,14 +6,14 @@
               android:padding="8dp">
 
     <TextView
-            android:text="Model id:"
+            android:text="@string/config_model_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp" />
 
     <EditText
             android:id="@+id/input_id"
-            android:hint="c326_01, m056_02 ..."
+            android:hint="@string/config_hint_model_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
@@ -21,28 +21,28 @@
 
 
     <TextView
-            android:text="Model name:"
+            android:text="@string/config_model_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp" />
 
     <EditText
             android:id="@+id/input_name"
-            android:hint="Davi, Red Cross ..."
+            android:hint="@string/config_hint_model_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"
             android:inputType="text" />
 
     <TextView
-            android:text="Folder name:"
+            android:text="@string/config_model_path"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp" />
 
     <EditText
             android:id="@+id/input_folder"
-            android:hint="MyMod123, DCMod943 ..."
+            android:hint="@string/config_hint_model_path"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lines="1"

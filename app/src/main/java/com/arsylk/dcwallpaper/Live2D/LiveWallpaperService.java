@@ -1,15 +1,8 @@
 package com.arsylk.dcwallpaper.Live2D;
 
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
-import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import net.rbgrn.android.glwallpaperservice.GLWallpaperService;
-
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.Random;
 
 public class LiveWallpaperService extends GLWallpaperService {
     private static LiveWallpaperService instance = null;

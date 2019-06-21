@@ -1,23 +1,16 @@
 package com.arsylk.dcwallpaper.activities;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.*;
-import com.arsylk.dcwallpaper.Adapters.DCModelItem;
 import com.arsylk.dcwallpaper.Adapters.DCModelsAdapter;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
@@ -25,15 +18,13 @@ import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.Live2D.L2DConfig;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.R;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
-import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.views.PickWhichDialog;
 import com.arsylk.dcwallpaper.views.SaveModelDialog;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class DCModelsActivity extends AppCompatActivity {
+public class DCModelsActivity extends ActivityWithExceptionRedirect {
     private Context context = DCModelsActivity.this;
     private EditText search_input;
     private ViewGroup search_advance_layout, search_advance_elements, search_advance_types;

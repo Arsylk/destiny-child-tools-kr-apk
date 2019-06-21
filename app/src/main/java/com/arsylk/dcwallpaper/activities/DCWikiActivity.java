@@ -20,7 +20,7 @@ import android.widget.ListView;
 import com.arsylk.dcwallpaper.Adapters.DCWikiPagesAdapter;
 import com.arsylk.dcwallpaper.R;
 
-public class DCWikiActivity extends AppCompatActivity {
+public class DCWikiActivity extends ActivityWithExceptionRedirect {
     private Context context = DCWikiActivity.this;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;

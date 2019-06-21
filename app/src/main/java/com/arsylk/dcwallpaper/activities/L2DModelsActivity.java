@@ -1,7 +1,6 @@
 package com.arsylk.dcwallpaper.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.WallpaperManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -12,7 +11,6 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -20,28 +18,22 @@ import android.widget.Toast;
 import com.arsylk.dcwallpaper.Adapters.L2DModelItem;
 import com.arsylk.dcwallpaper.Adapters.L2DModelsAdapter;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
-import com.arsylk.dcwallpaper.DestinyChild.DCModelInfo;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.Live2D.L2DConfig;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.Live2D.LiveWallpaperService;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.views.BigTextDialog;
 import com.arsylk.dcwallpaper.views.PickWhichDialog;
 import com.koushikdutta.async.future.FutureCallback;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-public class L2DModelsActivity extends AppCompatActivity {
+public class L2DModelsActivity extends ActivityWithExceptionRedirect {
     private Context context = L2DModelsActivity.this;
     private ListView model_list;
     private L2DModelsAdapter adapter = null;

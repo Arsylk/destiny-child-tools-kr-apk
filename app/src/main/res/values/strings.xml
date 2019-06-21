@@ -1,3 +1,97 @@
 <resources>
     <string name="app_name">Destiny Child Tools</string>
+
+    <string name="disclaimer_title">** ! DISCLAIMER ! **</string>
+    <string name="disclaimer_message">This is really experimental, might and probably will cause problems, by changing
+        anything here you forfeit your right to complain that its bugged, with that out of the way, enjoy trying to use
+        it on japan and global~\n\nIn case you mess anything up, just close the apk and it will be back to normal
+    </string>
+    <string name="swap_from">Swap from:</string>
+    <string name="swap_to">Swap to:</string>
+
+    <string name="wiki_elements">Elements</string>
+    <string name="wiki_fire">Fire</string>
+    <string name="wiki_water">Water</string>
+    <string name="wiki_wind">Wind</string>
+    <string name="wiki_light">Light</string>
+    <string name="wiki_dark">Dark</string>
+    <string name="wiki_types">Types</string>
+    <string name="wiki_attacker">Attacker</string>
+    <string name="wiki_tank">Tank</string>
+    <string name="wiki_healer">Healer</string>
+    <string name="wiki_debuffer">Debuffer</string>
+    <string name="wiki_support">Support</string>
+    <string name="wiki_leader_skill">Leader Skill:</string>
+    <string name="wiki_auto_skill">Auto Skill:</string>
+    <string name="wiki_tap_skill">Tap Skill:</string>
+    <string name="wiki_slide_skill">Slide Skill:</string>
+    <string name="wiki_drive_skill">Drive Skill:</string>
+
+    <string name="translator_search_key">Search key…</string>
+    <string name="translator_search_value">Search value…</string>
+    <string name="translator_search_patch">Search patch…</string>
+    <string name="translator_hide_patched">Hide patched</string>
+    <string name="translator_show_patched">Show patched</string>
+    <string name="translator_show_translated">Show translated</string>
+    <string name="translator_hide_empty">Hide empty</string>
+    <string name="translator_show_empty">Show empty</string>
+    <string name="translator_show_non_translated">Show non translated</string>
+
+    <string name="config_background_path">Background path:</string>
+    <string name="config_scale_xy">Scale XY</string>
+    <string name="config_fit_x">Fit X</string>
+    <string name="config_fit_y">Fit Y</string>
+    <string name="config_scale">Scale:</string>
+    <string name="config_offset_x">Offset X:</string>
+    <string name="config_offset_y">Offset Y:</string>
+    <string name="config_animated">Animated</string>
+    <string name="config_tappable">Tappable</string>
+    <string name="config_sounds">Sounds</string>
+    <string name="config_model_id">Model id:</string>
+    <string name="config_hint_model_id">c326_01, m056_02…</string>
+    <string name="config_model_name">Model name:</string>
+    <string name="config_hint_model_name">Davi, Red Cross…</string>
+    <string name="config_hint_model_path">MyMod123, DCMod943…</string>
+    <string name="config_model_path">Folder name:</string>
+
+    <string name="menu_group_models">Models</string>
+    <string name="menu_group_pck">PCK</string>
+    <string name="menu_group_locale_patches">Patches</string>
+    <string name="menu_group_magic">Magic</string>
+    <string name="menu_group_credits">Credits</string>
+
+    <string name="menu_item_unpacked">Unpacked</string>
+    <string name="menu_item_online">Online</string>
+    <string name="menu_item_unpack_pck">Unpack</string>
+    <string name="menu_item_pack_pck">Pack</string>
+    <string name="menu_item_translator">Translate Locale</string>
+    <string name="menu_item_english_patch">English Patch</string>
+    <string name="menu_item_russian_patch">Russian Patch</string>
+    <string name="menu_item_swap_models">Swap Models</string>
+    <string name="menu_item_add_widget">Add Banner Widget</string>
+
+    <string name="text_destiny_child">Destiny Child</string>
+    <string name="text_swap">Swap</string>
+    <string name="text_save">Save</string>
+    <string name="text_version">Version</string>
+    <string name="text_translated">Translated</string>
+    <string name="text_search">Search</string>
+    <string name="text_join_discord">Join Discord!!!</string>
+    <string name="text_wiki">Wiki</string>
+
+    <string name="markup_arrow_right">=></string>
+
+    <string name="user_whocares">Whocares8128</string>
+    <string name="user_banana">TinyBanana</string>
+    <string name="user_envy">Envy</string>
+    <string name="menu_add_key">Add Key</string>
+    <string name="menu_load_patch">Load patch</string>
+    <string name="menu_show_patches">Show patches</string>
+    <string name="menu_apply_patch">Apply patch</string>
+    <string name="menu_upload_patch">Upload patch</string>
+    <string name="menu_load_locale">Load locale</string>
+    <string name="text_korea">Korea</string>
+    <string name="text_japan">Japan</string>
+    <string name="text_settings">Settings</string>
+    <string name="activity_uncaught_exception">Uncaught Exception</string>
 </resources>

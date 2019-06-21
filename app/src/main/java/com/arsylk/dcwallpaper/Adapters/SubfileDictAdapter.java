@@ -1,28 +1,18 @@
 package com.arsylk.dcwallpaper.Adapters;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.*;
-import android.text.style.BackgroundColorSpan;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
 import android.widget.*;
-import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
-import com.arsylk.dcwallpaper.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPatchChangedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
-import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.views.PopupEditText;
 import com.arsylk.dcwallpaper.views.TabSpannableFactory;
 import com.koushikdutta.async.future.FutureCallback;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

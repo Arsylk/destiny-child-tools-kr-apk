@@ -6,15 +6,12 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -27,7 +24,6 @@ import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
 import com.arsylk.dcwallpaper.Async.AsyncBanners;
 import com.arsylk.dcwallpaper.Async.AsyncPatch;
-import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.BuildConfig;
@@ -39,24 +35,21 @@ import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
-import com.arsylk.dcwallpaper.views.BigTextDialog;
-import com.google.gson.Gson;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.Headers;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import org.apache.commons.io.FileUtils;
-import org.jsoup.Jsoup;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FilenameFilter;
 import java.util.Locale;
 
 import static com.arsylk.dcwallpaper.utils.Define.*;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends ActivityWithExceptionRedirect implements NavigationView.OnNavigationItemSelectedListener {
+    static final String TAG = "Activity/MainActivity";
     private Context context = MainActivity.this;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -66,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        // handle picked files
         if(data != null && (requestCode == REQUEST_FILE_PACK || requestCode == REQUEST_FILE_UNPACK)) {
             File file = Utils.uriToFile(data.getData());
             if(file == null || !file.exists())
@@ -110,15 +104,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
 
-        //setup apk-wide settings
+        // request permission
+        if(Utils.requestPermission(context)) {
+           onCreatePermissionGranted();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // handle permissions
+        Log.d(TAG, String.format("requestCode: %d, resultCode: %d", requestCode, 0));
+        if(requestCode == REQUEST_PERMISSION_STORAGE) {
+            // check for permissions again
+            if(Utils.requestPermission(context)) {
+                onCreatePermissionGranted();
+            }
+        }
+
+    }
+
+    // continue onCreate if permissions granted
+    private void onCreatePermissionGranted() {
+        // make sure all directories exists
+        Utils.initDirectories();
+
+        // setup apk-wide settings
         Locale.setDefault(Locale.US);
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             getBaseContext().getResources().getConfiguration().setLocale(Locale.US);
-        }else {
+        } else {
             getBaseContext().getResources().getConfiguration().locale = Locale.US;
         }
-        Utils.requestPermission(context);
-        Utils.initDirectories();
         Ion.getDefault(context).getConscryptMiddleware().enable(false);
         Ion.getDefault(context).configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
             @Override
@@ -127,71 +144,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 request.getHeaders().set("Apk-Name", BuildConfig.APPLICATION_ID);
                 request.getHeaders().set("Apk-Version", BuildConfig.VERSION_NAME);
                 request.getHeaders().set("Device-Token", Utils.getDeviceToken(context));
-
                 return request;
             }
         });
 
-
-//        //TODO testing
-//        String[] fnames = {"c0", "c1", "c2", "c3", "c4", "m0", "m1", "m2"};
-//        for(String fname : fnames) {
-//            File gamefile = new File(DCTools.getDCFilesPath() + "/asset/icon/portrait/_" + fname + ".pck");
-//            File memefile = new File(DCTools.getDCFilesPath() + "/asset/icon/portrait/" + fname + ".pck");
-//            try {
-//                FileUtils.moveFile(memefile, new File(memefile+".meme"));
-//                FileUtils.moveFile(gamefile, memefile);
-//            }catch(Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//            File[] sfiles = folder.listFiles(new FilenameFilter() {
-//                @Override
-//                public boolean accept(File dir, String name) {
-//                    return name.startsWith("_");
-//                }
-//            });
-//            for(File file : sfiles) {
-//                try {
-//                    FileUtils.deleteQuietly(file);
-//                    FileUtils.copyFile(new File(Define.BASE_DIRECTORY, "icon_battle.png"), file);
-//                }catch(Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//            System.out.println(folder);
-//            try {
-//                File newpck = DCTools.pack(new File(folder, "_header"), context);
-//                File gamepck = new File(DCTools.getDCFilesPath()+"/asset/icon/portrait_battle/"+fname+".pck");
-//                FileUtils.deleteQuietly(gamepck);
-//                FileUtils.moveFile(newpck, gamepck);
-//                System.out.println(gamepck);
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        //TODO tending
-
-        //init activity
+        // init views & load resources
         initViews();
         if(!handleIntent()) {
-            //check for updates
+            // check for updates
             LoadAssets.guiFullLoad(context, new Utils.Callback() {
                 @Override
                 public void onCall() {
-                    //load up-to-date announcements
+                    // load up-to-date announcements
                     adapter.loadAnnouncements();
 
-                    //load up-to-date banners
+                    // load up-to-date banners
                     new AsyncBanners(context, false).execute();
                 }
             });
         }
     }
 
+
     private boolean handleIntent() {
-        if(Intent.ACTION_VIEW.equals(getIntent().getAction())) {
+        if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null) {
             DCTools.asyncUnpack(new File(getIntent().getData().getPath()), context, new OnUnpackFinishedListener() {
                 @Override
                 public void onFinished(DCModel dcModel) {
@@ -211,6 +187,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
         if(BuildConfig.DEBUG)
             getMenuInflater().inflate(R.menu.developer_menu, menu);
         return super.onCreateOptionsMenu(menu);
@@ -223,12 +200,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case android.R.id.home:
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
+            case R.id.main_settings:
+                startActivity(new Intent(context, SettingsActivity.class));
+                return true;
+
             //dev menu
             case R.id.dev_md5:
                 DCTools.fullFilesDump(context);
                 return true;
             case R.id.dev_extract_new:
-                DCTools.asyncExtractMissing(new File(DCTools.getDCLocalePath()), context, true);
+                DCTools.asyncExtractMissing(DCTools.getDCLocalePath(), context, true);
                 return true;
             case R.id.dev_swap_all:
                 DCTools.fullPckSwap(context, new L2DModel(new File(Define.MODELS_DIRECTORY, "yukine")));
@@ -263,6 +244,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         e.printStackTrace();
                     }
                 }
+                return true;
+            case R.id.dev_cause_exception:
+                getIntent().getData().getAuthority().charAt(312);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -336,7 +320,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         drawerLayout.setScrimColor(Color.TRANSPARENT);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.getMenu().findItem(R.id.menu_version).setTitle("v"+BuildConfig.VERSION_NAME);
+        navigationView.getMenu().findItem(R.id.menu_version).setTitle(String.format("%s v%s", BuildConfig.BUILD_TYPE, BuildConfig.VERSION_NAME));
 
         adapter = new DCAnnouncementsAdapter(context, false);
 

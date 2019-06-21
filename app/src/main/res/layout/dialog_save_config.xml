@@ -11,7 +11,7 @@
 
         <!-- background path -->
         <TextView
-                android:text="Background path:"
+                android:text="@string/config_background_path"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="16sp" />
@@ -31,21 +31,21 @@
                 android:padding="4dp">
 
             <RadioButton
-                    android:text="Scale XY"
+                    android:text="@string/config_scale_xy"
                     android:id="@+id/radio_bg_0"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
             <RadioButton
-                    android:text="Fit X"
+                    android:text="@string/config_fit_x"
                     android:id="@+id/radio_bg_1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
             <RadioButton
-                    android:text="Fit Y"
+                    android:text="@string/config_fit_y"
                     android:id="@+id/radio_bg_2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                 android:orientation="vertical">
 
             <TextView
-                    android:text="Scale:"
+                    android:text="@string/config_scale"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp" />
@@ -73,7 +73,7 @@
                     android:inputType="numberDecimal"/>
 
             <TextView
-                    android:text="Offset X:"
+                    android:text="@string/config_offset_x"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp" />
@@ -86,7 +86,7 @@
                     android:inputType="numberDecimal|numberSigned"/>
 
             <TextView
-                    android:text="Offset Y:"
+                    android:text="@string/config_offset_y"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp" />
@@ -108,21 +108,21 @@
                 android:padding="4dp">
 
             <CheckBox
-                    android:text="Animated"
+                    android:text="@string/config_animated"
                     android:id="@+id/check_animated"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
             <CheckBox
-                    android:text="Tappable"
+                    android:text="@string/config_tappable"
                     android:id="@+id/check_tappable"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1" />
 
             <CheckBox
-                    android:text="Sounds"
+                    android:text="@string/config_sounds"
                     android:id="@+id/check_sounds"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

@@ -5,7 +5,6 @@ import com.arsylk.dcwallpaper.BuildConfig;
 import com.arsylk.dcwallpaper.R;
 
 import java.io.File;
-import java.net.URL;
 import java.util.regex.Pattern;
 
 public final class Define {
@@ -17,6 +16,7 @@ public final class Define {
     public static final File ONLINE_DIRECTORY = new File(BASE_DIRECTORY, "Online");
     public static final File BITMAP_CACHE_DIRECTORY = new File(ASSETS_DIRECTORY, "bitmap");
 
+    public static final int REQUEST_PERMISSION_STORAGE = 997;
     public static final int REQUEST_FILE_UNPACK = 227, REQUEST_FILE_PACK = 228, REQUEST_WALLPAPER_SET = 229, REQUEST_FILE_PATCH = 230;
 
     public static final String ONLINE_MODELS_URL = "https://arsylk.pythonanywhere.com/api/get_models?offset=%s";

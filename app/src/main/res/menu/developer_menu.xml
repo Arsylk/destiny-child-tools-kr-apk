@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/dev_md5" android:title="MD5 all files" />
-    <item android:id="@+id/dev_extract_new" android:title="Extract new locale" />
-    <item android:id="@+id/dev_swap_all" android:title="Swap All" />
-    <item android:id="@+id/dev_swap_all_restore" android:title="Swap All Restore" />
+<menu xmlns:tools="http://schemas.android.com/tools" tools:ignore="HardcodedText" xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:menuCategory="container">
+        <item android:title="Developer Menu">
+            <menu>
+                <item android:id="@+id/dev_md5" android:title="MD5 all files" />
+                <item android:id="@+id/dev_extract_new" android:title="Extract new locale" />
+                <item android:id="@+id/dev_swap_all" android:title="Swap All" />
+                <item android:id="@+id/dev_swap_all_restore" android:title="Swap All Restore" />
+                <item android:id="@+id/dev_cause_exception" android:title="Cause Exception" />
+            </menu>
+        </item>
+    </group>
 </menu>

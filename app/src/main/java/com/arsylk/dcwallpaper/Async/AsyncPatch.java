@@ -6,10 +6,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import com.arsylk.dcwallpaper.DestinyChild.DCDefine;
 import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 
 import java.io.File;
 
@@ -49,7 +47,7 @@ public class AsyncPatch extends AsyncTask<DCLocalePatch, Void, Boolean> {
     @Override
     protected Boolean doInBackground(DCLocalePatch... patches) {
         try {
-            DCTools.patchLocale(new File(DCTools.getDCLocalePath()), patches[0], context);
+            DCTools.patchLocale(DCTools.getDCLocalePath(), patches[0], context);
             return true;
         }catch(Exception e) {
             e.printStackTrace();

@@ -56,7 +56,7 @@ public class LoadAssets  {
 
     public static void updateChildNames(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        File locale = new File(DCTools.getDCLocalePath());
+        File locale = DCTools.getDCLocalePath();
         if(!prefs.getBoolean("update_child_names", true) && ASSET_EXTRACTED_CHILD_NAMES.exists()) {
             Log.d("mTag:Assets", "Child names are up-to-date!");
         }else {

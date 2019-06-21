@@ -68,7 +68,7 @@ public class L2DPose
 
 		for (int i = 0; i < partsGroups.size(); i++)
 		{
-			L2DPartsParam partsGroup[]=partsGroups.get(i);
+            L2DPartsParam[] partsGroup = partsGroups.get(i);
 			for (int j = 0 ; j < partsGroup.length ; j++ )
 			 {
 				partsGroup[j].initIndex(model);
@@ -92,7 +92,7 @@ public class L2DPose
 
 
 	
-	public void normalizePartsOpacityGroup( ALive2DModel model, L2DPartsParam partsGroup[] , float deltaTimeSec )
+	public void normalizePartsOpacityGroup(ALive2DModel model, L2DPartsParam[] partsGroup, float deltaTimeSec )
 	{
 		 int visibleParts = -1 ;
 		 float visibleOpacity = 1.0f ;
@@ -177,7 +177,7 @@ public class L2DPose
 
 
 	
-	public void copyOpacityOtherParts(ALive2DModel model, L2DPartsParam partsGroup[])
+	public void copyOpacityOtherParts(ALive2DModel model, L2DPartsParam[] partsGroup)
 	{
 		for (int i_group = 0; i_group < partsGroup.length; i_group++)
 		{

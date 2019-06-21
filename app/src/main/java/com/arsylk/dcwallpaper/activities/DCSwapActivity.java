@@ -1,14 +1,9 @@
 package com.arsylk.dcwallpaper.activities;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.*;
 import com.arsylk.dcwallpaper.Adapters.L2DModelItem;
@@ -22,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class DCSwapActivity extends AppCompatActivity {
+public class DCSwapActivity extends ActivityWithExceptionRedirect {
     private interface OnModelItemPick {
         void onModelItemPick(L2DModelItem item);
     }

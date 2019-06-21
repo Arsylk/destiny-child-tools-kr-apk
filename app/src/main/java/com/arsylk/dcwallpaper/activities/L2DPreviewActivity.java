@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 
-public class L2DPreviewActivity extends AppCompatActivity {
+public class L2DPreviewActivity extends ActivityWithExceptionRedirect {
     private L2DSurface surface;
 
     @Override

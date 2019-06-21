@@ -75,7 +75,7 @@ public class L2DViewMatrix extends L2DMatrix44{
 		if( tr[5]*maxTop   + (tr[13] + shiftY) < screenTop ) shiftY = screenTop - tr[5]*maxTop - tr[13] ;
 		if( tr[5]*maxBottom+ (tr[13] + shiftY) > screenBottom    ) shiftY = screenBottom    - tr[5]*maxBottom- tr[13] ;
 
-		float tr1[] = { 1,0,0,0 , 0,1,0,0 , 0,0,1,0 , shiftX,shiftY,0,1 } ;
+        float[] tr1 = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, shiftX, shiftY, 0, 1};
 		mul( tr1 , tr , tr ) ;
 	}
 
@@ -90,9 +90,9 @@ public class L2DViewMatrix extends L2DMatrix44{
 			if( tr[0] > 0 ) scale = max / tr[0] ;
 		}
 
-		float tr1[] = { 1,0,0,0 , 0,1,0,0 , 0,0,1,0 , cx,cy,0,1 } ;
-		float tr2[] = { scale,0,0,0 , 0,scale,0,0 , 0,0,1,0 , 0,0,0,1 } ;
-		float tr3[] = { 1,0,0,0 , 0,1,0,0 , 0,0,1,0 ,-cx,-cy,0,1 } ;
+        float[] tr1 = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, cx, cy, 0, 1};
+        float[] tr2 = {scale, 0, 0, 0, 0, scale, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
+        float[] tr3 = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -cx, -cy, 0, 1};
 
 		mul( tr3 , tr , tr ) ;
 		mul( tr2 , tr , tr ) ;

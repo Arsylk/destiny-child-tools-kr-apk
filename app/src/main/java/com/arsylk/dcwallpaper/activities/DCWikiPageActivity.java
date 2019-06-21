@@ -18,7 +18,7 @@ import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-public class DCWikiPageActivity extends AppCompatActivity implements FutureCallback<DCWiki.Page> {
+public class DCWikiPageActivity extends ActivityWithExceptionRedirect implements FutureCallback<DCWiki.Page> {
     private Context context = DCWikiPageActivity.this;
     private String modelId;
     private DCWiki.Page wikiItem;

@@ -6,11 +6,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.AbsListView;
 import android.widget.ListView;
+import android.widget.Toast;
 import com.arsylk.dcwallpaper.Adapters.OnlineModelItem;
 import com.arsylk.dcwallpaper.Adapters.OnlineModelsAdapter;
+import com.arsylk.dcwallpaper.Async.AsyncOnlineModels;
 import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
+import com.arsylk.dcwallpaper.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -18,10 +21,10 @@ import org.jsoup.Jsoup;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OnlineModelsActivity extends AppCompatActivity {
+public class OnlineModelsActivity extends ActivityWithExceptionRedirect {
     private Context context = OnlineModelsActivity.this;
 
-    private AsyncWithDialog<Integer, Void, List<OnlineModelItem>> asyncLoading = null;
+    private AsyncOnlineModels asyncLoading = null;
     private ListView list_view;
     private OnlineModelsAdapter adapter;
 
@@ -46,7 +49,9 @@ public class OnlineModelsActivity extends AppCompatActivity {
                 if((view.getLastVisiblePosition() == adapter.getCount())) {
                     if(asyncLoading != null) {
                         if(asyncLoading.getStatus() == AsyncTask.Status.FINISHED) {
-                            loadOnlineModels(adapter.getCount());
+                            if(!adapter.isFullyLoaded()) {
+                                loadOnlineModels(adapter.getCount());
+                            }
                         }
                     }
                 }
@@ -57,29 +62,28 @@ public class OnlineModelsActivity extends AppCompatActivity {
     }
 
     private void loadOnlineModels(int offset) {
-        asyncLoading = new AsyncWithDialog<Integer, Void, List<OnlineModelItem>>(context, true, "Loading models...") {
-            @Override
-            protected List<OnlineModelItem> doInBackground(Integer... integers) {
-                List<OnlineModelItem> onlineModels = new ArrayList<>();
-                try {
-                    String response = Jsoup.connect(String.format(Define.ONLINE_MODELS_URL, integers[0])).execute().body();
-                    JSONObject json = new JSONObject(response);
-                    JSONArray modelsJson = json.getJSONArray("models");
-                    for(int i = 0; i < modelsJson.length(); i++) {
-                        onlineModels.add(new OnlineModelItem(modelsJson.getJSONObject(i)));
-                    }
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
-                return onlineModels;
+        // only one task running
+        if(asyncLoading != null) {
+            if(asyncLoading.getStatus() != AsyncTask.Status.FINISHED) {
+                Toast.makeText(context, "Models still loading...", Toast.LENGTH_SHORT).show();
+                return;
             }
+        }
 
+        // load online models
+        asyncLoading = new AsyncOnlineModels(context, false);
+        asyncLoading.setOnProgressUpdate(new Utils.OnProgressUpdate<OnlineModelItem>() {
             @Override
-            protected void onPostExecute(List<OnlineModelItem> onlineModelItems) {
-                super.onPostExecute(onlineModelItems);
-                adapter.addItems(onlineModelItems);
+            public void onProgressUpdate(OnlineModelItem item) {
+                adapter.addItem(item);
             }
-        };
+        });
+        asyncLoading.setOnPostExecute(new Utils.OnPostExecute<Boolean>() {
+            @Override
+            public void onPostExecute(Boolean item) {
+                adapter.setFullyLoaded(!item);
+            }
+        });
         asyncLoading.execute(offset);
     }
 }

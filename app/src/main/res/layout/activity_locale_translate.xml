@@ -2,7 +2,7 @@
 <android.support.v4.widget.DrawerLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/translate_drawer_layout"
+        xmlns:tools="http://schemas.android.com/tools" android:id="@+id/translate_drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fitsSystemWindows="false"
@@ -87,7 +87,7 @@
                                 android:inputType="text"
                                 android:lines="1"
                                 android:maxLines="1"
-                                android:hint="Search key..." />
+                                android:hint="@string/translator_search_key" />
 
                         <EditText
                                 android:id="@+id/search_val_field"
@@ -97,7 +97,7 @@
                                 android:inputType="text"
                                 android:lines="1"
                                 android:maxLines="1"
-                                android:hint="Search value..." />
+                                android:hint="@string/translator_search_value" />
 
                     </LinearLayout>
 
@@ -114,7 +114,7 @@
                                 android:inputType="text"
                                 android:lines="1"
                                 android:maxLines="1"
-                                android:hint="Search patch..." />
+                                android:hint="@string/translator_search_patch" />
 
                         <ToggleButton
                                 android:id="@+id/toggle_translated"
@@ -125,9 +125,9 @@
                                 android:gravity="center"
                                 android:layout_gravity="center"
                                 android:layout_weight="1"
-                                android:textOn="Hide patched"
-                                android:textOff="Show patched"
-                                android:text="Show translated" />
+                                android:textOn="@string/translator_hide_patched"
+                                android:textOff="@string/translator_show_patched"
+                                android:text="@string/translator_show_translated" />
 
                         <ToggleButton
                                 android:id="@+id/toggle_non_translated"
@@ -138,9 +138,9 @@
                                 android:gravity="center"
                                 android:layout_gravity="center"
                                 android:layout_weight="1"
-                                android:textOn="Hide empty"
-                                android:textOff="Show empty"
-                                android:text="Show non translated" />
+                                android:textOn="@string/translator_hide_empty"
+                                android:textOff="@string/translator_show_empty"
+                                android:text="@string/translator_show_non_translated" />
 
                     </LinearLayout>
 

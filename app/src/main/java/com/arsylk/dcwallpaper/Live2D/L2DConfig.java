@@ -7,14 +7,11 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.utils.Define;
-import com.arsylk.dcwallpaper.utils.Utils;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.nio.charset.Charset;
-import java.util.Random;
 
 public class L2DConfig {
     public static final int MODE_PEEK = -1, MODE_PREVIEW = 0, MODE_WALLPAPER = 1, BG_MODE_SCALE_XY = 0, BG_MODE_FIT_X = 1, BG_MODE_FIT_Y = 2;

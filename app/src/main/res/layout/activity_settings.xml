@@ -1,32 +1,239 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-
-    <ScrollView
-            android:fillViewport="true"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbarSize="0dp">
 
+    <LinearLayout
+            android:id="@+id/settings_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <!-- Change Storage Directory -->
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="@dimen/activity_margin">
 
             <TextView
-                    android:text="** ! DISCLAIMER ! **"
+                    android:text="Storage Directory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+            <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    style="@style/TextAppearance.AppCompat.Headline"/>
+                    android:orientation="horizontal">
+
+                <EditText
+                        android:id="@+id/settings_input_storage"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.75"
+                        android:hint="STORAGE_DIRECTORY"
+                        android:inputType="textNoSuggestions"/>
+
+                <Button
+                        android:id="@+id/settings_update_storage"
+                        android:text="Change"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.25"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+        <!-- Change Package -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/activity_margin">
+
             <TextView
-                    android:text="This is really experimental, might and probably will cause problems, with that out of the way, enjoy trying to use it on japan and global~"
+                    android:text="Destiny Child Package"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                <EditText
+                        android:id="@+id/settings_input_package"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0.75"
+                        android:hint="DESTINY_CHILD_PACKAGE"
+                        android:inputType="textNoSuggestions"/>
+
+                <Button
+                        android:id="@+id/settings_update_package"
+                        android:text="Change"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.25"/>
+
+            </LinearLayout>
+
         </LinearLayout>
 
-    </ScrollView>
+        <!-- Line Separator -->
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/white"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"/>
+        <!-- Line Separator -->
 
-</LinearLayout>
+        <!-- Advance Change Resources -->
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="@dimen/activity_margin">
+
+            <TextView
+                    android:text="Resources"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@android:color/white"/>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/activity_margin">
+
+                <TextView
+                        android:text="Files"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_margin"/>
+                <EditText
+                        android:id="@+id/settings_input_files"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="DC_FILES_DIRECTORY"
+                        android:inputType="textMultiLine"
+                        android:enabled="false"
+                        android:scrollHorizontally="false"/>
+                <Button
+                        android:id="@+id/settings_edit_files"
+                        android:tag="@+id/settings_input_files"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Edit"/>
+
+
+                <TextView
+                        android:text="Models"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_margin"/>
+                <EditText
+                        android:id="@+id/settings_input_models"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="DC_MODELS_DIRECTORY"
+                        android:inputType="textMultiLine"
+                        android:enabled="false"
+                        android:scrollHorizontally="false"/>
+                <Button
+                        android:id="@+id/settings_edit_models"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Edit"/>
+
+
+                <TextView
+                        android:text="Backgrounds"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_margin"/>
+                <EditText
+                        android:id="@+id/settings_input_backgrounds"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="DC_BACKGROUNDS_DIRECTORY"
+                        android:inputType="textMultiLine"
+                        android:enabled="false"
+                        android:scrollHorizontally="false"/>
+                <Button
+                        android:id="@+id/settings_edit_backgrounds"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Edit"/>
+
+
+                <TextView
+                        android:text="Sounds"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_margin" />
+                <EditText
+                        android:id="@+id/settings_input_sounds"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="DC_SOUNDS_DIRECTORY"
+                        android:inputType="textMultiLine"
+                        android:enabled="false"
+                        android:scrollHorizontally="false"/>
+                <Button
+                        android:id="@+id/settings_edit_sounds"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Edit"/>
+
+
+                <TextView
+                        android:text="Locale"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_margin" />
+                <EditText
+                        android:id="@+id/settings_input_locale"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="DC_LOCALE_FILE"
+                        android:inputType="textMultiLine"
+                        android:enabled="false"
+                        android:scrollHorizontally="false"/>
+                <Button
+                        android:id="@+id/settings_edit_locale"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Edit"/>
+
+
+                <TextView
+                        android:text="Model Info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_margin" />
+                <EditText
+                        android:id="@+id/settings_input_model_info"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="DC_MODEL_INFO_FILE"
+                        android:inputType="textMultiLine"
+                        android:enabled="false"
+                        android:scrollHorizontally="false"/>
+                <Button 
+                        android:id="@+id/settings_edit_model_info"
+                        android:layout_width="match_parent" 
+                        android:layout_height="match_parent" 
+                        android:text="Edit"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

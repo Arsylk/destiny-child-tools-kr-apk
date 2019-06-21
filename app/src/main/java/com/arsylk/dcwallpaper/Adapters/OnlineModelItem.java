@@ -25,7 +25,7 @@ public class OnlineModelItem {
             //model
             id = json.getInt("id");
             modelId = json.getString("model_id");
-            modelName = "["+id+"] "+json.getString("model_name");
+            modelName = json.getString("model_name");
 
             //mod
             creator = json.getString("creator");
@@ -42,10 +42,9 @@ public class OnlineModelItem {
 
             //model info
             if(!json.isNull("model_info")) {
-                modelInfo = json.getJSONObject("model_info");
+                modelInfo = new JSONObject(json.getString("model_info"));
             }
         }catch(Exception e) {
-            e.printStackTrace();
         }
     }
 

@@ -3,25 +3,18 @@ package com.arsylk.dcwallpaper.DestinyChild;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 import com.arsylk.dcwallpaper.utils.Define;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
-import com.koushikdutta.async.future.Future;
-import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.regex.Matcher;
 
 public class DCBanners {

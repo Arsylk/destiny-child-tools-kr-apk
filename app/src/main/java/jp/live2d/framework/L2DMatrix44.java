@@ -8,7 +8,7 @@
 package jp.live2d.framework;
 
 public class L2DMatrix44 {
-	protected float tr[] = new float[16] ;
+    protected float[] tr = new float[16];
 
 
 	public L2DMatrix44()
@@ -38,7 +38,7 @@ public class L2DMatrix44 {
 
 
 	
-	public void setMatrix( float tr[] )
+	public void setMatrix(float[] tr)
 	{
 		
 		if( tr == null || this.tr.length != tr.length ) return ;
@@ -89,7 +89,7 @@ public class L2DMatrix44 {
 	
 	protected static void mul( float[] a , float []b , float[] dst)
 	{
-		float c[] = {0,0,0,0 , 0,0,0,0 , 0,0,0,0 , 0,0,0,0 } ;
+        float[] c = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		int n = 4 ;
 		int i,j,k;
 
@@ -110,7 +110,7 @@ public class L2DMatrix44 {
 	
 	public void multTranslate( float shiftX, float shiftY )
 	{
-		float tr1[] = { 1,0,0,0 , 0,1,0,0 , 0,0,1,0 , shiftX,shiftY,0,1 } ;
+        float[] tr1 = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, shiftX, shiftY, 0, 1};
 		mul( tr1 , tr , tr ) ;
 	}
 
@@ -137,7 +137,7 @@ public class L2DMatrix44 {
 	
 	public void multScale(  float scaleX,float scaleY )
 	{
-		float tr1[] = { scaleX,0,0,0 , 0,scaleY,0,0 , 0,0,1,0 , 0,0,0,1 } ;
+        float[] tr1 = {scaleX, 0, 0, 0, 0, scaleY, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
 		mul( tr1 , tr , tr ) ;
 	}
 

@@ -92,6 +92,12 @@
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+        <activity
+                android:name=".activities.ExceptionActivity"
+                android:theme="@style/Theme.AppCompat.Dialog"
+                android:label="@string/activity_uncaught_exception"
+                android:excludeFromRecents="true">
+        </activity>
 
         <receiver android:name=".views.PickModelWidget">
             <intent-filter>
@@ -133,7 +139,9 @@
                     android:resource="@xml/wallpaper"/>
         </service>
 
-        <activity android:name=".activities.SettingsActivity" android:exported="true">
+        <activity
+                android:name=".activities.SettingsActivity"
+                android:exported="true">
         </activity>
     </application>
 

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -37,7 +38,7 @@ import org.jsoup.Jsoup;
 import java.io.File;
 import java.util.*;
 
-public class LocaleTranslateActivity extends AppCompatActivity implements OnLocaleUnpackFinished {
+public class LocaleTranslateActivity extends ActivityWithExceptionRedirect implements OnLocaleUnpackFinished {
     private Context context = LocaleTranslateActivity.this;
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
@@ -70,7 +71,7 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
         initViews();
         new AsyncLoadLocale(context, true)
                 .setOnLocaleUnpackFinished(this)
-                .execute(new File(DCTools.getDCLocalePath()));
+                .execute(DCTools.getDCLocalePath());
     }
 
     @Override
@@ -309,34 +310,31 @@ public class LocaleTranslateActivity extends AppCompatActivity implements OnLoca
                 @Override
                 public void onOptionPicked(PickWhichDialog.Option<DCLocalePatch> option) {
                     if(option != null) {
-                        //get picked option
-                        final DCLocalePatch pickedPatch = option.getObject();
-
                         //patch locale task
-                        AsyncWithDialog.execute(context, new AsyncWithDialog.AsyncWithDialogBg() {
+                        new AsyncWithDialog<DCLocalePatch, Void, Boolean>(context, true, "Patching locale...") {
                             @Override
-                            public void doInBackground() {
+                            protected Boolean doInBackground(DCLocalePatch... dcLocalePatches) {
                                 try {
                                     //patch locale
-                                    DCTools.patchLocale(new File(DCTools.getDCLocalePath()), pickedPatch, context);
+                                    DCTools.patchLocale(DCTools.getDCLocalePath(), dcLocalePatches[0], context);
 
                                     //patch loaded locale
-                                    original.patch(pickedPatch);
+                                    original.patch(dcLocalePatches[0]);
 
-                                    //display toast
-                                    if(context instanceof Activity)
-                                        ((Activity) context).runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                Toast.makeText(context, "Successfully patched locale!", Toast.LENGTH_SHORT).show();
-                                                dictAdapter.notifyDataSetChanged();
-                                            }
-                                        });
+                                    return true;
                                 }catch(Exception e) {
                                     e.printStackTrace();
                                 }
+
+                                return false;
                             }
-                        });
+                        }.setOnPostExecute(new Utils.OnPostExecute<Boolean>() {
+                            @Override
+                            public void onPostExecute(Boolean result) {
+                                Toast.makeText(context, result ? "Successfully patched locale!" : "Something went wrong!", Toast.LENGTH_SHORT).show();
+                                dictAdapter.notifyDataSetChanged();
+                            }
+                        }).execute(option.getObject());
                     }
                 }
         }).show();

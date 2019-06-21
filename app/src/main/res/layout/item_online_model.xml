@@ -71,19 +71,12 @@
         </LinearLayout>
 
         <!-- image preview layout -->
-        <RelativeLayout
-                android:layout_width="wrap_content"
+        <ImageView
+                android:id="@+id/image_preview"
+                android:layout_width="140dp"
                 android:layout_height="match_parent"
-                android:paddingLeft="4dp">
-
-            <ImageView
-                    android:id="@+id/image_preview"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:scaleType="fitEnd"
-                    android:adjustViewBounds="true"/>
-
-        </RelativeLayout>
+                android:scaleType="fitCenter"
+                android:adjustViewBounds="true"/>
 
     </LinearLayout>
 

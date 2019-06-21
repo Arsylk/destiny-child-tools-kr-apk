@@ -1,13 +1,10 @@
 package com.arsylk.dcwallpaper.utils;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.arsylk.dcwallpaper.DestinyChild.DCBanners;
 import com.arsylk.dcwallpaper.R;
-import com.koushikdutta.async.future.FutureCallback;
 
 public class ViewFactory {
 

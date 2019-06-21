@@ -11,7 +11,6 @@ import com.arsylk.dcwallpaper.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
-import com.arsylk.dcwallpaper.activities.DCModelsActivity;
 import com.arsylk.dcwallpaper.activities.L2DModelsActivity;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
@@ -32,39 +31,66 @@ import static com.arsylk.dcwallpaper.utils.Define.ASSET_ENGLISH_PATCH;
 import static com.arsylk.dcwallpaper.utils.Utils.bytesToHex;
 import static com.arsylk.dcwallpaper.utils.Utils.getUnpackPath;
 import static com.arsylk.dcwallpaper.DestinyChild.DCDefine.*;
+import static com.arsylk.dcwallpaper.DestinyChild.DCTools.Resources.*;
 
 
 public class DCTools {
-    //paths
+    public static class Resources {
+        // final default values
+        public static final String _STORAGE_DIRECTORY = Environment.getExternalStorageDirectory().getAbsolutePath();
+        public static final String _DESTINY_CHILD_PACKAGE = "com.NextFloor.DestinyChild";
+
+        // non-final resource links
+        public static String STORAGE_DIRECTORY = _STORAGE_DIRECTORY;
+        public static String DESTINY_CHILD_PACKAGE = _DESTINY_CHILD_PACKAGE;
+        public static String DC_FILES_DIRECTORY = STORAGE_DIRECTORY + "/Android/data/" + DESTINY_CHILD_PACKAGE + "/files";
+        public static String DC_MODELS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/character";
+        public static String DC_SOUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/sound/voice";
+        public static String DC_BACKGROUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/scenario/image";
+        public static String DC_LOCALE_FILE = DC_FILES_DIRECTORY + "/locale.pck";
+        public static String DC_MODEL_INFO_FILE = DC_MODELS_DIRECTORY + "/model_info.json";
+
+        // resource link generator
+        public static void update(String storageDirectory, String destinyChildPackage) {
+            STORAGE_DIRECTORY = storageDirectory;
+            DESTINY_CHILD_PACKAGE = destinyChildPackage;
+
+            DC_FILES_DIRECTORY = STORAGE_DIRECTORY + "/Android/data/" + DESTINY_CHILD_PACKAGE + "/files";
+            DC_MODELS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/character";
+            DC_SOUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/sound/voice";
+            DC_BACKGROUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/scenario/image";
+            DC_LOCALE_FILE = DC_FILES_DIRECTORY + "/locale.pck";
+            DC_MODEL_INFO_FILE = DC_MODELS_DIRECTORY + "/model_info.json";
+        }
+
+    }
+
+    // resource file links
     public static File getDCFilesPath() {
-        return new File(Environment.getExternalStorageDirectory().toString()+
-                "/Android/data/"+DCPACKAGE+"/files/");
+        return new File(DC_FILES_DIRECTORY);
     }
 
     public static File getDCModelsPath() {
-        return new File(Environment.getExternalStorageDirectory().toString()+
-                "/Android/data/"+DCPACKAGE+"/files/asset/character/");
+        return new File(DC_MODELS_DIRECTORY);
     }
-
-    public static File getDCModelInfoPath() {
-        return new File(getDCModelsPath(), "model_info.json");
-    }
-
-    public static String getDCLocalePath() {
-        return Environment.getExternalStorageDirectory().toString()+
-                "/Android/data/"+DCPACKAGE+"/files/locale.pck";
-    }
-
     public static File getDCSoundsPath() {
-        return new File(Environment.getExternalStorageDirectory().toString()+
-                "/Android/data/"+DCPACKAGE+"/files/asset/sound/voice/");
+        return new File(DC_SOUNDS_DIRECTORY);
     }
 
     public static File getDCBackgroundsPath() {
-        return new File(Environment.getExternalStorageDirectory().toString()+
-                "/Android/data/"+DCPACKAGE+"/files/asset/scenario/image/");
+        return new File(DC_BACKGROUNDS_DIRECTORY);
     }
 
+    public static File getDCLocalePath() {
+        return new File(DC_LOCALE_FILE);
+    }
+
+    public static File getDCModelInfoPath() {
+        return new File(DC_MODEL_INFO_FILE);
+    }
+
+
+    // methods
     public static File getRandomDCBackground() {
         File[] bgs = DCTools.getDCBackgroundsPath().listFiles(new FilenameFilter() {
             @Override
@@ -112,7 +138,7 @@ public class DCTools {
     }
 
 
-    //packing pck files
+    // packing pck files
     public static void asyncPack(File src, File dst, Context context, OnPackFinishedListener onPackFinishedListener) {
         new AsyncPack(context, true)
                 .setOnPackFinishedListener(onPackFinishedListener)

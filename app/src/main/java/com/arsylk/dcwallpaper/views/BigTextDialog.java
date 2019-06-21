@@ -1,7 +1,6 @@
 package com.arsylk.dcwallpaper.views;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,6 +37,30 @@ public class BigTextDialog extends AlertDialog.Builder {
         setCancelable(false);
 
         //meme recycler view solution
+        setView(initBigTextView(context, lines));
+
+
+        //buttons
+        setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                try {
+                    File file = new File(Define.BASE_DIRECTORY, title+"_"+System.currentTimeMillis()+".json");
+                    FileUtils.write(file, bigText, Charset.forName("utf-8"));
+                    Toast.makeText(context, "Saved to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        setNegativeButton("Cancel", null);
+    }
+
+    public static RecyclerView initBigTextView(final Context context, String bigText) {
+        return initBigTextView(context, bigText.split("\n"));
+    }
+
+    public static RecyclerView initBigTextView(final Context context, String[] lines) {
         class LineAdapter extends RecyclerView.Adapter<LineAdapter.Holder> {
             class Holder extends RecyclerView.ViewHolder {
                 protected TextView label;
@@ -71,8 +94,15 @@ public class BigTextDialog extends AlertDialog.Builder {
                 private Holder(View view) {
                     super(view);
                     this.rv = (RecyclerView) view;
+                    int pad = context.getResources().getDimensionPixelSize(R.dimen.activity_margin);
+                    rv.setPadding(pad, pad, pad, pad);
                 }
             }
+            protected String[] lines;
+            public LineListAdapter(String[] lines) {
+                this.lines = lines;
+            }
+
             @Override
             public Holder onCreateViewHolder(ViewGroup viewGroup, int i) {
                 return new LineListAdapter.Holder(new RecyclerView(context));
@@ -90,25 +120,11 @@ public class BigTextDialog extends AlertDialog.Builder {
                 return 1;
             }
         }
-        RecyclerView rv = new RecyclerView(context);
-        rv.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,false));
-        rv.setAdapter(new LineListAdapter());
-        setView(rv);
 
+        RecyclerView recyclerView = new RecyclerView(context);
+        recyclerView.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL,false));
+        recyclerView.setAdapter(new LineListAdapter(lines));
 
-        //buttons
-        setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    File file = new File(Define.BASE_DIRECTORY, title+"_"+System.currentTimeMillis()+".json");
-                    FileUtils.write(file, bigText, Charset.forName("utf-8"));
-                    Toast.makeText(context, "Saved to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        setNegativeButton("Cancel", null);
+        return recyclerView;
     }
 }

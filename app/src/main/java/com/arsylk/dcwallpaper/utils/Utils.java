@@ -16,18 +16,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Toast;
 import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
-import com.arsylk.dcwallpaper.activities.MainActivity;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -40,13 +31,12 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
 import java.nio.*;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-
-import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class Utils {
     /*yappy start*/
@@ -216,7 +206,7 @@ public class Utils {
     /*json start*/
     public static JSONObject fileToJson(InputStream in) {
         try {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, "utf-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             StringBuilder content = new StringBuilder();
             String line;
             while((line = br.readLine()) != null)
@@ -318,15 +308,22 @@ public class Utils {
     /*buffer end*/
 
     /*permissions start*/
-    public static void requestPermission(Context context) {
+    public static boolean requestPermission(Context context) {
         //get write permission all SDK
-        if((ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
-            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 997);
+        if((ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, Define.REQUEST_PERMISSION_STORAGE);
+            return false;
+        }
 
         //get read permission all SDK
-        if(Build.VERSION.SDK_INT >= 16)
-            if((ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED))
-                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 998);
+        if(Build.VERSION.SDK_INT >= 16) {
+            if((ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)) {
+                ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, Define.REQUEST_PERMISSION_STORAGE);
+                return false;
+            }
+        }
+
+        return true;
     }
     /*permissions end*/
 
@@ -425,6 +422,12 @@ public class Utils {
     public interface Callback {
         void onCall();
     }
+    public interface OnProgressUpdate<T> {
+        void onProgressUpdate(T item);
+    }
+    public interface OnPostExecute<T> {
+        void onPostExecute(T item);
+    }
     /*callback end*/
 
     /*date start*/
@@ -517,7 +520,6 @@ public class Utils {
             e.printStackTrace();
         }
     }
-
     /*input end*/
 
     /*translate start*/

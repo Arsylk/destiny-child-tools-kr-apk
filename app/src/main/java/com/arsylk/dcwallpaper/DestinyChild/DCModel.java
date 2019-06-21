@@ -2,12 +2,9 @@ package com.arsylk.dcwallpaper.DestinyChild;
 
 import com.arsylk.dcwallpaper.Live2D.L2DModel;
 import com.arsylk.dcwallpaper.utils.Utils;
-import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.nio.charset.Charset;
 import java.util.*;
 
 import static com.arsylk.dcwallpaper.DestinyChild.DCDefine.*;

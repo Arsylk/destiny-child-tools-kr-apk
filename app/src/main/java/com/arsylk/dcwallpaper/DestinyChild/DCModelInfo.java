@@ -60,7 +60,7 @@ public class DCModelInfo {
 
     public String getModelFull(String modelIdx) {
         try {
-            String parts[] = modelIdx.split("_");
+            String[] parts = modelIdx.split("_");
             return getModelTitle(parts[0], parts[1]) + " " + getModelName(parts[0]);
         }catch(Exception e) {
             return null;

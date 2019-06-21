@@ -17,7 +17,7 @@ import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.utils.ViewFactory;
 import com.arsylk.dcwallpaper.widgets.dcbanner.DCBannerWidget;
 
-public class DCBannerWidgetConfigureActivity extends AppCompatActivity {
+public class DCBannerWidgetConfigureActivity extends ActivityWithExceptionRedirect {
     private Context context = DCBannerWidgetConfigureActivity.this;
     private int widgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private ViewGroup images_layout;

@@ -28,7 +28,7 @@
                 android:layout_weight="3">
 
             <TextView
-                    android:text="Leader Skill:"
+                    android:text="@string/wiki_leader_skill"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
@@ -40,7 +40,7 @@
                     android:textSize="12sp"/>
 
             <TextView
-                    android:text="Auto Skill:"
+                    android:text="@string/wiki_auto_skill"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
@@ -52,7 +52,7 @@
                     android:textSize="12sp"/>
 
             <TextView
-                    android:text="Tap Skill:"
+                    android:text="@string/wiki_tap_skill"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
@@ -64,7 +64,7 @@
                     android:textSize="12sp"/>
 
             <TextView
-                    android:text="Slide Skill:"
+                    android:text="@string/wiki_slide_skill"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
@@ -76,7 +76,7 @@
                     android:textSize="12sp"/>
 
             <TextView
-                    android:text="Drive Skill:"
+                    android:text="@string/wiki_drive_skill"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"

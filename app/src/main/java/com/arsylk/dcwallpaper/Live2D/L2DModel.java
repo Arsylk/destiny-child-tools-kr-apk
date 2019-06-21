@@ -4,7 +4,6 @@ import com.arsylk.dcwallpaper.DestinyChild.DCModel;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;

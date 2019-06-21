@@ -18,7 +18,7 @@ public class DCWiki {
         private String modelId = null, name = null, krName = null, region = null;
         private int stars = 0, element = 0, type = 0;
         private String skillLeader = null, skillAuto = null, skillTap = null, skillSlide = null, skillDrive = null;
-        private String portaitImages[] = null;
+        private String[] portaitImages = null;
         private String thumbnailUrl = null;
         private File thumbnailFile = null;
         private Bitmap thumbnailBitmap = null;
