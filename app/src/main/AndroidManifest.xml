@@ -133,7 +133,7 @@
                     android:resource="@xml/wallpaper"/>
         </service>
 
-        <activity android:name=".activities.SettingsActivity">
+        <activity android:name=".activities.SettingsActivity" android:exported="true">
         </activity>
     </application>
 

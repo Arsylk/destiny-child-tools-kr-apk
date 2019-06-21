@@ -35,11 +35,6 @@ public class DCSwapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dcswap);
         initViews();
-
-        fromModelItem = new L2DModelItem(new File(Define.MODELS_DIRECTORY, "pale_night_wola"));
-        toModelItem = new L2DModelItem(new File(Define.MODELS_DIRECTORY, "blue_wola"));
-        fillModelView(fromModelItem, fromModelView);
-        fillModelView(toModelItem, toModelView);
     }
 
     private void initViews() {

@@ -17,6 +17,12 @@
             <TextView
                     android:text="** ! DISCLAIMER ! **"
                     android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    style="@style/TextAppearance.AppCompat.Headline"/>
+            <TextView
+                    android:text="This is really experimental, might and probably will cause problems, with that out of the way, enjoy trying to use it on japan and global~"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"/>
 
         </LinearLayout>

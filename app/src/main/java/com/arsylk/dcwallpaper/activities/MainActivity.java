@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
                         }
                     }else {
-                        Toast.makeText(context, "Failed to unpack!!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                     }
                 }
             });

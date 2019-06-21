@@ -38,7 +38,7 @@ public class DCSwapper {
         }
     }
     private L2DModel fromL2D, toL2D;
-    private Map<File, File> matches = null;
+    private LinkedHashMap<File, File> matches = null;
     private List<Problem> problems = null;
     private List<Action> actions = null;
     private File lastFolder = null;
@@ -64,7 +64,7 @@ public class DCSwapper {
         if(output != null) output.append(line+"\n");
 
         //store matches & problems
-        matches = new HashMap<>();
+        matches = new LinkedHashMap<>();
         problems = new ArrayList<>();
         actions = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class DCSwapper {
         boolean matchingTextures = (fromL2D.getTextures().length == toL2D.getTextures().length);
 
         //iter slots
-        line = "\n------------------------------------------------  files  ------------------------------------------------";
+        line = "\n------------------------  files  ------------------------";
         System.out.println(line);
         if(output != null) output.append(line+"\n");
         for(File fileSlot : matchingTextures ? listFiles(toL2D) : listFilesIgnoreTextures(toL2D)) {
@@ -93,7 +93,7 @@ public class DCSwapper {
 
         //not matching textures
         if(!matchingTextures) {
-            line = "\n------------------------------------------------  textures  ------------------------------------------------";
+            line = "\n------------------------  textures  ------------------------";
             System.out.println(line);
             if(output != null) output.append(line+"\n");
             //more => less
@@ -130,7 +130,7 @@ public class DCSwapper {
 
 
         //auto-resolve problems
-        line = "\n------------------------------------------------  resolved  ------------------------------------------------";
+        line = "\n------------------------  resolved  ------------------------";
         System.out.println(line);
         if(output != null) output.append(line+"\n");
         for(Problem problem : new ArrayList<>(problems)) {
@@ -185,7 +185,7 @@ public class DCSwapper {
 
         //iter unmatched
         if(!problems.isEmpty()) {
-            line = "\n------------------------------------------------  unmatched  ------------------------------------------------";
+            line = "\n------------------------  unmatched  ------------------------";
             System.out.println(line);
             if(output != null) output.append(line+"\n");
             for(Problem problem : problems) {
@@ -203,7 +203,7 @@ public class DCSwapper {
 
         //iter actions taken
         if(!actions.isEmpty()) {
-            line = "\n------------------------------------------------  actions  ------------------------------------------------";
+            line = "\n------------------------  actions  ------------------------";
             System.out.println(line);
             if(output != null) output.append(line+"\n");
             for(Action action : actions) {

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="Folder Mapping">
+
+        <EditTextPreference
+                android:id="@+id/preference_map_game_package"
+                android:defaultValue="com.NextFloor.DestinyChild"
+                android:key="map_game_package"
+                android:title="Game Package"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
