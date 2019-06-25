@@ -80,7 +80,7 @@ public class WikiChildrenFragment extends Fragment {
             }
         });
 
-        // children list UI dieplz
+        // children list UI
         ListView childrenList = view.findViewById(R.id.wiki_fragment_children_list);
         adapter = new DCWikiChildrenAdapter(getContext());
         adapter.cacheBitmaps();

@@ -69,10 +69,6 @@
         <activity android:name=".activities.DCWikiPageActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity android:name=".activities.DCWikiActivity"
-                android:label="Destiny Child Wiki"
-                android:theme="@style/Theme.AppCompat.NoActionBar">
-        </activity>
         <activity android:name=".activities.WikiFragmentManagerActivity"
                   android:theme="@style/Theme.AppCompat.NoActionBar"
                   android:exported="true">
