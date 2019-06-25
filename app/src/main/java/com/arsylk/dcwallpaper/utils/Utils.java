@@ -422,11 +422,11 @@ public class Utils {
     public interface Callback {
         void onCall();
     }
-    public interface OnProgressUpdate<T> {
-        void onProgressUpdate(T item);
+    public interface OnProgressUpdate<Progress> {
+        void onProgressUpdate(Progress progress);
     }
-    public interface OnPostExecute<T> {
-        void onPostExecute(T item);
+    public interface OnPostExecute<Result> {
+        void onPostExecute(Result result);
     }
     /*callback end*/
 

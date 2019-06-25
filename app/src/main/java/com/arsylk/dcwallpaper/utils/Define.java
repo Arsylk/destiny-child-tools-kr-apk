@@ -37,8 +37,11 @@ public final class Define {
     public static final String REMOTE_ASSET_CHILD_NAMES = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_child_names.php?md5=%s";
     public static final File ASSET_CHILD_NAMES = new File(ASSETS_DIRECTORY, "child_names.json");
 
-    public static final String REMOTE_ASSET_CHILD_SKILLS = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_child_skills.php?md5=%s";
+    public static final String REMOTE_ASSET_CHILD_SKILLS = "https://arsylk.pythonanywhere.com/api/get_children_skills?md5=%s";
     public static final File ASSET_CHILD_SKILLS = new File(ASSETS_DIRECTORY, "child_skills.json");
+
+    public static final String REMOTE_ASSET_EQUIPMENT_STATS= "https://arsylk.pythonanywhere.com/api/get_equipment_stats?md5=%s";
+    public static final File ASSET_EQUIPMENT_STATS = new File(ASSETS_DIRECTORY, "equipment_stats.json");
 
     public static final File ASSET_EXTRACTED_CHILD_NAMES = new File(ASSETS_DIRECTORY, "extracted_child_names.json");
     public static final File ASSET_EVENT_BANNERS = new File(ASSETS_DIRECTORY, "banner_events.json");
@@ -58,6 +61,12 @@ public final class Define {
             R.id.search_type_healer,
             R.id.search_type_debuffer,
             R.id.search_type_support
+    };
+
+    public static final Integer[] CONVERT_ID_ITEM_TYPE = new Integer[] {
+            R.id.search_type_weapon,
+            R.id.search_type_armor,
+            R.id.search_type_accessory
     };
 
 

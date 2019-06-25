@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="@string/wiki_types" android:menuCategory="container" >
+        <menu>
+
+            <item
+                    android:id="@+id/search_type_weapon"
+                    android:icon="@drawable/ic_type_weapon"
+                    android:title="@string/wiki_weapons" />
+
+            <item
+                    android:id="@+id/search_type_armor"
+                    android:icon="@drawable/ic_type_armor"
+                    android:title="@string/wiki_armor" />
+
+            <item
+                    android:id="@+id/search_type_accessory"
+                    android:icon="@drawable/ic_type_accessory"
+                    android:title="@string/wiki_accessories" />
+        </menu>
+    </item>
+
+    <item android:title="Stats" android:menuCategory="container" >
+        <menu>
+
+            <item
+                    android:id="@+id/search_stat_hp"
+                    android:title="Health" />
+
+            <item
+                    android:id="@+id/search_stat_atk"
+                    android:title="Attack" />
+
+            <item
+                    android:id="@+id/search_stat_def"
+                    android:title="Defense" />
+
+            <item
+                    android:id="@+id/search_stat_agi"
+                    android:title="Agility" />
+
+            <item
+                    android:id="@+id/search_stat_crit"
+                    android:title="Critical" />
+        </menu>
+    </item>
+</menu>

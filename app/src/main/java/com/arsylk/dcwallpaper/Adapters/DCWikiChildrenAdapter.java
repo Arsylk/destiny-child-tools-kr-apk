@@ -6,60 +6,66 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.arsylk.dcwallpaper.Async.AsyncWikiCache;
+import com.arsylk.dcwallpaper.Async.CachedImage;
 import com.arsylk.dcwallpaper.Async.interfaces.OnWikiPagePost;
 import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.activities.DCWikiPageActivity;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
-import com.koushikdutta.ion.Ion;
+import com.arsylk.dcwallpaper.utils.Utils;
 import java.util.*;
 import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_ELEMENT;
 import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_TYPE;
 
-public class DCWikiPagesAdapter extends BaseAdapter implements OnWikiPagePost, Filterable {
+public class DCWikiChildrenAdapter extends BaseAdapter implements OnWikiPagePost, Filterable {
     private Context context;
     private String filterString = "";
     private int stars = 0;
     private Set<Integer> toggles;
-    private List<DCWiki.Page> srcWikiPages, wikiPages;
+    private List<DCWiki.Child> srcWikiChildren, wikiChildren;
 
-    public DCWikiPagesAdapter(Context context) {
+    public DCWikiChildrenAdapter(Context context) {
         this.context = context;
         this.toggles = new HashSet<>();
-        this.srcWikiPages = new ArrayList<>();
-        this.wikiPages = new ArrayList<>();
+        this.srcWikiChildren = new ArrayList<>(LoadAssets.getDCWikiInstance().getChildrenWiki());
+        this.wikiChildren = new ArrayList<>(LoadAssets.getDCWikiInstance().getChildrenWiki());
     }
 
-    public synchronized void cacheBitmaps() {
-        new AsyncWikiCache(context, true)
-                .setOnWikiPagePost(this)
-                .execute(LoadAssets.getDCWikiInstance());
+    public void cacheBitmaps() {
+        // start all image caching tasks
+        for(DCWiki.Child wikiChild : srcWikiChildren) {
+            wikiChild.getImage().asyncLoad(new Utils.OnPostExecute<CachedImage>() {
+                @Override
+                public void onPostExecute(CachedImage cachedImage) {
+                    notifyDataSetChanged();
+                }
+            });
+        }
     }
 
     @Override
-    public void onProgressUpdate(DCWiki.Page... pages) {
-        if(pages == null) {
-            srcWikiPages.clear();
-            wikiPages.clear();
+    public void onProgressUpdate(DCWiki.Child... children) {
+        if(children == null) {
+            srcWikiChildren.clear();
+            wikiChildren.clear();
             return;
         }
 
-        for(DCWiki.Page page : pages) {
-            srcWikiPages.add(page);
-            wikiPages.add(page);
+        for(DCWiki.Child child : children) {
+            srcWikiChildren.add(child);
+            wikiChildren.add(child);
             notifyDataSetChanged();
         }
     }
 
     @Override
     public int getCount() {
-        return wikiPages.size();
+        return wikiChildren.size();
     }
 
     @Override
-    public DCWiki.Page getItem(int position) {
-        return wikiPages.get(position);
+    public DCWiki.Child getItem(int position) {
+        return wikiChildren.get(position);
     }
 
     @Override
@@ -71,7 +77,7 @@ public class DCWikiPagesAdapter extends BaseAdapter implements OnWikiPagePost, F
     public View getView(int position, View convertView, ViewGroup parent) {
         if(convertView == null) {
             convertView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
-                    .inflate(R.layout.item_wiki_page, parent, false);
+                    .inflate(R.layout.item_wiki_child, parent, false);
             ViewHolder holder = new ViewHolder();
             holder.label = convertView.findViewById(R.id.label);
             holder.sublabel = convertView.findViewById(R.id.sub_label);
@@ -83,26 +89,26 @@ public class DCWikiPagesAdapter extends BaseAdapter implements OnWikiPagePost, F
             convertView.setTag(holder);
         }
 
-        final DCWiki.Page wikiPage = getItem(position);
+        final DCWiki.Child wikiChild = getItem(position);
         ViewHolder holder = (ViewHolder) convertView.getTag();
-        holder.label.setText(wikiPage.getName());
-        holder.sublabel.setText(wikiPage.getModelId());
-        holder.element.setImageResource(wikiPage.getElementDrawable());
-        holder.type.setImageResource(wikiPage.getTypeDrawable());
-        if(wikiPage.getThumbnailBitmap() != null) {
-            holder.thumbnail.setImageBitmap(wikiPage.getThumbnailBitmap());
-        }else if(wikiPage.getThumbnailUrl() != null) {
-            Ion.with(context).load(wikiPage.getThumbnailUrl()).intoImageView(holder.thumbnail);
+        holder.label.setText(wikiChild.getName());
+        holder.sublabel.setText(wikiChild.getModelId());
+        holder.element.setImageResource(wikiChild.getElementDrawable());
+        holder.type.setImageResource(wikiChild.getTypeDrawable());
+        if(wikiChild.getImage().getImageBitmap() != null) {
+            holder.thumbnail.setImageBitmap(wikiChild.getImage().getImageBitmap());
+        }else  {
+            holder.thumbnail.setImageResource(android.R.color.transparent);
         }
-        holder.frame.setImageResource(wikiPage.getElementFrame());
+        holder.frame.setImageResource(wikiChild.getElementFrame());
         for(int i = 0; i < holder.stars.getChildCount(); i++) {
-            holder.stars.getChildAt(i).setVisibility((i < wikiPage.getStars()) ? View.VISIBLE : View.GONE);
+            holder.stars.getChildAt(i).setVisibility((i < wikiChild.getStars()) ? View.VISIBLE : View.GONE);
         }
 
         convertView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                context.startActivity(new Intent(context, DCWikiPageActivity.class).putExtra("model_id", wikiPage.getModelId()));
+                context.startActivity(new Intent(context, DCWikiPageActivity.class).putExtra("model_id", wikiChild.getModelId()));
             }
         });
 
@@ -136,18 +142,19 @@ public class DCWikiPagesAdapter extends BaseAdapter implements OnWikiPagePost, F
             @Override
             protected FilterResults performFiltering(CharSequence query) {
                 filterString = query.toString().toLowerCase();
-                System.out.println(filterString);
                 FilterResults results = new FilterResults();
-                List<DCWiki.Page> filterList = new ArrayList<>();
-                for(DCWiki.Page page : srcWikiPages) {
-                    if(!toggles.contains(CONVERT_ID_ELEMENT[page.getElement()]) && !toggles.contains(CONVERT_ID_TYPE[page.getType()])) {
-                        if(stars == 0 || stars == page.getStars()) {
+                List<DCWiki.Child> filterList = new ArrayList<>();
+                for(DCWiki.Child child : srcWikiChildren) {
+                    if(!toggles.contains(CONVERT_ID_ELEMENT[child.getElement()]) && !toggles.contains(CONVERT_ID_TYPE[child.getType()])) {
+                        if(stars == 0 || stars == child.getStars()) {
                             if(filterString != null) {
-                                if(page.getName().toLowerCase().contains(filterString) || page.getKrName().toLowerCase().contains(filterString)) {
-                                    filterList.add(page);
+                                if(child.getName().toLowerCase().contains(filterString) ||
+                                        child.getKrName().toLowerCase().contains(filterString) ||
+                                            child.getModelId().toLowerCase().contains(filterString)) {
+                                    filterList.add(child);
                                 }
                             }else {
-                                filterList.add(page);
+                                filterList.add(child);
                             }
                         }
                     }
@@ -162,7 +169,7 @@ public class DCWikiPagesAdapter extends BaseAdapter implements OnWikiPagePost, F
             protected void publishResults(CharSequence charSequence, FilterResults results) {
                 if(results != null)
                     if(results.values != null)
-                        wikiPages = (List<DCWiki.Page>) results.values;
+                        wikiChildren = (List<DCWiki.Child>) results.values;
                 notifyDataSetChanged();
             }
         };

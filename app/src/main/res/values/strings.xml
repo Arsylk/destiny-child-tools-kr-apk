@@ -26,6 +26,12 @@
     <string name="wiki_tap_skill">Tap Skill:</string>
     <string name="wiki_slide_skill">Slide Skill:</string>
     <string name="wiki_drive_skill">Drive Skill:</string>
+    <string name="wiki_children">Children</string>
+    <string name="wiki_equipment">Equipment</string>
+    <string name="wiki_soul_carta">Soul Carta</string>
+    <string name="wiki_weapons">Weapons</string>
+    <string name="wiki_armor">Armor</string>
+    <string name="wiki_accessories">Accessories</string>
 
     <string name="translator_search_key">Search key…</string>
     <string name="translator_search_value">Search value…</string>

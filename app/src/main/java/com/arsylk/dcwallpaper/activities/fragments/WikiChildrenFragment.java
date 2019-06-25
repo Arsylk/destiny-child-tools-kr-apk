@@ -1,85 +1,73 @@
-package com.arsylk.dcwallpaper.activities;
+package com.arsylk.dcwallpaper.activities.fragments;
 
-import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.EditText;
 import android.widget.ListView;
 import com.arsylk.dcwallpaper.Adapters.DCWikiChildrenAdapter;
 import com.arsylk.dcwallpaper.R;
 
-public class DCWikiActivity extends ActivityWithExceptionRedirect {
-    private Context context = DCWikiActivity.this;
+public class WikiChildrenFragment extends Fragment {
     private DrawerLayout drawerLayout;
     private NavigationView navigationView;
     private EditText searchInput;
     private ViewGroup searchStars;
-    private ListView listView;
     private DCWikiChildrenAdapter adapter;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dcwiki);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
-        initViews();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.wiki_fragments_menu, menu);
-        return super.onCreateOptionsMenu(menu);
+        setHasOptionsMenu(true);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case android.R.id.home:
+        if(item.getItemId() == android.R.id.home) {
+            if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            }else {
                 drawerLayout.openDrawer(GravityCompat.START);
-                return true;
+            }
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
-    public void onBackPressed() {
-        if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        }else {
-            super.onBackPressed();
-        }
+    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_wiki_children, parent, false);
     }
 
-    private void initViews() {
-        if(getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_menu_white);
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        // parent toolbar UI
+        AppCompatActivity appCompatActivity = (AppCompatActivity) getActivity();
+        if(appCompatActivity != null) {
+            ActionBar actionBar = appCompatActivity.getSupportActionBar();
+            if(actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white);
+            }
         }
 
-        listView = findViewById(R.id.wiki_pages_list);
-        drawerLayout = findViewById(R.id.wiki_drawer_layout);
-        navigationView = findViewById(R.id.wiki_navigation_view);
-        searchInput = navigationView.getHeaderView(0).findViewById(R.id.search_input);
-        searchStars = navigationView.getHeaderView(0).findViewById(R.id.search_stars_layout);
-
-
-        adapter = new DCWikiChildrenAdapter(context);
-        adapter.cacheBitmaps();
-        listView.setAdapter(adapter);
-
+        // drawer layout UI
+        drawerLayout = view.findViewById(R.id.wiki_fragment_children_drawer);
         drawerLayout.setScrimColor(Color.TRANSPARENT);
+
+        // navigation UI
+        navigationView = view.findViewById(R.id.wiki_fragment_children_navigation);
         navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -92,6 +80,14 @@ public class DCWikiActivity extends ActivityWithExceptionRedirect {
             }
         });
 
+        // children list UI
+        ListView childrenList = view.findViewById(R.id.wiki_fragment_children_list);
+        adapter = new DCWikiChildrenAdapter(getContext());
+        adapter.cacheBitmaps();
+        childrenList.setAdapter(adapter);
+
+        // search input UI
+        searchInput = navigationView.getHeaderView(0).findViewById(R.id.search_input);
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -110,13 +106,17 @@ public class DCWikiActivity extends ActivityWithExceptionRedirect {
             }
         });
 
+        // star search UI
+        searchStars = navigationView.getHeaderView(0).findViewById(R.id.search_stars_layout);
         for(int i = 0; i < searchStars.getChildCount(); i++) {
             searchStars.getChildAt(i).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if(adapter != null) {
                         int stars = Integer.parseInt(view.getTag().toString());
-                        markUpStars(stars);
+                        for(int i = 1; i < searchStars.getChildCount(); i++) {
+                            searchStars.getChildAt(i).setAlpha((i <= stars) ? 1.0f : 0.5f);
+                        }
                         adapter.toggleStars(stars);
                     }
                 }
@@ -124,9 +124,4 @@ public class DCWikiActivity extends ActivityWithExceptionRedirect {
         }
     }
 
-    private void markUpStars(int stars) {
-        for(int i = 1; i < searchStars.getChildCount(); i++) {
-            searchStars.getChildAt(i).setAlpha((i <= stars) ? 1.0f : 0.5f);
-        }
-    }
 }

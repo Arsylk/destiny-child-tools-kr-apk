@@ -13,6 +13,23 @@ public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTas
     protected Utils.OnProgressUpdate<Progress> onProgressUpdate = null;
     protected Utils.OnPostExecute<Result> onPostExecute = null;
 
+    // quick static task
+    public static void execute(Context context, final Utils.Callback doInBackgroundCallback, final Utils.Callback onPostExecuteCallback) {
+        new AsyncWithDialog<Void, Void, Void>(context, false) {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                doInBackgroundCallback.onCall();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                onPostExecuteCallback.onCall();
+            }
+        }.execute();
+    }
+
     public AsyncWithDialog(Context context, boolean showGui) {
         init(context, showGui, "");
     }

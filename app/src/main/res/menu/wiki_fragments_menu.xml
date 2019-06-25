@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/wiki_region_kr"
+          android:icon="@drawable/ic_flag_kr"
+          android:title="@string/text_korea"
+          app:showAsAction="always"
+          android:menuCategory="container">
+
+        <menu>
+
+            <item android:id="@+id/wiki_menu_children" android:title="@string/wiki_children"/>
+
+            <item android:id="@+id/wiki_menu_equipment" android:title="@string/wiki_equipment"/>
+
+            <item android:id="@+id/wiki_menu_soul_carta" android:title="@string/wiki_soul_carta"/>
+
+        </menu>
+
+    </item>
+</menu>

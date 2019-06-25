@@ -404,7 +404,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             Toast.makeText(context, "Wait for update to finish!", Toast.LENGTH_SHORT).show();
             return;
         }
-        startActivity(new Intent(context, DCWikiActivity.class));
+        startActivity(new Intent(context, WikiFragmentManagerActivity.class));
     }
 
     private void openDCBannerWidget() {

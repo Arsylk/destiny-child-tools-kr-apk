@@ -1,29 +1,24 @@
 package com.arsylk.dcwallpaper.DestinyChild;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import com.arsylk.dcwallpaper.Async.CachedImage;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
 import com.arsylk.dcwallpaper.utils.Utils;
-import com.koushikdutta.ion.Ion;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.util.*;
 
 public class DCWiki {
-    public static class Page {
-        private String modelId = null, name = null, krName = null, region = null;
+    // children pages
+    public static class Child {
+        private String modelId = null, name = null, krName = null;
         private int stars = 0, element = 0, type = 0;
         private String skillLeader = null, skillAuto = null, skillTap = null, skillSlide = null, skillDrive = null;
         private String[] portaitImages = null;
-        private String thumbnailUrl = null;
-        private File thumbnailFile = null;
-        private Bitmap thumbnailBitmap = null;
+        private CachedImage image = null;
 
-        public Page(JSONObject json) {
+        public Child(JSONObject json) {
             load(json);
         }
 
@@ -39,8 +34,6 @@ public class DCWiki {
                     krName = json.getString("kname");
                 else
                     krName = "";
-                if(json.has("region"))
-                    region = json.getString("region");
 
                 if(json.has("starLevel"))
                     stars = Integer.valueOf(json.getString("starLevel"));
@@ -97,8 +90,7 @@ public class DCWiki {
                     skillDrive = json.getString("skillDrive");
 
                 if(json.has("thumbnail")) {
-                    thumbnailUrl = json.getString("thumbnail").replace("https://", "http://");
-                    thumbnailFile = new File(Define.BITMAP_CACHE_DIRECTORY, modelId+"_wiki.png");
+                    image = new CachedImage(json.getString("thumbnail").replace("https://", "http://"), "child_"+modelId);
                 }
 
                 portaitImages = new String[3];
@@ -114,21 +106,8 @@ public class DCWiki {
             }
         }
 
-        public boolean loadBitmap(Context context) {
-            if(thumbnailUrl == null || thumbnailFile == null) return false;
-
-            boolean wasCached = true;
-            if(!thumbnailFile.exists()) {
-                wasCached = false;
-                try {
-                    Ion.with(context).load(thumbnailUrl).write(thumbnailFile).get();
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            thumbnailBitmap = BitmapFactory.decodeFile(thumbnailFile.getAbsolutePath());
-
-            return wasCached;
+        public CachedImage getImage() {
+            return image;
         }
 
         public String getModelId() {
@@ -141,10 +120,6 @@ public class DCWiki {
 
         public String getKrName() {
             return krName;
-        }
-
-        public String getRegion() {
-            return region;
         }
 
         public int getStars() {
@@ -233,36 +208,153 @@ public class DCWiki {
         public String[] getPortaitImages() {
             return portaitImages;
         }
-
-        public String getThumbnailUrl() {
-            return thumbnailUrl;
-        }
-
-        public File getThumbnailFile() {
-            return thumbnailFile;
-        }
-
-        public Bitmap getThumbnailBitmap() {
-            return thumbnailBitmap;
-        }
     }
-    private Map<String, Page> wikiPages;
-    private List<Page> sortedWikiPages = null;
+    private Map<String, Child> wikiChildrenPages;
+    private List<Child> sortedWikiChildren = null;
+
+    // equipment pages
+    public static class Equipment {
+        public static class Stat {
+            public final String shortText, fullText;
+            public final int value, statId;
+            public Stat(String shortText, String fullText, int value, int statId) {
+                this.shortText = shortText;
+                this.fullText = fullText;
+                this.value = value;
+                this.statId = statId;
+            }
+        }
+        private int type;
+        private String name = null, description = null, comment = null;
+        private int health = 0, attack = 0, defense = 0, agility = 0, critical = 0;
+        private float power = 0.0f;
+        private CachedImage image = null;
+        private List<Stat> statsActive = null, statsAll = null;
+
+        public Equipment(JSONObject json) {
+            load(json);
+        }
+
+        private void load(JSONObject json) {
+            try {
+                // name & descriptions
+                if(json.has("type")) {
+                    switch(json.getString("type")) {
+                        case "weapon":
+                            type = 0;
+                            break;
+                        case "armor":
+                            type = 1;
+                            break;
+                        case "accessory":
+                            type = 2;
+                            break;
+                    }
+                }
+                if(json.has("name"))
+                    name = json.getString("name");
+                if(json.has("description"))
+                    description = json.getString("description");
+                if(json.has("comment"))
+                    comment = json.getString("comment");
+
+                // get item stats
+                statsAll = new ArrayList<>();
+                statsActive = new ArrayList<>();
+                if(json.has("health")) {
+                    health = json.getInt("health");
+                    Stat hp = new Stat("HP", "Health", health, R.id.search_stat_hp);
+                    statsAll.add(hp);
+                    if(health > 0) {
+                        statsActive.add(hp);
+                    }
+                }
+                if(json.has("attack")) {
+                    attack = json.getInt("attack");
+                    Stat atk = new Stat("ATK", "Attack", attack, R.id.search_stat_atk);
+                    statsAll.add(atk);
+                    if(attack > 0) {
+                        statsActive.add(atk);
+                    }
+                }
+                if(json.has("defense")) {
+                    defense = json.getInt("defense");
+                    Stat def = new Stat("DEF", "Defense", defense, R.id.search_stat_def);
+                    statsAll.add(def);
+                    if(defense > 0) {
+                        statsActive.add(def);
+                    }
+                }
+                if(json.has("agility")) {
+                    agility = json.getInt("agility");
+                    Stat agi = new Stat("AGI", "Agility", agility, R.id.search_stat_agi);
+                    statsAll.add(agi);
+                    if(agility > 0) {
+                        statsActive.add(agi);
+                    }
+                }
+                if(json.has("critical")) {
+                    critical = json.getInt("critical");
+                    Stat crit = new Stat("CRIT", "Critical", critical, R.id.search_stat_crit);
+                    statsAll.add(crit);
+                    if(critical > 0) {
+                        statsActive.add(crit);
+                    }
+                }
+                if(json.has("power"))
+                    power = (float) json.getDouble("power");
+
+                // create cached image
+                if(json.has("id") && json.has("icon")) {
+                    image = new CachedImage(json.getString("icon"), "equipment_"+json.getString("id"));
+                }
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public CachedImage getImage() {
+            return image;
+        }
+
+        public List<Stat> getStats(boolean activeOnly) {
+            return activeOnly ? statsActive : statsAll;
+        }
+
+        public int getType() {
+            return type;
+        }
+
+        public float getPower() {
+            return power;
+        }
+
+    }
+    private List<Equipment> sortedWikiEquipment = null;
 
     public DCWiki() {
-        this.wikiPages = new HashMap<>();
-        loadWiki("kr");
+        wikiChildrenPages = new HashMap<>();
+        loadChildrenWiki();
+
+        sortedWikiEquipment = new ArrayList<>();
+        loadEquipmentStats();
+
     }
 
-    private void loadWiki(String region) {
+    // child skills wiki
+    private void loadChildrenWiki() {
         try {
-            JSONObject jsonWiki = Utils.fileToJson(Define.ASSET_CHILD_SKILLS);
-            JSONArray arrayWiki = jsonWiki.getJSONArray("child_skills");
-            for(int i = 0; i < arrayWiki.length(); i++) {
-                JSONObject childWiki = arrayWiki.getJSONObject(i);
+            JSONObject jsonChildrenWiki = Utils.fileToJson(Define.ASSET_CHILD_SKILLS);
+            JSONArray arrayChildrenWiki = jsonChildrenWiki.getJSONArray("child_skills");
+            for(int i = 0; i < arrayChildrenWiki.length(); i++) {
+                JSONObject childWiki = arrayChildrenWiki.getJSONObject(i);
                 if(childWiki.has("region") && childWiki.has("model_id")) {
-                    if(childWiki.getString("region").equalsIgnoreCase(region)) {
-                        wikiPages.put(childWiki.getString("model_id"), new Page(childWiki));
+                    if(childWiki.getString("region").equalsIgnoreCase("kr")) {
+                        wikiChildrenPages.put(childWiki.getString("model_id"), new Child(childWiki));
                     }
                 }
             }
@@ -271,27 +363,45 @@ public class DCWiki {
         }
     }
 
-    public boolean hasWikiPage(String modelId) {
-        return wikiPages.containsKey(modelId);
+    public boolean hasChildWiki(String modelId) {
+        return wikiChildrenPages.containsKey(modelId);
     }
 
-    public Page getWikiPage(String modelId) {
-        if(wikiPages.containsKey(modelId)) {
-            return wikiPages.get(modelId);
+    public Child getChildWiki(String modelId) {
+        if(wikiChildrenPages.containsKey(modelId)) {
+            return wikiChildrenPages.get(modelId);
         }
         return null;
     }
 
-    public List<Page> getWikiPages() {
-        if(sortedWikiPages == null) {
-            List<String> keys = new ArrayList<>(wikiPages.keySet());
+    public List<Child> getChildrenWiki() {
+        if(sortedWikiChildren == null) {
+            List<String> keys = new ArrayList<>(wikiChildrenPages.keySet());
             Collections.sort(keys);
-            sortedWikiPages = new ArrayList<>();
+            sortedWikiChildren = new ArrayList<>();
             for(String key : keys) {
-                sortedWikiPages.add(wikiPages.get(key));
+                sortedWikiChildren.add(wikiChildrenPages.get(key));
             }
         }
 
-        return sortedWikiPages;
+        return sortedWikiChildren;
+    }
+
+    // equipment stats wiki
+    private void loadEquipmentStats() {
+        try {
+            JSONObject jsonEquipmentWiki = Utils.fileToJson(Define.ASSET_EQUIPMENT_STATS);
+            JSONArray arrayEquipmentWiki = jsonEquipmentWiki.getJSONArray("equipment_stats");
+            for(int i = 0; i < arrayEquipmentWiki.length(); i++) {
+                JSONObject equipmentWiki = arrayEquipmentWiki.getJSONObject(i);
+                sortedWikiEquipment.add(new Equipment(equipmentWiki));
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Equipment> getEquipmentWiki() {
+        return sortedWikiEquipment;
     }
 }

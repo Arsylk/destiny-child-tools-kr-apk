@@ -3,7 +3,6 @@ package com.arsylk.dcwallpaper.activities;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -18,10 +17,10 @@ import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 
-public class DCWikiPageActivity extends ActivityWithExceptionRedirect implements FutureCallback<DCWiki.Page> {
+public class DCWikiPageActivity extends ActivityWithExceptionRedirect implements FutureCallback<DCWiki.Child> {
     private Context context = DCWikiPageActivity.this;
     private String modelId;
-    private DCWiki.Page wikiItem;
+    private DCWiki.Child wikiItem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,18 +36,18 @@ public class DCWikiPageActivity extends ActivityWithExceptionRedirect implements
         asyncLoadWiki(this);
     }
 
-    private void asyncLoadWiki(final FutureCallback<DCWiki.Page> callback) {
+    private void asyncLoadWiki(final FutureCallback<DCWiki.Child> callback) {
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                DCWiki.Page wikiPage = LoadAssets.getDCWikiInstance().getWikiPage(modelId);
-                callback.onCompleted((wikiPage == null) ? new Exception("No wiki entry found") : null, wikiPage);
+                DCWiki.Child wikiChild = LoadAssets.getDCWikiInstance().getChildWiki(modelId);
+                callback.onCompleted((wikiChild == null) ? new Exception("No wiki entry found") : null, wikiChild);
             }
         });
     }
 
     @Override
-    public void onCompleted(Exception e, DCWiki.Page result) {
+    public void onCompleted(Exception e, DCWiki.Child result) {
         if(e == null) {
             Log.d("mTag:Wiki", "Found wiki page");
             Log.d("mTag:Wiki", result.getKrName()+" - "+result.getName());
@@ -101,8 +100,8 @@ public class DCWikiPageActivity extends ActivityWithExceptionRedirect implements
         wiki_skill_slide.setText(wikiItem.getSkillSlide());
         wiki_skill_drive.setText(wikiItem.getSkillDrive());
 
-        if(wikiItem.getThumbnailUrl() != null) {
-            Ion.with(context).load(wikiItem.getThumbnailUrl())
+        if(wikiItem.getImage().getUrl() != null) {
+            Ion.with(context).load(wikiItem.getImage().getUrl())
                     .progressBar((ProgressBar) findViewById(R.id.wiki_image_thumbnail_progress))
                     .intoImageView(wiki_thumbnail).setCallback(new FutureCallback<ImageView>() {
                 @Override

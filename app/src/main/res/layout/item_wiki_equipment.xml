@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="80dp"
+              android:padding="@dimen/item_margin">
+
+    <ImageView
+            android:id="@+id/wiki_image_icon"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_width="70dp"
+            android:layout_height="70dp"/>
+
+    <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentLeft="true"
+            android:layout_toStartOf="@+id/wiki_image_icon"
+            android:layout_toLeftOf="@+id/wiki_image_icon"
+            android:layout_marginRight="@dimen/item_margin"
+            android:layout_marginEnd="@dimen/item_margin"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/wiki_item_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"/>
+
+        <TextView
+                android:id="@+id/wiki_item_stat_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        <TextView
+                android:id="@+id/wiki_item_stat_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

@@ -28,10 +28,10 @@ public class DCModelItem {
                 title = LoadAssets.getDCModelInfoInstance().getModelTitle(model_id, model_flag);
                 if(title != null && name != null) {
                     loaded = true;
-                    if(LoadAssets.getDCWikiInstance().hasWikiPage(model_id)) {
-                        DCWiki.Page wikiPage =  LoadAssets.getDCWikiInstance().getWikiPage(model_id);
-                        wikiElement = wikiPage.getElement();
-                        wikiType = wikiPage.getType();
+                    if(LoadAssets.getDCWikiInstance().hasChildWiki(model_id)) {
+                        DCWiki.Child wikiChild =  LoadAssets.getDCWikiInstance().getChildWiki(model_id);
+                        wikiElement = wikiChild.getElement();
+                        wikiType = wikiChild.getType();
                         wikiLoaded = true;
                     }
                 }

@@ -38,6 +38,13 @@ public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
             error = true;
         }
         try {
+            publishProgress("Updating equipment stats...");
+            LoadAssets.updateEquipmentStats(context).get();
+        }catch(Exception e) {
+            e.printStackTrace();
+            error = true;
+        }
+        try {
             publishProgress("Updating child names ...");
             LoadAssets.updateChildNames(context);
         }catch(Exception e) {
@@ -45,7 +52,7 @@ public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
             error = true;
         }
 
-        publishProgress("Loading child skills...");
+        publishProgress("Loading wiki pages...");
         LoadAssets.getDCWikiInstance();
 
         publishProgress("Loading child names...");

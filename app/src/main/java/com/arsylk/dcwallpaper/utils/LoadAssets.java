@@ -54,6 +54,29 @@ public class LoadAssets  {
                 });
     }
 
+    public static Future updateEquipmentStats(Context context) {
+        return Ion.with(context).load(String.format(REMOTE_ASSET_EQUIPMENT_STATS, Utils.md5(ASSET_EQUIPMENT_STATS))).group(TAG_ASSETS)
+                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        if(e == null) {
+                            if(result.isEmpty()) {
+                                Log.d("mTag:Assets", "Equipment stats are up-to-date!");
+                                return;
+                            }
+                            try {
+                                FileUtils.write(ASSET_EQUIPMENT_STATS, result, Charset.forName("utf-8"));
+                                Log.d("mTag:Assets", "Equipment stats updated!");
+                            }catch(Exception e1) {
+                                e1.printStackTrace();
+                            }
+                        }else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
     public static void updateChildNames(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         File locale = DCTools.getDCLocalePath();

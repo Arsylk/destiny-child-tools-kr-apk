@@ -98,7 +98,11 @@ public class DCTools {
                 return name.startsWith("bg") && name.endsWith("_f.png");
             }
         });
-        return bgs == null ? null : bgs[new Random().nextInt(bgs.length)];
+        if(bgs == null)
+            return null;
+        if(bgs.length == 0)
+            return null;
+        return bgs[new Random().nextInt(bgs.length)];
     }
 
     public static String getExtStr(int extId) {

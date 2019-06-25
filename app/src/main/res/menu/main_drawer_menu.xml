@@ -58,11 +58,12 @@
         <menu>
             <group android:checkableBehavior="none">
                 <item
-                        android:id="@+id/dcmodels_swap"
-                        android:title="@string/menu_item_swap_models" />
-                <item
                         android:id="@+id/wiki_open"
                         android:title="@string/text_wiki" />
+
+                <item
+                        android:id="@+id/dcmodels_swap"
+                        android:title="@string/menu_item_swap_models" />
 
                 <item
                         android:id="@+id/dcbanner_widget_open"
