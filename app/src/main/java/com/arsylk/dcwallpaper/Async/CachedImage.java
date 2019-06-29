@@ -24,6 +24,11 @@ public class CachedImage extends AsyncTask<Void, Void, Bitmap> {
     }
 
     public void asyncLoad(Utils.OnPostExecute<CachedImage> onPostExecute) {
+        // ignore if running
+        if(getStatus() == Status.RUNNING) {
+            return;
+        }
+
         // if already loaded
         if(getStatus() == Status.FINISHED || isLoaded()) {
             onPostExecute.onPostExecute(this);

@@ -4,5 +4,7 @@
     <dimen name="activity_margin">8dp</dimen>
     <dimen name="item_margin">5dp</dimen>
     <dimen name="widget_margin">8dp</dimen>
+    <dimen name="wiki_condition_icon">14sp</dimen>
+
 
 </resources>

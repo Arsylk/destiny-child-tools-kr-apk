@@ -40,8 +40,11 @@ public final class Define {
     public static final String REMOTE_ASSET_CHILD_SKILLS = "https://arsylk.pythonanywhere.com/api/get_children_skills?md5=%s";
     public static final File ASSET_CHILD_SKILLS = new File(ASSETS_DIRECTORY, "child_skills.json");
 
-    public static final String REMOTE_ASSET_EQUIPMENT_STATS= "https://arsylk.pythonanywhere.com/api/get_equipment_stats?md5=%s";
+    public static final String REMOTE_ASSET_EQUIPMENT_STATS = "https://arsylk.pythonanywhere.com/api/get_equipment_stats?md5=%s";
     public static final File ASSET_EQUIPMENT_STATS = new File(ASSETS_DIRECTORY, "equipment_stats.json");
+
+    public static final String REMOTE_ASSET_SOUL_CARTA = "https://arsylk.pythonanywhere.com/api/get_soul_carta?md5=%s";
+    public static final File ASSET_SOUL_CARTA = new File(ASSETS_DIRECTORY, "soul_carta.json");
 
     public static final File ASSET_EXTRACTED_CHILD_NAMES = new File(ASSETS_DIRECTORY, "extracted_child_names.json");
     public static final File ASSET_EVENT_BANNERS = new File(ASSETS_DIRECTORY, "banner_events.json");

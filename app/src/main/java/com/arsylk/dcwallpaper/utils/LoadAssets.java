@@ -77,6 +77,29 @@ public class LoadAssets  {
                 });
     }
 
+    public static Future updateSoulCartas(Context context) {
+        return Ion.with(context).load(String.format(REMOTE_ASSET_SOUL_CARTA, Utils.md5(ASSET_SOUL_CARTA))).group(TAG_ASSETS)
+                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        if(e == null) {
+                            if(result.isEmpty()) {
+                                Log.d("mTag:Assets", "Soul Cartas are up-to-date!");
+                                return;
+                            }
+                            try {
+                                FileUtils.write(ASSET_SOUL_CARTA, result, Charset.forName("utf-8"));
+                                Log.d("mTag:Assets", "Soul Cartas updated!");
+                            }catch(Exception e1) {
+                                e1.printStackTrace();
+                            }
+                        }else {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+    }
+
     public static void updateChildNames(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         File locale = DCTools.getDCLocalePath();

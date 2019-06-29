@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Destiny Child Tools</string>
+    <string name="app_name">Mammon\'s Shekel</string>
 
     <string name="disclaimer_title">** ! DISCLAIMER ! **</string>
     <string name="disclaimer_message">This is really experimental, might and probably will cause problems, by changing
@@ -32,6 +32,7 @@
     <string name="wiki_weapons">Weapons</string>
     <string name="wiki_armor">Armor</string>
     <string name="wiki_accessories">Accessories</string>
+    <string name="wiki_options">Options</string>
 
     <string name="translator_search_key">Search key…</string>
     <string name="translator_search_value">Search value…</string>

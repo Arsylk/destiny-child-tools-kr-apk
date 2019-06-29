@@ -71,6 +71,7 @@
         </activity>
         <activity android:name=".activities.WikiFragmentManagerActivity"
                   android:theme="@style/Theme.AppCompat.NoActionBar"
+                  android:screenOrientation="portrait"
                   android:exported="true">
         </activity>
         <activity android:name=".activities.LocaleTranslateActivity"
@@ -87,7 +88,7 @@
                 android:theme="@style/Theme.AppCompat.Dialog">
         </activity>
         <activity android:name=".activities.DCBannerWidgetConfigureActivity"
-                  android:label="Destiny Child Banner">
+                  android:label="Event Banners">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>

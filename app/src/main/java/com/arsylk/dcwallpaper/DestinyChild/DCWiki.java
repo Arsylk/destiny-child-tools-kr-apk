@@ -9,7 +9,20 @@ import org.json.JSONObject;
 
 import java.util.*;
 
+
 public class DCWiki {
+    // shared beans
+    public static class Stat {
+        public final String shortText, fullText;
+        public final int value, statId;
+        public Stat(String shortText, String fullText, int value, int statId) {
+            this.shortText = shortText;
+            this.fullText = fullText;
+            this.value = value;
+            this.statId = statId;
+        }
+    }
+
     // children pages
     public static class Child {
         private String modelId = null, name = null, krName = null;
@@ -214,19 +227,8 @@ public class DCWiki {
 
     // equipment pages
     public static class Equipment {
-        public static class Stat {
-            public final String shortText, fullText;
-            public final int value, statId;
-            public Stat(String shortText, String fullText, int value, int statId) {
-                this.shortText = shortText;
-                this.fullText = fullText;
-                this.value = value;
-                this.statId = statId;
-            }
-        }
         private int type;
         private String name = null, description = null, comment = null;
-        private int health = 0, attack = 0, defense = 0, agility = 0, critical = 0;
         private float power = 0.0f;
         private CachedImage image = null;
         private List<Stat> statsActive = null, statsAll = null;
@@ -262,42 +264,37 @@ public class DCWiki {
                 statsAll = new ArrayList<>();
                 statsActive = new ArrayList<>();
                 if(json.has("health")) {
-                    health = json.getInt("health");
-                    Stat hp = new Stat("HP", "Health", health, R.id.search_stat_hp);
+                    Stat hp = new Stat("HP", "Health", json.getInt("health"), R.id.search_stat_hp);
                     statsAll.add(hp);
-                    if(health > 0) {
+                    if(hp.value > 0) {
                         statsActive.add(hp);
                     }
                 }
                 if(json.has("attack")) {
-                    attack = json.getInt("attack");
-                    Stat atk = new Stat("ATK", "Attack", attack, R.id.search_stat_atk);
+                    Stat atk = new Stat("ATK", "Attack", json.getInt("attack"), R.id.search_stat_atk);
                     statsAll.add(atk);
-                    if(attack > 0) {
+                    if(atk.value > 0) {
                         statsActive.add(atk);
                     }
                 }
                 if(json.has("defense")) {
-                    defense = json.getInt("defense");
-                    Stat def = new Stat("DEF", "Defense", defense, R.id.search_stat_def);
+                    Stat def = new Stat("DEF", "Defense", json.getInt("defense"), R.id.search_stat_def);
                     statsAll.add(def);
-                    if(defense > 0) {
+                    if(def.value > 0) {
                         statsActive.add(def);
                     }
                 }
                 if(json.has("agility")) {
-                    agility = json.getInt("agility");
-                    Stat agi = new Stat("AGI", "Agility", agility, R.id.search_stat_agi);
+                    Stat agi = new Stat("AGI", "Agility", json.getInt("agility"), R.id.search_stat_agi);
                     statsAll.add(agi);
-                    if(agility > 0) {
+                    if(agi.value > 0) {
                         statsActive.add(agi);
                     }
                 }
                 if(json.has("critical")) {
-                    critical = json.getInt("critical");
-                    Stat crit = new Stat("CRIT", "Critical", critical, R.id.search_stat_crit);
+                    Stat crit = new Stat("CRIT", "Critical", json.getInt("critical"), R.id.search_stat_crit);
                     statsAll.add(crit);
-                    if(critical > 0) {
+                    if(crit.value > 0) {
                         statsActive.add(crit);
                     }
                 }
@@ -334,14 +331,225 @@ public class DCWiki {
         }
 
     }
-    private List<Equipment> sortedWikiEquipment = null;
+    private List<Equipment> sortedWikiEquipment;
 
+    // soul carta pages
+    public static class SoulCarta {
+        private String name, description, skill;
+        private int standardValue = 0, prismaValue = 0;
+        private boolean pvpOnly = false;
+        private int element = -1, type = -1;
+        private CachedImage icon = null, carta = null;
+        private List<Stat> standardStats, prismaStats;
+
+        public SoulCarta(JSONObject json) {
+            load(json);
+        }
+
+        private void load(JSONObject json) {
+            try {
+                // details
+                if(json.has("name"))
+                    name = json.getString("name");
+                if(json.has("description"))
+                    description = json.getString("description").replace("\\n", "\n");
+                if(json.has("skill"))
+                    skill = json.getString("skill");
+
+                // conditions
+                if(json.has("pvp"))
+                    pvpOnly = json.getBoolean("pvp");
+                if(json.has("element") && !json.isNull("element")) {
+                    switch (json.getString("element")) {
+                        case "fire":
+                            element = 0;
+                            break;
+                        case "water":
+                            element = 1;
+                            break;
+                        case "forest":
+                            element = 2;
+                            break;
+                        case "light":
+                            element = 3;
+                            break;
+                        case "dark":
+                            element = 4;
+                            break;
+                    }
+                }
+                if(json.has("type") && !json.isNull("type")) {
+                    switch (json.getString("type")) {
+                        case "attacker":
+                            type = 0;
+                            break;
+                        case "tank":
+                            type = 1;
+                            break;
+                        case "healer":
+                            type = 2;
+                            break;
+                        case "debuffer":
+                            type = 3;
+                            break;
+                        case "support":
+                            type = 4;
+                            break;
+                    }
+                }
+
+
+                // images
+                if(json.has("id") && json.has("icon")) {
+                    icon = new CachedImage(json.getString("icon"), "soul_carta_"+json.getString("id")+"_icon");
+                }
+                if(json.has("id") && json.has("carta")) {
+                    carta = new CachedImage(json.getString("carta"), "soul_carta_"+json.getString("id"));
+                }
+
+                // stats standard
+                if(json.has("standard")) {
+                    standardStats = loadStats(json.getJSONObject("standard"));
+                }else {
+                    standardStats = new ArrayList<>();
+                }
+
+                // stats prisma
+                if(json.has("prisma")) {
+                    prismaStats = loadStats(json.getJSONObject("prisma"));
+                }else {
+                    prismaStats = new ArrayList<>();
+                }
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        private List<Stat> loadStats(JSONObject json) throws Exception {
+            List<Stat> statList = new ArrayList<>();
+            if(json.has("value")) {
+                if(json.has("prisma"))
+                    if(!json.getBoolean("prisma"))
+                        standardValue = json.getInt("value");
+                    else
+                        prismaValue = json.getInt("value");
+            }
+            if(json.has("health")) {
+                Stat hp = new Stat("HP", "Health", json.getInt("health"), R.id.search_stat_hp);
+                if(hp.value > 0) {
+                    statList.add(hp);
+                }
+            }
+            if(json.has("attack")) {
+                Stat atk = new Stat("ATK", "Attack", json.getInt("attack"), R.id.search_stat_atk);
+                if(atk.value > 0) {
+                    statList.add(atk);
+                }
+            }
+            if(json.has("defense")) {
+                Stat def = new Stat("DEF", "Defense", json.getInt("defense"), R.id.search_stat_def);
+                if(def.value > 0) {
+                    statList.add(def);
+                }
+            }
+            if(json.has("agility")) {
+                Stat agi = new Stat("AGI", "Agility", json.getInt("agility"), R.id.search_stat_agi);
+                if(agi.value > 0) {
+                    statList.add(agi);
+                }
+            }
+            if(json.has("critical")) {
+                Stat crit = new Stat("CRIT", "Critical", json.getInt("critical"), R.id.search_stat_crit);
+                if(crit.value > 0) {
+                    statList.add(crit);
+                }
+            }
+
+            return statList;
+        }
+
+        public CachedImage getCarta() {
+            return carta;
+        }
+
+        public CachedImage getIcon() {
+            return icon;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public List<Stat> getStats(boolean prisma) {
+            return prisma ? prismaStats : standardStats;
+        }
+
+        public String getTypeText() {
+            return (new String[] {
+                    "",
+                    " Attacker ",
+                    " Tank ",
+                    " Healer ",
+                    " Debuffer ",
+                    " Support "
+                })[type+1];
+        }
+
+        public int getTypeDrawable(){
+            return (new int[] {
+                    0,
+                    R.drawable.ic_type_attacker,
+                    R.drawable.ic_type_tank,
+                    R.drawable.ic_type_healer,
+                    R.drawable.ic_type_debuffer,
+                    R.drawable.ic_type_support
+            })[type+1];
+
+        }
+
+        public String getElementText() {
+            return (new String[] {
+                    "",
+                    " Fire ",
+                    " Water ",
+                    " Forest ",
+                    " Light ",
+                    " Dark "
+            })[element+1];
+        }
+
+        public int getElementDrawable() {
+            return (new int[] {
+                    0,
+                    R.drawable.ic_element_fire,
+                    R.drawable.ic_element_water,
+                    R.drawable.ic_element_wind,
+                    R.drawable.ic_element_light,
+                    R.drawable.ic_element_dark
+            })[element+1];
+        }
+
+        public String getSkillFormatted(boolean prisma) {
+            return (pvpOnly ? "(PvP Only) " : "")+String.format(skill, String.format("%s", prisma ? prismaValue : standardValue));
+        }
+    }
+    private List<SoulCarta> wikiSoulCarta;
+
+
+    // constructor
     public DCWiki() {
         wikiChildrenPages = new HashMap<>();
         loadChildrenWiki();
 
         sortedWikiEquipment = new ArrayList<>();
         loadEquipmentStats();
+
+        wikiSoulCarta = new ArrayList<>();
+        loadSoulCartaWiki();
 
     }
 
@@ -403,5 +611,23 @@ public class DCWiki {
 
     public List<Equipment> getEquipmentWiki() {
         return sortedWikiEquipment;
+    }
+
+    // soul carta wiki
+    private void loadSoulCartaWiki() {
+        try {
+            JSONObject jsonSoulCartaWiki = Utils.fileToJson(Define.ASSET_SOUL_CARTA);
+            JSONArray arraySoulCartaWiki = jsonSoulCartaWiki.getJSONArray("soul_cartas");
+            for(int i = 0; i < arraySoulCartaWiki.length(); i++) {
+                JSONObject soulCartaWiki = arraySoulCartaWiki.getJSONObject(i);
+                wikiSoulCarta.add(new SoulCarta(soulCartaWiki));
+            }
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<SoulCarta> getSoulCartaWiki() {
+        return wikiSoulCarta;
     }
 }

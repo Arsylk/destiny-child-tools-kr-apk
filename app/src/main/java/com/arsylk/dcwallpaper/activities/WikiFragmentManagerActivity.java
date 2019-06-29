@@ -1,19 +1,20 @@
 package com.arsylk.dcwallpaper.activities;
 
-import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.activities.fragments.WikiChildrenFragment;
 import com.arsylk.dcwallpaper.activities.fragments.WikiEquipmentFragment;
+import com.arsylk.dcwallpaper.activities.fragments.WikiSoulCartaFragment;
 
-public class WikiFragmentManagerActivity extends ActivityWithExceptionRedirect {
-    private Context context = WikiFragmentManagerActivity.this;
+public class WikiFragmentManagerActivity extends ExceptionActivity {
     private WikiChildrenFragment childrenFragment;
     private WikiEquipmentFragment equipmentFragment;
+    private WikiSoulCartaFragment soulcartaFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +38,9 @@ public class WikiFragmentManagerActivity extends ActivityWithExceptionRedirect {
                 return true;
             case R.id.wiki_menu_equipment:
                 setFragment(equipmentFragment);
+                return true;
             case R.id.wiki_menu_soul_carta:
+                setFragment(soulcartaFragment);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -47,15 +50,28 @@ public class WikiFragmentManagerActivity extends ActivityWithExceptionRedirect {
         // initialize fragments
         childrenFragment = new WikiChildrenFragment();
         equipmentFragment = new WikiEquipmentFragment();
+        soulcartaFragment = new WikiSoulCartaFragment();
 
-        // set default fragment
-        setFragment(equipmentFragment);
+        setFragment(childrenFragment);
     }
 
     private void setFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.wiki_fragment_placeholder, fragment)
-                .addToBackStack(null)
-                .commit();
+        if(getSupportFragmentManager().findFragmentByTag(fragment.getClass().getSimpleName()) == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.wiki_fragment_placeholder, fragment, fragment.getClass().getSimpleName())
+                    .addToBackStack(null)
+                    .commit();
+        }else {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.wiki_fragment_placeholder, fragment, fragment.getClass().getSimpleName())
+                    .commit();
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(getSupportFragmentManager().getBackStackEntryCount() == 0)
+            this.finish();
     }
 }

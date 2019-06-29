@@ -89,7 +89,7 @@ public class DCWikiEquipmentAdapter extends BaseAdapter implements Filterable {
         holder.name.setTextColor(Color.HSVToColor(new float[] {(120.f * (equipment.getPower() / 100.f)), 1f, 0.9f}));
         for(int i = 0; i < holder.stats.length; i++) {
             if(i < equipment.getStats(true).size()) {
-                DCWiki.Equipment.Stat stat = equipment.getStats(true).get(i);
+                DCWiki.Stat stat = equipment.getStats(true).get(i);
                 holder.stats[i].setText(String.format("%s: %d", stat.shortText, stat.value));
             }else {
                 holder.stats[i].setText("");
@@ -136,7 +136,7 @@ public class DCWikiEquipmentAdapter extends BaseAdapter implements Filterable {
                         continue;
                     }
                     // check all toggled stats
-                    for(DCWiki.Equipment.Stat stat : equipment.getStats(true)) {
+                    for(DCWiki.Stat stat : equipment.getStats(true)) {
                         if(toggles.contains(stat.statId)) {
                             continue mainloop;
                         }
