@@ -71,7 +71,6 @@
         </activity>
         <activity android:name=".activities.WikiFragmentManagerActivity"
                   android:theme="@style/Theme.AppCompat.NoActionBar"
-                  android:screenOrientation="portrait"
                   android:exported="true">
         </activity>
         <activity android:name=".activities.LocaleTranslateActivity"
