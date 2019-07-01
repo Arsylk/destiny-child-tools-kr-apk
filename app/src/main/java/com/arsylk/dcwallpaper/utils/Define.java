@@ -26,6 +26,8 @@ public final class Define {
     public static final String UPLOAD_COMMUNITY_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/post_locale_patch.php";
     public static final String REMOTE_ASSET_COMMUNITY_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_community_patch.php";
 
+    public static final String REMOTE_CHECK_VERSION = "https://arsylk.pythonanywhere.com/api/get_apk_version";
+
     //regional assets
     public static final String REMOTE_ASSET_ENGLISH_PATCH = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_english_patch.php?md5=%s";
     public static final File ASSET_ENGLISH_PATCH = new File(ASSETS_DIRECTORY, "english_patch.json");
@@ -34,9 +36,6 @@ public final class Define {
     public static final File ASSET_RUSSIAN_PATCH = new File(ASSETS_DIRECTORY, "russian_patch.json");
 
     //public assets
-    public static final String REMOTE_ASSET_CHILD_NAMES = "http://dwatchseries-storage.000webhostapp.com/dctools/assets_child_names.php?md5=%s";
-    public static final File ASSET_CHILD_NAMES = new File(ASSETS_DIRECTORY, "child_names.json");
-
     public static final String REMOTE_ASSET_CHILD_SKILLS = "https://arsylk.pythonanywhere.com/api/get_children_skills?md5=%s";
     public static final File ASSET_CHILD_SKILLS = new File(ASSETS_DIRECTORY, "child_skills.json");
 
@@ -48,6 +47,7 @@ public final class Define {
 
     public static final File ASSET_EXTRACTED_CHILD_NAMES = new File(ASSETS_DIRECTORY, "extracted_child_names.json");
     public static final File ASSET_EVENT_BANNERS = new File(ASSETS_DIRECTORY, "banner_events.json");
+
 
     public static final String REMOTE_TRANSLATE_TEXT = "http://dwatchseries-storage.000webhostapp.com/dctools/translate.php?id=%s&text=%s";
 

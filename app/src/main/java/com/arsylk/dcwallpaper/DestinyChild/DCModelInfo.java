@@ -7,7 +7,19 @@ import org.json.JSONObject;
 public class DCModelInfo {
     private JSONObject namesJson, infoJson;
 
-    public DCModelInfo() {
+    private static DCModelInfo instance = null;
+    public static DCModelInfo getInstance() {
+        return getInstance(false);
+    }
+    public static DCModelInfo getInstance(boolean force) {
+        if(instance == null || force) {
+            instance = new DCModelInfo();
+        }
+
+        return instance;
+    }
+
+    private DCModelInfo() {
         load();
     }
 

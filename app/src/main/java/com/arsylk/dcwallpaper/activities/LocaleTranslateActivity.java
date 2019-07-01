@@ -22,9 +22,11 @@ import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPatchChangedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCLocalePatch;
+import com.arsylk.dcwallpaper.DestinyChild.DCModelInfo;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.utils.Define;
+import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import com.arsylk.dcwallpaper.views.BigTextDialog;
 import com.arsylk.dcwallpaper.views.InputTextDialog;
@@ -316,7 +318,7 @@ public class LocaleTranslateActivity extends ActivityWithExceptionRedirect imple
                             protected Boolean doInBackground(DCLocalePatch... dcLocalePatches) {
                                 try {
                                     //patch locale
-                                    DCTools.patchLocale(DCTools.getDCLocalePath(), dcLocalePatches[0], context);
+                                    DCTools.patchLocale(DCTools.getDCLocalePath(), dcLocalePatches[0], context.get());
 
                                     //patch loaded locale
                                     original.patch(dcLocalePatches[0]);
@@ -451,7 +453,7 @@ public class LocaleTranslateActivity extends ActivityWithExceptionRedirect imple
                     @Override
                     protected Boolean doInBackground(Void... voids) {
                         try {
-                            String response = Ion.with(context).load(Define.UPLOAD_COMMUNITY_PATCH)
+                            String response = Ion.with(context.get()).load(Define.UPLOAD_COMMUNITY_PATCH)
                                     .uploadProgress(new ProgressCallback() {
                                         @Override
                                         public void onProgress(long uploaded, long total) {
@@ -472,7 +474,7 @@ public class LocaleTranslateActivity extends ActivityWithExceptionRedirect imple
                     @Override
                     protected void onPostExecute(Boolean successful) {
                         super.onPostExecute(successful);
-                        Toast.makeText(context, successful ? "Upload finished!" : "Upload failed!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context.get(), successful ? "Upload finished!" : "Upload failed!", Toast.LENGTH_SHORT).show();
                     }
                 }.execute();
             }

@@ -7,17 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.arsylk.dcwallpaper.Async.CachedImage;
-import com.arsylk.dcwallpaper.Async.interfaces.OnWikiPagePost;
 import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
 import com.arsylk.dcwallpaper.activities.DCWikiPageActivity;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import java.util.*;
 import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_ELEMENT;
 import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_TYPE;
 
-public class DCWikiChildrenAdapter extends BaseAdapter implements OnWikiPagePost, Filterable {
+public class DCWikiChildrenAdapter extends BaseAdapter implements Filterable, Utils.OnPostExecute<CachedImage> {
     private Context context;
     private String filterString = "";
     private int stars = 0;
@@ -27,35 +25,13 @@ public class DCWikiChildrenAdapter extends BaseAdapter implements OnWikiPagePost
     public DCWikiChildrenAdapter(Context context) {
         this.context = context;
         this.toggles = new HashSet<>();
-        this.srcWikiChildren = new ArrayList<>(LoadAssets.getDCWikiInstance().getChildrenWiki());
-        this.wikiChildren = new ArrayList<>(LoadAssets.getDCWikiInstance().getChildrenWiki());
-    }
-
-    public void cacheBitmaps() {
-        // start all image caching tasks
-        for(DCWiki.Child wikiChild : srcWikiChildren) {
-            wikiChild.getImage().asyncLoad(new Utils.OnPostExecute<CachedImage>() {
-                @Override
-                public void onPostExecute(CachedImage cachedImage) {
-                    notifyDataSetChanged();
-                }
-            });
-        }
+        this.srcWikiChildren = new ArrayList<>(DCWiki.getInstance().getChildrenWiki());
+        this.wikiChildren = new ArrayList<>(DCWiki.getInstance().getChildrenWiki());
     }
 
     @Override
-    public void onProgressUpdate(DCWiki.Child... children) {
-        if(children == null) {
-            srcWikiChildren.clear();
-            wikiChildren.clear();
-            return;
-        }
-
-        for(DCWiki.Child child : children) {
-            srcWikiChildren.add(child);
-            wikiChildren.add(child);
-            notifyDataSetChanged();
-        }
+    public void onPostExecute(CachedImage cachedImage) {
+        notifyDataSetChanged();
     }
 
     @Override
@@ -89,16 +65,19 @@ public class DCWikiChildrenAdapter extends BaseAdapter implements OnWikiPagePost
             convertView.setTag(holder);
         }
 
+        // get wiki page & view
         final DCWiki.Child wikiChild = getItem(position);
-        ViewHolder holder = (ViewHolder) convertView.getTag();
+        final ViewHolder holder = (ViewHolder) convertView.getTag();
+
         holder.label.setText(wikiChild.getName());
         holder.sublabel.setText(wikiChild.getModelId());
         holder.element.setImageResource(wikiChild.getElementDrawable());
         holder.type.setImageResource(wikiChild.getTypeDrawable());
-        if(wikiChild.getImage().getImageBitmap() != null) {
+        if(wikiChild.getImage().isLoaded()) {
             holder.thumbnail.setImageBitmap(wikiChild.getImage().getImageBitmap());
         }else  {
             holder.thumbnail.setImageResource(android.R.color.transparent);
+            wikiChild.getImage().asyncLoad(this);
         }
         holder.frame.setImageResource(wikiChild.getElementFrame());
         for(int i = 0; i < holder.stars.getChildCount(); i++) {

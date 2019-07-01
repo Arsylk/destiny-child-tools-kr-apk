@@ -5,8 +5,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 import com.arsylk.dcwallpaper.utils.Utils;
 
+import java.lang.ref.WeakReference;
+
 public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTask<Params, Progress, Result> {
-    protected Context context;
+    protected WeakReference<Context> context;
     protected boolean showGui = true;
     protected String message = "";
     protected ProgressDialog dialog = null;
@@ -39,7 +41,7 @@ public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTas
     }
 
     private void init(Context context, boolean showGui, String message) {
-        this.context = context;
+        this.context = new WeakReference<>(context);
         this.showGui = showGui;
         this.message = message;
     }
@@ -57,7 +59,7 @@ public abstract class AsyncWithDialog<Params, Progress, Result> extends AsyncTas
     @Override
     protected void onPreExecute() {
         if(showGui) {
-            dialog = new ProgressDialog(context);
+            dialog = new ProgressDialog(context.get());
             dialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
             dialog.setCancelable(false);
             dialog.setIndeterminate(true);

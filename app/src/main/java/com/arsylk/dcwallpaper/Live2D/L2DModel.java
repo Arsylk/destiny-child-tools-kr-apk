@@ -1,6 +1,7 @@
 package com.arsylk.dcwallpaper.Live2D;
 
 import com.arsylk.dcwallpaper.DestinyChild.DCModel;
+import com.arsylk.dcwallpaper.DestinyChild.DCModelInfo;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 import org.apache.commons.io.FileUtils;
@@ -29,7 +30,7 @@ public class L2DModel {
         this.output = output;
         this.modelJson = modelJson;
         this.modelIdx = modelJson.getModelIdx();
-        this.modelName = LoadAssets.getDCModelInfoInstance().getModelFull(modelIdx);
+        this.modelName = DCModelInfo.getInstance().getModelFull(modelIdx);
     }
 
 
@@ -68,7 +69,7 @@ public class L2DModel {
                 }
             }else {
                 //load default params
-                modelName = LoadAssets.getDCModelInfoInstance().getModelFull(modelIdx);
+                modelName = DCModelInfo.getInstance().getModelFull(modelIdx);
             }
         }
     }

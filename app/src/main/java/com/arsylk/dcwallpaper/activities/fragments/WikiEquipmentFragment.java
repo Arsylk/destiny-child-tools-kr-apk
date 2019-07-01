@@ -108,7 +108,6 @@ public class WikiEquipmentFragment extends Fragment {
         // equipment list UI
         ListView equipmentList = view.findViewById(R.id.wiki_fragment_equipment_list);
         adapter = new DCWikiEquipmentAdapter(getContext());
-        adapter.cacheBitmaps();
         equipmentList.setAdapter(adapter);
     }
 }

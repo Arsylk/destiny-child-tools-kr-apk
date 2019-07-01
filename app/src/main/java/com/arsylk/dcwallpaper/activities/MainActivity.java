@@ -24,6 +24,8 @@ import com.arsylk.dcwallpaper.Adapters.DCAnnouncementItem;
 import com.arsylk.dcwallpaper.Adapters.DCAnnouncementsAdapter;
 import com.arsylk.dcwallpaper.Async.AsyncBanners;
 import com.arsylk.dcwallpaper.Async.AsyncPatch;
+import com.arsylk.dcwallpaper.Async.AsyncLoadAssets;
+import com.arsylk.dcwallpaper.Async.AsyncVersionChecker;
 import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.dcwallpaper.BuildConfig;
@@ -148,10 +150,11 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             }
         });
 
+
         // init views & load resources
         initViews();
         if(!handleIntent()) {
-            // check for updates
+            // check remote assets
             LoadAssets.guiFullLoad(context, new Utils.Callback() {
                 @Override
                 public void onCall() {
@@ -162,6 +165,9 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                     new AsyncBanners(context, false).execute();
                 }
             });
+
+            // check application version
+            new AsyncVersionChecker(context).execute();
         }
     }
 
@@ -349,10 +355,6 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     }
 
     private void openDCModels() {
-        if(LoadAssets.updateInProgress(context)) {
-            Toast.makeText(context, "Wait for update to finish!", Toast.LENGTH_SHORT).show();
-            return;
-        }
         if(DCTools.getDCModelsPath().exists()) {
             startActivity(new Intent(context, DCModelsActivity.class));
         }else {
@@ -400,10 +402,6 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     }
 
     private void openDCWiki() {
-        if(LoadAssets.updateInProgress(context)) {
-            Toast.makeText(context, "Wait for update to finish!", Toast.LENGTH_SHORT).show();
-            return;
-        }
         startActivity(new Intent(context, WikiFragmentManagerActivity.class));
     }
 

@@ -1,5 +1,6 @@
 package com.arsylk.dcwallpaper.Adapters;
 
+import com.arsylk.dcwallpaper.DestinyChild.DCModelInfo;
 import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 
@@ -24,12 +25,12 @@ public class DCModelItem {
             if(parts.length >= 2) {
                 model_id = parts[0];
                 model_flag = parts[1].replace(".pck", "");
-                name = LoadAssets.getDCModelInfoInstance().getModelName(model_id);
-                title = LoadAssets.getDCModelInfoInstance().getModelTitle(model_id, model_flag);
+                name = DCModelInfo.getInstance().getModelName(model_id);
+                title = DCModelInfo.getInstance().getModelTitle(model_id, model_flag);
                 if(title != null && name != null) {
                     loaded = true;
-                    if(LoadAssets.getDCWikiInstance().hasChildWiki(model_id)) {
-                        DCWiki.Child wikiChild =  LoadAssets.getDCWikiInstance().getChildWiki(model_id);
+                    if(DCWiki.getInstance().hasChildWiki(model_id)) {
+                        DCWiki.Child wikiChild =  DCWiki.getInstance().getChildWiki(model_id);
                         wikiElement = wikiChild.getElement();
                         wikiType = wikiChild.getType();
                         wikiLoaded = true;

@@ -1,48 +1,36 @@
 package com.arsylk.dcwallpaper.Adapters;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.Spannable;
-import android.util.DisplayMetrics;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import com.arsylk.dcwallpaper.Async.CachedImage;
 import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class DCWikiSoulCartaAdapter extends RecyclerView.Adapter<DCWikiSoulCartaAdapter.Holder> {
+public class DCWikiSoulCartaAdapter extends RecyclerView.Adapter<DCWikiSoulCartaAdapter.Holder> implements Utils.OnPostExecute<CachedImage> {
     private Context context;
     protected List<DCWiki.SoulCarta> soulCartas;
     protected boolean[] soulCartasPrisma;
 
     public DCWikiSoulCartaAdapter(Context context) {
         this.context = context;
-        soulCartas = LoadAssets.getDCWikiInstance().getSoulCartaWiki();
+        soulCartas = DCWiki.getInstance().getSoulCartaWiki();
         soulCartasPrisma = new boolean[soulCartas.size()];
         Arrays.fill(soulCartasPrisma, false);
     }
 
-    public void cacheBitmaps() {
-        for(DCWiki.SoulCarta soulCarta : soulCartas) {
-            soulCarta.getCarta().asyncLoad(new Utils.OnPostExecute<CachedImage>() {
-                @Override
-                public void onPostExecute(CachedImage cachedImage) {
-                    notifyDataSetChanged();
-                }
-            });
-        }
+    @Override
+    public void onPostExecute(CachedImage cachedImage) {
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -59,8 +47,12 @@ public class DCWikiSoulCartaAdapter extends RecyclerView.Adapter<DCWikiSoulCarta
         final DCWiki.SoulCarta soulCarta = soulCartas.get(position);
         final boolean prisma = soulCartasPrisma[position];
 
-        holder.soulCarta.setImageBitmap(soulCarta.getCarta().getImageBitmap());
-        holder.soulCartaPrisma.setVisibility(prisma && soulCarta.getCarta().getImageBitmap() != null ? View.VISIBLE : View.GONE);
+        if(soulCarta.getCarta().isLoaded()) {
+            holder.soulCarta.setImageBitmap(soulCarta.getCarta().getImageBitmap());
+        }else {
+            soulCarta.getCarta().asyncLoad(this);
+        }
+        holder.soulCartaPrisma.setVisibility(prisma && soulCarta.getCarta().isLoaded() ? View.VISIBLE : View.GONE);
 
         holder.name.setText(soulCarta.getName());
         holder.description.setText(soulCarta.getDescription());

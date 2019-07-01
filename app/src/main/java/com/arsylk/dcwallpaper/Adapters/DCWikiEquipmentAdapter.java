@@ -1,25 +1,15 @@
 package com.arsylk.dcwallpaper.Adapters;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
-import android.text.SpannableString;
-import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.arsylk.dcwallpaper.Async.AsyncWithDialog;
 import com.arsylk.dcwallpaper.Async.CachedImage;
 import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.R;
-import com.arsylk.dcwallpaper.utils.LoadAssets;
 import com.arsylk.dcwallpaper.utils.Utils;
-import com.koushikdutta.ion.Ion;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,7 +18,7 @@ import java.util.Set;
 
 import static com.arsylk.dcwallpaper.utils.Define.CONVERT_ID_ITEM_TYPE;
 
-public class DCWikiEquipmentAdapter extends BaseAdapter implements Filterable {
+public class DCWikiEquipmentAdapter extends BaseAdapter implements Filterable, Utils.OnPostExecute<CachedImage> {
     private Context context;
     private Set<Integer> toggles;
     private List<DCWiki.Equipment> srcWikiEquipment, wikiEquipment;
@@ -38,20 +28,13 @@ public class DCWikiEquipmentAdapter extends BaseAdapter implements Filterable {
     public DCWikiEquipmentAdapter(Context context) {
         this.context = context;
         this.toggles = new HashSet<>();
-        this.srcWikiEquipment = new ArrayList<>(LoadAssets.getDCWikiInstance().getEquipmentWiki());
-        this.wikiEquipment = new ArrayList<>(LoadAssets.getDCWikiInstance().getEquipmentWiki());
+        this.srcWikiEquipment = new ArrayList<>(DCWiki.getInstance().getEquipmentWiki());
+        this.wikiEquipment = new ArrayList<>(DCWiki.getInstance().getEquipmentWiki());
     }
 
-    public void cacheBitmaps() {
-        // start all image caching tasks
-        for(DCWiki.Equipment equipment : srcWikiEquipment) {
-            equipment.getImage().asyncLoad(new Utils.OnPostExecute<CachedImage>() {
-                @Override
-                public void onPostExecute(CachedImage cachedImage) {
-                    notifyDataSetChanged();
-                }
-            });
-        }
+    @Override
+    public void onPostExecute(CachedImage cachedImage) {
+        notifyDataSetChanged();
     }
 
     public void toggleParameter(int id) {
@@ -96,10 +79,11 @@ public class DCWikiEquipmentAdapter extends BaseAdapter implements Filterable {
             }
         }
 
-        if(equipment.getImage().getImageBitmap() != null) {
+        if(equipment.getImage().isLoaded()) {
             holder.icon.setImageBitmap(equipment.getImage().getImageBitmap());
         }else  {
             holder.icon.setImageResource(android.R.color.transparent);
+            equipment.getImage().asyncLoad(this);
         }
 
         return convertView;

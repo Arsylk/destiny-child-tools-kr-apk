@@ -255,7 +255,7 @@ public class DCSwapper {
             JSONObject modelConfigJson = new JSONObject();
             modelConfigJson.put("model_id", toL2D.getModelId());
             modelConfigJson.put("model_name", fromL2D.getModelName().trim()+" ~> "+toL2D.getModelName().trim());
-            modelConfigJson.put("model_info", LoadAssets.getDCModelInfoInstance().getModelInfo(fromL2D.getModelId()));
+            modelConfigJson.put("model_info", DCModelInfo.getInstance().getModelInfo(fromL2D.getModelId()));
             String modelConfigContent = modelConfigJson.toString(4);
 
             //save model info

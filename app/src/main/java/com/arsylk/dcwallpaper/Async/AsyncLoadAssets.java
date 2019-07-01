@@ -2,6 +2,8 @@ package com.arsylk.dcwallpaper.Async;
 
 import android.content.Context;
 import android.os.Process;
+import com.arsylk.dcwallpaper.DestinyChild.DCModelInfo;
+import com.arsylk.dcwallpaper.DestinyChild.DCWiki;
 import com.arsylk.dcwallpaper.utils.LoadAssets;
 
 public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
@@ -32,38 +34,38 @@ public class AsyncLoadAssets extends AsyncWithDialog<Void, String, Boolean> {
 //        }
         try {
             publishProgress("Updating child skills...");
-            LoadAssets.updateChildSkills(context).get();
+            LoadAssets.updateChildSkills(context.get()).get();
         }catch(Exception e) {
             e.printStackTrace();
             error = true;
         }
         try {
             publishProgress("Updating equipment stats...");
-            LoadAssets.updateEquipmentStats(context).get();
+            LoadAssets.updateEquipmentStats(context.get()).get();
         }catch(Exception e) {
             e.printStackTrace();
             error = true;
         }
         try {
             publishProgress("Updating soul cartas...");
-            LoadAssets.updateSoulCartas(context).get();
+            LoadAssets.updateSoulCartas(context.get()).get();
         }catch(Exception e) {
             e.printStackTrace();
             error = true;
         }
         try {
             publishProgress("Updating child names ...");
-            LoadAssets.updateChildNames(context);
+            LoadAssets.updateChildNames(context.get());
         }catch(Exception e) {
             e.printStackTrace();
             error = true;
         }
 
         publishProgress("Loading wiki pages...");
-        LoadAssets.getDCWikiInstance();
+        DCWiki.getInstance(true);
 
         publishProgress("Loading child names...");
-        LoadAssets.getDCModelInfoInstance();
+        DCModelInfo.getInstance(true);
 
         return !error;
     }

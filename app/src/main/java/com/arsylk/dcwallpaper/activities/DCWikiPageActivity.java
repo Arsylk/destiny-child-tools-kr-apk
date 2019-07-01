@@ -40,7 +40,7 @@ public class DCWikiPageActivity extends ActivityWithExceptionRedirect implements
         AsyncTask.execute(new Runnable() {
             @Override
             public void run() {
-                DCWiki.Child wikiChild = LoadAssets.getDCWikiInstance().getChildWiki(modelId);
+                DCWiki.Child wikiChild = DCWiki.getInstance().getChildWiki(modelId);
                 callback.onCompleted((wikiChild == null) ? new Exception("No wiki entry found") : null, wikiChild);
             }
         });

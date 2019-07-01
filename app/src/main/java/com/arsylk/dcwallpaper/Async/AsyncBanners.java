@@ -73,10 +73,10 @@ public class AsyncBanners extends AsyncWithDialog<DCBanners, DCBanners.Banner, D
                     }
                     if(!newBanner.isArticleLoaded()) {
                         // load article
-                        newBanner.loadArticleDates(context);
+                        newBanner.loadArticleDates(context.get());
                     }
                     // load bitmap
-                    newBanner.loadImageBitmap(context);
+                    newBanner.loadImageBitmap(context.get());
 
                     // set new banner
                     banners.setBanner(newBanner, i);

@@ -7,16 +7,17 @@ import com.arsylk.dcwallpaper.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.dcwallpaper.DestinyChild.DCTools;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 
 public class AsyncPack extends AsyncTask<File, Void, File> {
-    private Context context;
+    private WeakReference<Context> context;
     private boolean showGui = false;
     private OnPackFinishedListener onPackFinishedListener = null;
 
     private AlertDialog dialog = null;
 
     public AsyncPack(Context context, boolean showGui) {
-        this.context = context;
+        this.context = new WeakReference<>(context);
         this.showGui = showGui;
     }
 
@@ -29,7 +30,7 @@ public class AsyncPack extends AsyncTask<File, Void, File> {
     protected void onPreExecute() {
         super.onPreExecute();
         if(showGui) {
-            dialog = new AlertDialog.Builder(context)
+            dialog = new AlertDialog.Builder(context.get())
                     .setTitle("Packing file...")
                     .setCancelable(false).show();
         }
@@ -41,9 +42,9 @@ public class AsyncPack extends AsyncTask<File, Void, File> {
             return null;
         try {
             if(files.length < 2) {
-                return DCTools.pack(files[0], context);
+                return DCTools.pack(files[0], context.get());
             }else {
-                return DCTools.pack(files[0], files[1], context);
+                return DCTools.pack(files[0], files[1], context.get());
             }
         }catch(Exception e) {
             e.printStackTrace();

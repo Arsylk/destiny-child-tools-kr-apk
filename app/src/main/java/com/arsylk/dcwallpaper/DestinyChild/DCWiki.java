@@ -336,9 +336,9 @@ public class DCWiki {
     // soul carta pages
     public static class SoulCarta {
         private String name, description, skill;
-        private int standardValue = 0, prismaValue = 0;
-        private boolean pvpOnly = false;
-        private int element = -1, type = -1;
+        private float standardValue = 0, prismaValue = 0;
+        private String standardString = "", prismaString = "";
+        private int element = -1, type = -1, condition = -1;
         private CachedImage icon = null, carta = null;
         private List<Stat> standardStats, prismaStats;
 
@@ -357,8 +357,6 @@ public class DCWiki {
                     skill = json.getString("skill");
 
                 // conditions
-                if(json.has("pvp"))
-                    pvpOnly = json.getBoolean("pvp");
                 if(json.has("element") && !json.isNull("element")) {
                     switch (json.getString("element")) {
                         case "fire":
@@ -397,6 +395,19 @@ public class DCWiki {
                             break;
                     }
                 }
+                if(json.has("condition") && !json.isNull("condition")) {
+                    switch (json.getString("condition")) {
+                        case "pvp":
+                            condition = 0;
+                            break;
+                        case "pve":
+                            condition = 1;
+                            break;
+                        case "big":
+                            condition = 2;
+                            break;
+                    }
+                }
 
 
                 // images
@@ -429,10 +440,14 @@ public class DCWiki {
             List<Stat> statList = new ArrayList<>();
             if(json.has("value")) {
                 if(json.has("prisma"))
-                    if(!json.getBoolean("prisma"))
-                        standardValue = json.getInt("value");
-                    else
-                        prismaValue = json.getInt("value");
+                    if(!json.getBoolean("prisma")) {
+
+                        standardValue = (float) json.getDouble("value");
+                        standardString = (standardValue == (int) standardValue) ? String.valueOf((int) standardValue) : String.valueOf(standardValue);
+                    }else {
+                        prismaValue = (float) json.getDouble("value");
+                        prismaString = (prismaValue == (int) prismaValue) ? String.valueOf((int) prismaValue) : String.valueOf(prismaValue);
+                    }
             }
             if(json.has("health")) {
                 Stat hp = new Stat("HP", "Health", json.getInt("health"), R.id.search_stat_hp);
@@ -533,15 +548,36 @@ public class DCWiki {
             })[element+1];
         }
 
+        public String getConditionText() {
+            return (new String[] {
+                    "",
+                    "(PvP Only) ",
+                    "(PvE Only) ",
+                    "(Boss Only) ",
+            })[condition+1];
+        }
+
         public String getSkillFormatted(boolean prisma) {
-            return (pvpOnly ? "(PvP Only) " : "")+String.format(skill, String.format("%s", prisma ? prismaValue : standardValue));
+            return getConditionText() + String.format(skill, (prisma ? prismaString : standardString));
         }
     }
     private List<SoulCarta> wikiSoulCarta;
 
+    // single instance
+    private static DCWiki instance = null;
+    public static DCWiki getInstance() {
+        return getInstance(false);
+    }
+    public static DCWiki getInstance(boolean force) {
+        if(instance == null || force) {
+            instance = new DCWiki();
+        }
+
+        return instance;
+    }
 
     // constructor
-    public DCWiki() {
+    private DCWiki() {
         wikiChildrenPages = new HashMap<>();
         loadChildrenWiki();
 

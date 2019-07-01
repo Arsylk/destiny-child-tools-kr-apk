@@ -99,12 +99,19 @@ public class DCLocale extends Pck {
                     }else if(pattern == LOCALE_DEF_LINE_PATTERN){
                         //ghetto fix for broken lines
                         if(line.contains("=")) {
-                            int index = line.indexOf("=");
-                            String key = line.substring(0, index).trim();
-                            String val = line.substring(index+1).trim();
-                            if(val.charAt(0) == '"') val = val.substring(1);
-                            if(val.charAt(val.length()-1) == '"') val = val.substring(0, val.length()-1);
-                            map.put(key, val);
+                            // fail safe
+                            try {
+                                int index = line.indexOf("=");
+                                String key = line.substring(0, index).trim();
+                                String val = line.substring(index+1).trim();
+
+
+                                if(val.charAt(0) == '"') val = val.substring(1);
+                                if(val.charAt(val.length()-1) == '"') val = val.substring(0, val.length()-1);
+                                map.put(key, val);
+                            }catch(Exception e1) {
+                                e1.printStackTrace();
+                            }
                         }
                     }
                 }

@@ -190,23 +190,4 @@ public class LoadAssets  {
     public static boolean updateInProgress(Context context) {
         return Ion.getDefault(context).getPendingRequestCount(TAG_ASSETS) != 0;
     }
-
-    //singleton instances
-    //wiki
-    private static DCWiki wiki = null;
-    public static DCWiki getDCWikiInstance() {
-        if(wiki == null) {
-            wiki = new DCWiki();
-        }
-        return wiki;
-    }
-
-    //info
-    private static DCModelInfo info = null;
-    public static DCModelInfo getDCModelInfoInstance() {
-        if(info == null) {
-            info = new DCModelInfo();
-        }
-        return info;
-    }
 }

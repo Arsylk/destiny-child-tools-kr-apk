@@ -41,7 +41,7 @@ public class AsyncOnlineModels extends AsyncWithDialog<Integer, OnlineModelItem,
                     if(!previewCache.exists()) {
                         try {
                             // load & trim bitmap
-                            Bitmap previewBitmapRaw = Ion.with(context).load(onlineModel.getPreviewUrl()).asBitmap().get();
+                            Bitmap previewBitmapRaw = Ion.with(context.get()).load(onlineModel.getPreviewUrl()).asBitmap().get();
                             ByteArrayOutputStream bos = new ByteArrayOutputStream();
                             Bitmap previewBitmapCut = Utils.trim(previewBitmapRaw);
                             previewBitmapCut.compress(Bitmap.CompressFormat.PNG, 100, bos);

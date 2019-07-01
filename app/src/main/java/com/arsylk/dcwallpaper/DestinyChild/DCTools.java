@@ -393,6 +393,10 @@ public class DCTools {
                 .putBoolean("update_child_names", true)
                 .commit();
         Log.d("mTag:Patch", "Patched locale!");
+
+        //update child names
+        LoadAssets.updateChildNames(context);
+        DCModelInfo.getInstance(true);
     }
 
 
@@ -409,7 +413,7 @@ public class DCTools {
             protected Boolean doInBackground(File... files) {
                 if(files.length > 0) {
                     try {
-                        DCTools.extractChildNames(files[0], context);
+                        DCTools.extractChildNames(files[0], context.get());
                         return true;
                     }catch(Exception e) {
                         e.printStackTrace();
@@ -537,7 +541,7 @@ public class DCTools {
             protected File doInBackground(File... files) {
                 File extracted = null;
                 try {
-                    extracted = DCTools.extractMissing(files[0], context);
+                    extracted = DCTools.extractMissing(files[0], context.get());
                 }catch(Exception e) {
                     e.printStackTrace();
                 }
@@ -548,9 +552,9 @@ public class DCTools {
             protected void onPostExecute(File file) {
                 super.onPostExecute(file);
                 if(file != null) {
-                    Toast.makeText(context, "Saved to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context.get(), "Saved to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
                 }else {
-                    Toast.makeText(context, "Failed to extract!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context.get(), "Failed to extract!", Toast.LENGTH_SHORT).show();
                 }
             }
         }.execute(src);
@@ -606,7 +610,7 @@ public class DCTools {
             @Override
             protected void onPreExecute() {
                 if(showGui) {
-                    dialog = new ProgressDialog(context);
+                    dialog = new ProgressDialog(context.get());
                     dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                     dialog.setCancelable(false);
                     dialog.setIndeterminate(true);
@@ -648,7 +652,7 @@ public class DCTools {
     public static void fullPckSwap(Context context, final L2DModel fromL2D) {
         Log.d("mTag:FullSwap", "name: "+fromL2D.getModelName() + " " + fromL2D.getModelId());
         Log.d("mTag:FullSwap", "path: "+fromL2D.getOutput().getName());
-        final JSONObject fromModelInfo = LoadAssets.getDCModelInfoInstance().getModelInfo(fromL2D.getModelId());
+        final JSONObject fromModelInfo = DCModelInfo.getInstance().getModelInfo(fromL2D.getModelId());
         final File[] pckFiles = getDCModelsPath().listFiles(new FileFilter() {
             @Override
             public boolean accept(File file) {
@@ -679,7 +683,7 @@ public class DCTools {
                         File backup = new File(file.getParentFile(), "_"+file.getName());
 
                         //unpack pck file
-                        DCModel dcModel = DCTools.pckToModel(DCTools.unpack(file, context));
+                        DCModel dcModel = DCTools.pckToModel(DCTools.unpack(file, context.get()));
                         L2DModel toL2D = dcModel.asL2DModel();
                         publishProgress(toL2D.getModelName()+" "+toL2D.getModelId());
 
@@ -691,7 +695,7 @@ public class DCTools {
                             publishProgress("swapping: "+fromL2D.getModelName()+" ~> "+toL2D.getModelName());
 
                             //pack swap to pck
-                            File swapPck = DCTools.pack(swapper.getLastSwapFolder(), context);
+                            File swapPck = DCTools.pack(swapper.getLastSwapFolder(), context.get());
                             publishProgress("swap pck: "+swapPck.getAbsolutePath());
 
                             //update model info

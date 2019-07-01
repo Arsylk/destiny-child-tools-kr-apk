@@ -57,7 +57,7 @@ public class AsyncAnnouncements extends AsyncWithDialog<Integer, DCAnnouncementI
                 DCAnnouncementItem announcement = new DCAnnouncementItem(id, title, url, author, date, views, thumb);
                 announcement.loadTranslated();
                 if(announcement.getThumb() != null) {
-                    announcement.loadBitmap(context);
+                    announcement.loadBitmap(context.get());
                 }
 
                 announcementList.add(announcement);

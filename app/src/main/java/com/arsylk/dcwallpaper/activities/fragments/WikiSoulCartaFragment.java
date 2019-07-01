@@ -25,7 +25,6 @@ public class WikiSoulCartaFragment extends Fragment {
         RecyclerView soulCartaList = view.findViewById(R.id.wiki_soul_carta_list);
         soulCartaList.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL,false));
         adapter = new DCWikiSoulCartaAdapter(getContext());
-        adapter.cacheBitmaps();
         soulCartaList.setAdapter(adapter);
     }
 }
