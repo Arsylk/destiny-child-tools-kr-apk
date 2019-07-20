@@ -11,7 +11,7 @@ import java.lang.ref.WeakReference;
 
 public class AsyncPack extends AsyncTask<File, Void, File> {
     private WeakReference<Context> context;
-    private boolean showGui = false;
+    private boolean showGui;
     private OnPackFinishedListener onPackFinishedListener = null;
 
     private AlertDialog dialog = null;

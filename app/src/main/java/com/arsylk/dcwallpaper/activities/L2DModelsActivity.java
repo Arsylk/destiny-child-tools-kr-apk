@@ -137,6 +137,7 @@ public class L2DModelsActivity extends ActivityWithExceptionRedirect {
         options.add(new PickWhichDialog.Option<Integer>("Wallpaper", 4));
         options.add(new PickWhichDialog.Option<Integer>("Info", 5));
         options.add(new PickWhichDialog.Option<Integer>("Open", 6));
+        options.add(new PickWhichDialog.Option<Integer>("Pack", 7));
 
 
         //create dialog
@@ -176,6 +177,10 @@ public class L2DModelsActivity extends ActivityWithExceptionRedirect {
                     //open unpack folder
                     case 6:
                         actionOpen(context, l2DModel);
+                        break;
+                    //pack to pck
+                    case 7:
+                        actionPack(context, l2DModel);
                         break;
                 }
 
@@ -494,5 +499,18 @@ public class L2DModelsActivity extends ActivityWithExceptionRedirect {
         }else {
             Toast.makeText(context, "No file explorer found!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public static void actionPack(final Context context, L2DModel l2DModel) {
+        DCTools.asyncPack(l2DModel.getModelHeader(), new File(l2DModel.getModelHeader().getParent(), l2DModel.getModelId()+".pck"), context, new OnPackFinishedListener() {
+            @Override
+            public void onFinished(File file) {
+                if(file != null) {
+                    Toast.makeText(context, "Packed to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                }else {
+                    Toast.makeText(context, "Failed to pack!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

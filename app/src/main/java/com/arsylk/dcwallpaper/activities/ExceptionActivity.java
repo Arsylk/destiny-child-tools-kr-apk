@@ -45,7 +45,7 @@ public class ExceptionActivity extends AppCompatActivity {
             activity.startActivity(intent);
 
             Process.killProcess(Process.myPid());
-            System.exit(0);
+            System.exit(2);
         }
     }
 
