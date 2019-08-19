@@ -89,7 +89,7 @@
 
         </LinearLayout>
 
-        <com.arsylk.dcwallpaper.views.SquareLinearLayout
+        <com.arsylk.mammonsmite.views.SquareLinearLayout
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1">
@@ -131,7 +131,7 @@
 
                     <View android:layout_weight="3" android:layout_width="0dp" android:layout_height="0dp"/>
 
-                    <com.arsylk.dcwallpaper.views.SquareLinearLayout
+                    <com.arsylk.mammonsmite.views.SquareLinearLayout
                             android:layout_width="0dp"
                             android:layout_height="0dp"
                             android:layout_weight="1">
@@ -142,7 +142,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"/>
 
-                    </com.arsylk.dcwallpaper.views.SquareLinearLayout>
+                    </com.arsylk.mammonsmite.views.SquareLinearLayout>
 
 
                 </LinearLayout>
@@ -150,7 +150,7 @@
             </RelativeLayout>
 
 
-        </com.arsylk.dcwallpaper.views.SquareLinearLayout>
+        </com.arsylk.mammonsmite.views.SquareLinearLayout>
 
     </LinearLayout>
 

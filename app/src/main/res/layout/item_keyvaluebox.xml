@@ -24,7 +24,7 @@
             android:textIsSelectable="true"
             android:textSize="18sp"/>
 
-    <com.arsylk.dcwallpaper.views.PopupEditText
+    <com.arsylk.mammonsmite.views.PopupEditText
             android:id="@+id/popup_field"
             android:layout_width="match_parent"
             android:padding="@dimen/item_margin"

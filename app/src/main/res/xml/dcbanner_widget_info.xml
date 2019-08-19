@@ -5,6 +5,6 @@
                     android:updatePeriodMillis="86400000"
                     android:previewImage="@drawable/banner_destinychild"
                     android:initialLayout="@layout/widget_dcbanner"
-                    android:configure="com.arsylk.dcwallpaper.activities.DCBannerWidgetConfigureActivity"
+                    android:configure="com.arsylk.mammonsmite.activities.DCBannerWidgetConfigureActivity"
                     android:resizeMode="horizontal|vertical">
 </appwidget-provider>

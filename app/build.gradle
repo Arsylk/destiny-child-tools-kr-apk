@@ -4,13 +4,12 @@ android {
     compileSdkVersion 28
     buildToolsVersion '28.0.3'
     defaultConfig {
-        applicationId 'com.arsylk.dcwallpaper'
+        applicationId 'com.Arsylk.MammonsMite'
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 37
-        versionName '3.8'
+        versionCode 1
+        versionName '1.0'
     }
-
     signingConfigs {
         def keystoreProperties = new Properties()
         keystoreProperties.load(new FileInputStream(rootProject.file('keystore.properties')))
@@ -21,25 +20,37 @@ android {
             storePassword keystoreProperties.getProperty('storePassword')
         }
     }
-
-    buildTypes {
-        release {
-            minifyEnabled true
-            shrinkResources true
-            signingConfig signingConfigs.release
-            applicationVariants.all { variant ->
-                if(variant.name == 'release') {
-                    variant.outputs.all { output ->
-                        def dateFormat = new Date().format('dd.MM.yyyy')
-                        output.outputFileName = "app-${variant.name}-v${variant.versionName}_${dateFormat}.apk"
-                    }
-                }
-                
+    applicationVariants.all { variant ->
+        if (variant.name == 'github' || variant.name == 'googleplay') {
+            variant.outputs.all { output ->
+                def dateFormat = new Date().format('dd.MM.yyyy')
+                output.outputFileName = "app-${variant.name}-v${variant.versionName}_${dateFormat}.apk"
             }
         }
+    }
+    buildTypes {
         debug {
             debuggable true
+            resValue('string', 'isSpecial', 'true')
         }
+        release {
+            signingConfig signingConfigs.release
+            resValue('string', 'isSpecial', 'true')
+        }
+        googleplay {
+            signingConfig signingConfigs.release
+            minifyEnabled true
+            shrinkResources true
+            resValue('string', 'isSpecial', 'false')
+        }
+        github {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            resValue('string', 'isSpecial', 'true')
+        }
+    }
+    productFlavors {
     }
 }
 
