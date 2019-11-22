@@ -36,6 +36,7 @@ import com.arsylk.mammonsmite.R;
 import com.arsylk.mammonsmite.utils.Define;
 import com.arsylk.mammonsmite.utils.LoadAssets;
 import com.arsylk.mammonsmite.utils.Utils;
+import com.arsylk.mammonsmite.views.PickWhichDialog;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.async.http.Headers;
@@ -45,6 +46,8 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 
 import static com.arsylk.mammonsmite.utils.Define.*;
@@ -62,23 +65,34 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
         super.onActivityResult(requestCode, resultCode, data);
         // handle picked files
         if(data != null && (requestCode == REQUEST_FILE_PACK || requestCode == REQUEST_FILE_UNPACK)) {
-            File file = Utils.uriToFile(data.getData());
+            final File file = Utils.uriToFile(data.getData());
             if(file == null || !file.exists())
                 return;
             switch(requestCode) {
                 case REQUEST_FILE_UNPACK: {
-                    DCTools.asyncUnpack(file, context, new OnUnpackFinishedListener() {
+                    List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
+                    keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
+                    keyList.add(new PickWhichDialog.Option<>("Global",1));
+                    new PickWhichDialog<>(context, keyList).setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
                         @Override
-                        public void onFinished(DCModel dcModel) {
-                            if(dcModel != null) {
-                                if(dcModel.isLoaded()) {
-                                    DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                                }
-                            }else {
-                                Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+                        public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
+                            if(option != null){
+                                final int key = option.getObject();
+                                DCTools.asyncUnpack(file, key, context, new OnUnpackFinishedListener() {
+                                    @Override
+                                    public void onFinished(DCModel dcModel) {
+                                        if(dcModel != null) {
+                                            if(dcModel.isLoaded()) {
+                                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                                            }
+                                        }else {
+                                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
                             }
                         }
-                    });
+                    }).show();
                     break;
                 }
                 case REQUEST_FILE_PACK: {
@@ -173,18 +187,29 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
 
     private boolean handleIntent() {
         if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null) {
-            DCTools.asyncUnpack(new File(getIntent().getData().getPath()), context, new OnUnpackFinishedListener() {
+            List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
+            keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
+            keyList.add(new PickWhichDialog.Option<>("Global",1));
+            new PickWhichDialog<>(context, keyList).setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
                 @Override
-                public void onFinished(DCModel dcModel) {
-                    if(dcModel != null) {
-                        if(dcModel.isLoaded()) {
-                            DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                        }
-                    }else {
-                        Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+                public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
+                    if(option != null){
+                        final int key = option.getObject();
+                        DCTools.asyncUnpack(new File(getIntent().getData().getPath()), key, context, new OnUnpackFinishedListener() {
+                            @Override
+                            public void onFinished(DCModel dcModel) {
+                                if(dcModel != null) {
+                                    if(dcModel.isLoaded()) {
+                                        DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                                    }
+                                }else {
+                                    Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
                 }
-            });
+            }).show();
             return true;
         }
         return false;

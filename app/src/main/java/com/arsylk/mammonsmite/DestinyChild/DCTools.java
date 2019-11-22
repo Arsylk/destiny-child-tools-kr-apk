@@ -210,11 +210,17 @@ public class DCTools {
                 .execute(src);
     }
 
-    public static Pck unpack(File src, Context context) throws Exception {
-        return unpack(src, context, null);
+    public static void asyncUnpack(File src, int key, Context context, OnUnpackFinishedListener onUnpackFinishedListener) {
+        new AsyncUnpack(context, key, true)
+                .setOnUnpackFinishedListener(onUnpackFinishedListener)
+                .execute(src);
     }
 
-    public static Pck unpack(File src, Context context, FutureCallback<String> progressCallback) throws Exception {
+    public static Pck unpack(File src, Context context) throws Exception {
+        return unpack(src, 0, context, null);
+    }
+
+    public static Pck unpack(File src, int key, Context context, FutureCallback<String> progressCallback) throws Exception {
         //create folder name
         String output = src.getName().replace(".pck", "");
 
@@ -272,7 +278,7 @@ public class DCTools {
                 //change if necessary
                 if(flag == 2 || flag == 3) {
                     //aes
-                    byte[] after_aes = Utils.aes_decrypt(file_bytes);
+                    byte[] after_aes = Utils.aes_decrypt(file_bytes, key);
                     file_bytes = after_aes;
                 }
                 if(flag == 1 || flag == 3) {

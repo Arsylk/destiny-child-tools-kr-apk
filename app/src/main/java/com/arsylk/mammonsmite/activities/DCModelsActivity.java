@@ -59,19 +59,30 @@ public class DCModelsActivity extends ActivityWithExceptionRedirect {
         model_list = findViewById(R.id.model_list);
         model_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                DCTools.asyncUnpack(adapter.getItem(i).getFile(), context, new OnUnpackFinishedListener() {
+            public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
+                keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
+                keyList.add(new PickWhichDialog.Option<>("Global",1));
+                new PickWhichDialog<>(context, keyList).setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
                     @Override
-                    public void onFinished(DCModel dcModel) {
-                        if(dcModel != null) {
-                            if(dcModel.isLoaded()) {
-                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                            }
-                        }else {
-                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+                    public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
+                        if(option != null){
+                            final int key = option.getObject();
+                            DCTools.asyncUnpack(adapter.getItem(i).getFile(), key, context, new OnUnpackFinishedListener() {
+                                @Override
+                                public void onFinished(DCModel dcModel) {
+                                    if(dcModel != null) {
+                                        if(dcModel.isLoaded()) {
+                                            DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                                        }
+                                    }else {
+                                        Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
                         }
                     }
-                });
+                }).show();
             }
         });
 

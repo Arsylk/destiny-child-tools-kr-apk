@@ -1,6 +1,7 @@
 package com.arsylk.mammonsmite.utils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -114,24 +115,32 @@ public class Utils {
     /*yappy end*/
 
     /*aes start*/
-    private static Cipher cipher;
-    private static boolean cipher_made = false;
+    private static Cipher[] cipher = {null, null};
+    private static boolean[] cipher_made = {false, false};
 
-    private static void make_cipher() throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
-        byte[] key = new byte[] {(byte) 0x37, (byte) 0xea, (byte) 0x79, (byte) 0x85, (byte) 0x86, (byte) 0x29, (byte) 0xec, (byte) 0x94, (byte) 0x85, (byte) 0x20, (byte) 0x7c, (byte) 0x1a, (byte) 0x62, (byte) 0xc3, (byte) 0x72, (byte) 0x4f, (byte) 0x72, (byte) 0x75, (byte) 0x25, (byte) 0x0b, (byte) 0x99, (byte) 0x99, (byte) 0xbd, (byte) 0x7f, (byte) 0x0b, (byte) 0x24, (byte) 0x9a, (byte) 0x8d, (byte) 0x85, (byte) 0x38, (byte) 0x0e, (byte) 0x39};
-        cipher = Cipher.getInstance("AES/ECB/NoPadding");
-        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"));
-        cipher_made = true;
+    private static void make_cipher(int key) throws InvalidKeyException, NoSuchPaddingException, NoSuchAlgorithmException {
+        if(key == 0) {
+            byte[] key0 = new byte[] {(byte) 0x37, (byte) 0xea, (byte) 0x79, (byte) 0x85, (byte) 0x86, (byte) 0x29, (byte) 0xec, (byte) 0x94, (byte) 0x85, (byte) 0x20, (byte) 0x7c, (byte) 0x1a, (byte) 0x62, (byte) 0xc3, (byte) 0x72, (byte) 0x4f, (byte) 0x72, (byte) 0x75, (byte) 0x25, (byte) 0x0b, (byte) 0x99, (byte) 0x99, (byte) 0xbd, (byte) 0x7f, (byte) 0x0b, (byte) 0x24, (byte) 0x9a, (byte) 0x8d, (byte) 0x85, (byte) 0x38, (byte) 0x0e, (byte) 0x39};
+            cipher[key] = Cipher.getInstance("AES/ECB/NoPadding");
+            cipher[key].init(Cipher.DECRYPT_MODE, new SecretKeySpec(key0, "AES"));
+            cipher_made[key] = true;
+        }else if(key == 1) {
+            byte[] key1 = new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF, (byte) 0xEC, (byte) 0x8B, (byte) 0x9C, (byte) 0xED, (byte) 0x94, (byte) 0x84, (byte) 0xED, (byte) 0x8A, (byte) 0xB8, (byte) 0xEC, (byte) 0x97, (byte) 0x85, (byte) 0xEA, (byte) 0xB3, (byte) 0xBC, (byte) 0xEB, (byte) 0x9D, (byte) 0xBC, (byte) 0xEC, (byte) 0x9D, (byte) 0xB8, (byte) 0xEA, (byte) 0xB2, (byte) 0x8C, (byte) 0xEC, (byte) 0x9E, (byte) 0x84, (byte) 0xEC, (byte) 0xA6};
+            cipher[key] = Cipher.getInstance("AES/ECB/NoPadding");
+            cipher[key].init(Cipher.DECRYPT_MODE, new SecretKeySpec(key1, "AES"));
+            cipher_made[key] = true;
+        }
+        
     }
 
-    public static byte[] aes_decrypt(byte[] data) throws BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
-        if(!cipher_made)
-            make_cipher();
+    public static byte[] aes_decrypt(byte[] data, int key) throws BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+        if(!cipher_made[key])
+            make_cipher(key);
 
         //16 byte blocks
         data = Arrays.copyOf(data, data.length+(16 - (data.length % 16)));
 
-        return cipher.doFinal(data);
+        return cipher[key].doFinal(data);
     }
     /*aes end*/
 
@@ -204,6 +213,7 @@ public class Utils {
     /*hex end*/
 
     /*json start*/
+    @SuppressLint("NewApi")
     public static JSONObject fileToJson(InputStream in) {
         try {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));

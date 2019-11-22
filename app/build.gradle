@@ -7,8 +7,8 @@ android {
         applicationId 'com.Arsylk.MammonsMite'
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 1
-        versionName '1.0'
+        versionCode 3
+        versionName '1.2'
     }
     signingConfigs {
         def keystoreProperties = new Properties()

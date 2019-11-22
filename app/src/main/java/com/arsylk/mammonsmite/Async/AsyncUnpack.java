@@ -4,13 +4,22 @@ import android.content.Context;
 import com.arsylk.mammonsmite.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.mammonsmite.DestinyChild.DCModel;
 import com.arsylk.mammonsmite.DestinyChild.DCTools;
+import com.arsylk.mammonsmite.views.PickWhichDialog;
 import com.koushikdutta.async.future.FutureCallback;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class AsyncUnpack extends AsyncWithDialog<File, String, DCModel> {
     private OnUnpackFinishedListener onUnpackFinishedListener = null;
+    private int key = 0;
+
+    public AsyncUnpack(Context context, int key, boolean showGui) {
+        super(context, showGui, "Unpacking...");
+        this.key = key;
+    }
 
     public AsyncUnpack(Context context, boolean showGui) {
         super(context, showGui, "Unpacking...");
@@ -31,7 +40,7 @@ public class AsyncUnpack extends AsyncWithDialog<File, String, DCModel> {
     @Override
     protected DCModel doInBackground(File... files) {
         try {
-            return new DCModel(DCTools.unpack(files[0], context.get(), new FutureCallback<String>() {
+            return new DCModel(DCTools.unpack(files[0], key, context.get(), new FutureCallback<String>() {
                 @Override
                 public void onCompleted(Exception e, String result) {
                     publishProgress(result);
