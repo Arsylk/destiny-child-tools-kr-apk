@@ -40,7 +40,7 @@ public class AsyncUnpack extends AsyncWithDialog<File, String, DCModel> {
     @Override
     protected DCModel doInBackground(File... files) {
         try {
-            return new DCModel(DCTools.unpack(files[0], key, context.get(), new FutureCallback<String>() {
+            return new DCModel(DCTools.unpack(files[0], key, new FutureCallback<String>() {
                 @Override
                 public void onCompleted(Exception e, String result) {
                     publishProgress(result);

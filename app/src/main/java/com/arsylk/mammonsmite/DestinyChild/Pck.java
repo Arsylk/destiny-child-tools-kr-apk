@@ -125,6 +125,15 @@ public class Pck {
         return null;
     }
 
+    public PckFile getFile(byte[] hash) {
+        for(PckFile pckFile : files) {
+            if(Arrays.equals(pckFile.getHash(), hash)) {
+                return pckFile;
+            }
+        }
+        return null;
+    }
+
     public List<PckFile> getFiles(byte[] hash_part, int extId) {
         List<PckFile> matchingFiles = new ArrayList<>();
         for(PckFile pckFile : getFiles(hash_part)) {

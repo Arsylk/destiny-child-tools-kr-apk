@@ -3,104 +3,47 @@ package com.arsylk.mammonsmite.Adapters;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.text.TextUtils;
 import com.arsylk.mammonsmite.utils.Define;
+import com.arsylk.mammonsmite.utils.Utils;
 import com.koushikdutta.ion.Ion;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
 
 import java.io.File;
 
 public class DCAnnouncementItem {
-    private String id, title, url, author, date, views, thumb;
-    private File thumbFile;
-    private Bitmap thumbBitmap = null;
-    private String translated = null;
-    private boolean showTranslated = false;
+    private String url, banner;
+    private File bannerFile;
+    private Bitmap bannerBitmap = null;
 
-    public DCAnnouncementItem(String id, String title, String url, String author, String date, String views, String thumb) {
-        this.id = id;
-        this.title = title;
+    public DCAnnouncementItem(String url, String banner) {
         this.url = url;
-        this.author = author;
-        this.date = date;
-        this.views = views;
-        this.thumb = thumb;
-        this.thumbFile = new File(Define.BITMAP_CACHE_DIRECTORY, id+"_announcement.png");
+        this.banner = banner;
+        this.bannerFile = new File(Define.BITMAP_CACHE_DIRECTORY, Utils.md5(banner)+"_announcement.png");
     }
 
     public boolean loadBitmap(Context context) {
         boolean wasCached = true;
-        if(!thumbFile.exists()) {
+        if(!bannerFile.exists()) {
             wasCached = false;
             try {
-                Ion.with(context).load(thumb).write(thumbFile).get();
+                Ion.with(context).load(banner).write(bannerFile).get();
             }catch(Exception e) {
                 e.printStackTrace();
             }
         }
-        thumbBitmap = BitmapFactory.decodeFile(thumbFile.getAbsolutePath());
+        bannerBitmap = BitmapFactory.decodeFile(bannerFile.getAbsolutePath());
 
         return wasCached;
-    }
-
-    public boolean loadTranslated() {
-        boolean wasTranslated = false;
-        try {
-            String rawTranslated = Jsoup.connect(String.format(Define.REMOTE_TRANSLATE_TEXT, id, TextUtils.htmlEncode(title)))
-                    .ignoreContentType(true).get().body().text();
-            JSONObject jsonTranslated = new JSONObject(rawTranslated);
-            if(jsonTranslated.getBoolean("successful")) {
-                wasTranslated = true;
-                translated = jsonTranslated.getString("translated");
-            }
-        }catch(Exception e) {
-            e.printStackTrace();
-        }
-        return wasTranslated;
-    }
-
-    public void setShowTranslated(boolean showTranslated) {
-        this.showTranslated = showTranslated;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getTranslatedTitle() {
-        return translated != null ? translated : title;
     }
 
     public String getUrl() {
         return url;
     }
 
-    public String getAuthor() {
-        return author;
+    public String getBanner() {
+        return banner;
     }
 
-    public String getDate() {
-        return date;
-    }
-
-    public String getViews() {
-        return views;
-    }
-
-    public String getThumb() {
-        return thumb;
-    }
-
-    public Bitmap getThumbBitmap() {
-        return thumbBitmap;
-    }
-
-    public boolean isShowTranslated() {
-        return showTranslated;
+    public Bitmap getBannerBitmap() {
+        return bannerBitmap;
     }
 }

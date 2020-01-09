@@ -8,6 +8,7 @@ import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.*;
+import com.arsylk.mammonsmite.DestinyChild.DCTools;
 import com.arsylk.mammonsmite.R;
 import java.io.File;
 import java.util.ArrayList;
@@ -39,12 +40,7 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         disclaimer = new PopupWindow(disclaimerLayout, metrics.widthPixels, metrics.heightPixels, true);
         disclaimer.setBackgroundDrawable(new ColorDrawable(0xCC000000));
-        disclaimer.getContentView().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                disclaimer.dismiss();
-            }
-        });
+        disclaimer.getContentView().setOnClickListener(view -> disclaimer.dismiss());
     }
 
     @Override
@@ -99,26 +95,23 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
 
 
         // listeners
-        View.OnClickListener onEditButtonClick = new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(view instanceof Button && view.getTag() instanceof EditText) {
-                    Button edit = (Button) view;
-                    EditText input = (EditText) view.getTag();
+        View.OnClickListener onEditButtonClick = view -> {
+            if(view instanceof Button && view.getTag() instanceof EditText) {
+                Button edit = (Button) view;
+                EditText input = (EditText) view.getTag();
 
-                    // reset state
-                    clearState(view.getId());
+                // reset state
+                clearState(view.getId());
 
-                    // edit or save
-                    if(input.isEnabled()) {
-                        input.setEnabled(false);
-                        input.setTextColor(updateAndCheckPath(input.getId(), input.getText().toString()) ? Color.GREEN : Color.RED);
-                        edit.setText("Edit");
-                    }else {
-                        input.setEnabled(true);
-                        input.setTextColor(Color.WHITE);
-                        edit.setText("Save");
-                    }
+                // edit or save
+                if(input.isEnabled()) {
+                    input.setEnabled(false);
+                    input.setTextColor(updateAndCheckPath(input.getId(), input.getText().toString()) ? Color.GREEN : Color.RED);
+                    edit.setText("Edit");
+                }else {
+                    input.setEnabled(true);
+                    input.setTextColor(Color.WHITE);
+                    edit.setText("Save");
                 }
             }
         };
@@ -133,43 +126,37 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
 
         // storage resource
         inputStorage.setText(STORAGE_DIRECTORY);
-        inputStorage.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                inputStorage.setText(_STORAGE_DIRECTORY);
-                update(_STORAGE_DIRECTORY, DESTINY_CHILD_PACKAGE);
-                checkResourcePaths();
-                return false;
-            }
+        inputStorage.setOnLongClickListener(view -> {
+            inputStorage.setText(_STORAGE_DIRECTORY);
+            update(_STORAGE_DIRECTORY, DESTINY_CHILD_PACKAGE);
+            checkResourcePaths();
+            return false;
         });
-        findViewById(R.id.settings_update_storage).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                update(inputStorage.getText().toString(), DESTINY_CHILD_PACKAGE);
-                checkResourcePaths();
-            }
+        findViewById(R.id.settings_update_storage).setOnClickListener(view -> {
+            update(inputStorage.getText().toString(), DESTINY_CHILD_PACKAGE);
+            checkResourcePaths();
         });
 
 
         // package resource
         inputPackage.setText(DESTINY_CHILD_PACKAGE);
-        inputPackage.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                inputPackage.setText(_DESTINY_CHILD_PACKAGE);
-                update(STORAGE_DIRECTORY, _DESTINY_CHILD_PACKAGE);
-                checkResourcePaths();
-                return false;
-            }
+        inputPackage.setOnLongClickListener(view -> {
+            inputPackage.setText(_DESTINY_CHILD_PACKAGE);
+            update(STORAGE_DIRECTORY, _DESTINY_CHILD_PACKAGE);
+            checkResourcePaths();
+            return false;
         });
-        findViewById(R.id.settings_update_package).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                update(STORAGE_DIRECTORY, inputPackage.getText().toString());
-                checkResourcePaths();
-            }
+        findViewById(R.id.settings_update_package).setOnClickListener(view -> {
+            update(STORAGE_DIRECTORY, inputPackage.getText().toString());
+            checkResourcePaths();
         });
 
+
+        // save settings
+        findViewById(R.id.settings_save).setOnClickListener(view -> {
+            DCTools.Resources.save(context);
+            Toast.makeText(context, "New settings saved!", Toast.LENGTH_SHORT).show();
+        });
 
         // fill views
         checkResourcePaths();

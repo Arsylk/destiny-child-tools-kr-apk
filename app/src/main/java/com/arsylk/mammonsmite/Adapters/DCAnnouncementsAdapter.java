@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 import com.arsylk.mammonsmite.Async.AsyncAnnouncements;
 import com.arsylk.mammonsmite.Async.interfaces.OnAnnouncementPost;
 import com.arsylk.mammonsmite.R;
@@ -67,31 +66,22 @@ public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncemen
             convertView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                     .inflate(R.layout.item_announcement, parent, false);
             ViewHolder holder = new ViewHolder();
-            holder.title = convertView.findViewById(R.id.announcement_title);
-            holder.author = convertView.findViewById(R.id.announcement_author);
-            holder.date = convertView.findViewById(R.id.announcement_date);
-            holder.views = convertView.findViewById(R.id.announcement_views);
-            holder.thumb = convertView.findViewById(R.id.announcement_thumb);
+            holder.banner = convertView.findViewById(R.id.announcement_banner);
             convertView.setTag(holder);
         }
 
         final DCAnnouncementItem announcement = getItem(position);
         ViewHolder holder = (ViewHolder) convertView.getTag();
-        holder.title.setText(announcement.isShowTranslated() ? announcement.getTranslatedTitle() : announcement.getTitle());
-        holder.author.setText(announcement.getAuthor());
-        holder.date.setText(announcement.getDate());
-        holder.views.setText(announcement.getViews());
-        holder.thumb.setVisibility(announcement.getThumbBitmap() != null ? View.VISIBLE : View.GONE);
-        if(announcement.getThumbBitmap() != null) {
-            holder.thumb.setImageBitmap(announcement.getThumbBitmap());
+        holder.banner.setVisibility(announcement.getBannerBitmap() != null ? View.VISIBLE : View.GONE);
+        if(announcement.getBannerBitmap() != null) {
+            holder.banner.setImageBitmap(announcement.getBannerBitmap());
         }
 
         return convertView;
     }
 
     static class ViewHolder {
-        TextView title, author, date, views;
-        ImageView thumb;
+        ImageView banner;
     }
 
     @Override
@@ -106,6 +96,6 @@ public class DCAnnouncementsAdapter extends BaseAdapter implements OnAnnouncemen
 
     @Override
     public long getItemId(int position) {
-        return Long.valueOf(getItem(position).getId());
+        return position;
     }
 }

@@ -2,14 +2,17 @@ package com.arsylk.mammonsmite.Async;
 
 import android.content.Context;
 import android.os.Process;
+import android.util.Log;
 import com.arsylk.mammonsmite.Adapters.DCAnnouncementItem;
 import com.arsylk.mammonsmite.Async.interfaces.OnAnnouncementPost;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AsyncAnnouncements extends AsyncWithDialog<Integer, DCAnnouncementItem, List<DCAnnouncementItem>> {
@@ -35,28 +38,34 @@ public class AsyncAnnouncements extends AsyncWithDialog<Integer, DCAnnouncementI
         Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST);
         List<DCAnnouncementItem> announcementList = new ArrayList<>();
         try {
-            Document document = Jsoup.connect("https://m.cafe.naver.com/NoticeList.nhn?search.clubid=27917479").get();
-            Elements elements = document.select("#articleListArea > ul.list_area li.board_box");
+            Document document = Jsoup.connect("https://kr-gf.line.games/notice/DC/ANDROID/inGame")
+                    .method(Connection.Method.GET)
+                    .ignoreContentType(true)
+                    .ignoreHttpErrors(true)
+                    .get();
+            Elements elements = document.select("a");
             publishProgress();
             for(Element element : elements) {
-                String id, title, url, author, date, views, thumb = null;
-                id = element.selectFirst("a[href]").attr("data-article-id");
-                title = element.selectFirst("strong.tit").text().trim();
-                url = "https://m.cafe.naver.com" + element.selectFirst("a[href]").attr("href");
-                author = element.selectFirst("span.nick").text();
-                date = element.selectFirst("span.time").text();
-                if(date.charAt(date.length() - 1) == '.')
-                    date = date.substring(0, date.length() - 2);
-                views = element.selectFirst("span.no").text();
-                if(views.contains("만"))
-                    views = views.replace("만", "0,000");
-                if(element.selectFirst("div.thumb img") != null) {
-                    thumb = element.selectFirst("div.thumb img").attr("src");
+                String url = null, banner = null;
+
+                String href = element.attr("href");
+                if(href.startsWith("http")) {
+                    url = href;
+                    banner = element.selectFirst("img[src]").attr("src");
+                }else {
+                    String parts[] = element.attr("onclick").split(",");
+                    if(parts.length >= 2) {
+                        url = parts[0].substring(parts[0].indexOf("'")+1);
+                        url = url.substring(0, url.indexOf("'"));
+
+                        banner = parts[1].substring(parts[1].indexOf("'")+1);
+                        banner = banner.substring(0, banner.indexOf("'"));
+                        banner = banner.replace("https://", "http://");
+                    }
                 }
 
-                DCAnnouncementItem announcement = new DCAnnouncementItem(id, title, url, author, date, views, thumb);
-                announcement.loadTranslated();
-                if(announcement.getThumb() != null) {
+                DCAnnouncementItem announcement = new DCAnnouncementItem(url, banner);
+                if(announcement.getBanner() != null) {
                     announcement.loadBitmap(context.get());
                 }
 

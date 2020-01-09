@@ -178,6 +178,16 @@ public class Utils {
     /*directories end*/
 
     /*hex start*/
+    public static String md5(String seed) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("md5");
+            md.update(seed.getBytes());
+            return Utils.bytesToHex(md.digest());
+        }catch(Exception e) {
+            return "";
+        }
+    }
+
     public static String md5(File file) {
         try {
             MessageDigest md = MessageDigest.getInstance("md5");

@@ -17,6 +17,7 @@ import com.arsylk.mammonsmite.DestinyChild.DCTools;
 import com.arsylk.mammonsmite.Live2D.L2DConfig;
 import com.arsylk.mammonsmite.Live2D.L2DModel;
 import com.arsylk.mammonsmite.R;
+import com.arsylk.mammonsmite.utils.LoadAssets;
 import com.arsylk.mammonsmite.views.PickWhichDialog;
 import com.arsylk.mammonsmite.views.SaveModelDialog;
 
@@ -53,6 +54,17 @@ public class DCModelsActivity extends ActivityWithExceptionRedirect {
             @Override
             public void afterTextChanged(Editable editable) {
 
+            }
+        });
+        search_input.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                PreferenceManager.getDefaultSharedPreferences(context).edit()
+                        .putBoolean("update_child_names", true)
+                        .commit();
+                LoadAssets.updateChildNames(context);
+                Toast.makeText(context, "Force reloaded child names!", Toast.LENGTH_SHORT).show();
+                return true;
             }
         });
 

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.arsylk.mammonsmite"
-          android:screenOrientation="portrait">
-
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.arsylk.mammonsmite" android:screenOrientation="portrait">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -17,8 +14,8 @@
             android:supportsRtl="true"
             android:testOnly="false"
             android:theme="@style/Theme.AppCompat">
-
-        <activity android:name="com.arsylk.mammonsmite.activities.MainActivity"
+        <activity
+                android:name=".activities.MainActivity"
                 android:label="@string/app_name"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
@@ -53,49 +50,59 @@
                 <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\..*\\.pck"/>
             </intent-filter>
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.DCModelsActivity"
+        <activity
+                android:name=".activities.DCModelsActivity"
                 android:label="Destiny Child Models">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.L2DPreviewActivity"
+        <activity
+                android:name=".activities.L2DPreviewActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.L2DModelsActivity"
+        <activity
+                android:name=".activities.L2DModelsActivity"
                 android:label="Unpacked Models">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.DCSwapActivity">
+        <activity android:name=".activities.DCSwapActivity">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.OnlineModelsActivity"
-                  android:enabled="@string/isSpecial"
+        <activity
+                android:name=".activities.OnlineModelsActivity"
+                android:enabled="@string/isSpecial"
                 android:label="Online Models">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.DCWikiPageActivity"
+        <activity
+                android:name=".activities.DCWikiPageActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.WikiFragmentManagerActivity"
-                  android:theme="@style/Theme.AppCompat.NoActionBar"
-                  android:exported="true">
+        <activity
+                android:name=".activities.WikiFragmentManagerActivity"
+                android:exported="true"
+                android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.LocaleTranslateActivity"
+        <activity
+                android:name=".activities.LocaleTranslateActivity"
                 android:configChanges="orientation|keyboardHidden"
                 android:label="Locale Translate"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.SettingsActivity">
+        <activity android:name=".activities.SettingsActivity">
         </activity>
-
-        <activity android:name="com.arsylk.mammonsmite.activities.ExceptionActivity"
+        <activity
+                android:name=".activities.ExceptionActivity"
                 android:excludeFromRecents="true"
                 android:label="@string/activity_uncaught_exception"
                 android:theme="@style/Theme.AppCompat.Dialog">
         </activity>
-        <activity android:name="com.arsylk.mammonsmite.activities.DCBannerWidgetConfigureActivity"
-                  android:label="Event Banners">
+        <activity
+                android:name=".activities.DCBannerWidgetConfigureActivity"
+                android:label="Event Banners">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
         </activity>
+        <activity android:name=".activities.DCSwapIconsActivity">
+        </activity>
 
-        <receiver android:name="com.arsylk.mammonsmite.views.PickModelWidget">
+        <receiver android:name=".views.PickModelWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -104,7 +111,7 @@
                     android:name="android.appwidget.provider"
                     android:resource="@xml/pick_model_widget_info"/>
         </receiver>
-        <receiver android:name="com.arsylk.mammonsmite.widgets.dcbanner.DCBannerWidget">
+        <receiver android:name=".widgets.dcbanner.DCBannerWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -114,11 +121,13 @@
                     android:resource="@xml/dcbanner_widget_info"/>
         </receiver>
 
-        <service android:name="com.arsylk.mammonsmite.widgets.dcbanner.DCBannerWidgetService"
+        <service
+                android:name=".widgets.dcbanner.DCBannerWidgetService"
                 android:enabled="true"
                 android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
-        <service android:name="com.arsylk.mammonsmite.Live2D.LiveWallpaperService"
+        <service
+                android:name=".Live2D.LiveWallpaperService"
                 android:label="Live2DService"
                 android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>

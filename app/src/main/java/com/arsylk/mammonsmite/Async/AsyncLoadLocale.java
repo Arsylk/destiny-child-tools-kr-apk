@@ -33,7 +33,7 @@ public class AsyncLoadLocale extends AsyncWithDialog<File, String, DCLocalePatch
         if(files.length > 0) {
             try {
                 //unpack game file
-                DCLocale locale = new DCLocale(DCTools.unpack(files[0], 0, context.get(), new FutureCallback<String>() {
+                DCLocale locale = new DCLocale(DCTools.unpack(files[0], 0, new FutureCallback<String>() {
                     @Override
                     public void onCompleted(Exception e, String result) {
                         publishProgress(result);

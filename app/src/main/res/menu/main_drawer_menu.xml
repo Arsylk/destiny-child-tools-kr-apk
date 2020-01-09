@@ -65,6 +65,9 @@
                 <item
                         android:id="@+id/dcmodels_swap"
                         android:title="@string/menu_item_swap_models" />
+                <item
+                        android:id="@+id/dcicons_swap"
+                        android:title="@string/menu_item_swap_icons" />
 
                 <item
                         android:id="@+id/dcbanner_widget_open"

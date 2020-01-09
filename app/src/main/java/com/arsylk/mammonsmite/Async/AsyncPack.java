@@ -42,9 +42,9 @@ public class AsyncPack extends AsyncTask<File, Void, File> {
             return null;
         try {
             if(files.length < 2) {
-                return DCTools.pack(files[0], context.get());
+                return DCTools.pack(files[0]);
             }else {
-                return DCTools.pack(files[0], files[1], context.get());
+                return DCTools.pack(files[0], files[1]);
             }
         }catch(Exception e) {
             e.printStackTrace();

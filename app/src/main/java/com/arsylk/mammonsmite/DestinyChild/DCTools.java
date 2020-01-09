@@ -2,6 +2,7 @@ package com.arsylk.mammonsmite.DestinyChild;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -36,6 +37,9 @@ import static com.arsylk.mammonsmite.DestinyChild.DCTools.Resources.*;
 
 public class DCTools {
     public static class Resources {
+        // shared preference filename
+        private static final String SHARED_PREFERENCE_FILE = "resources_mapping";
+
         // final default values
         public static final String _STORAGE_DIRECTORY = Environment.getExternalStorageDirectory().getAbsolutePath();
         public static final String _DESTINY_CHILD_PACKAGE = "com.NextFloor.DestinyChild";
@@ -61,6 +65,33 @@ public class DCTools {
             DC_BACKGROUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/scenario/image";
             DC_LOCALE_FILE = DC_FILES_DIRECTORY + "/locale.pck";
             DC_MODEL_INFO_FILE = DC_MODELS_DIRECTORY + "/model_info.json";
+        }
+
+        // save to shared prefs
+        public static void save(Context context) {
+            SharedPreferences.Editor prefs = context.getSharedPreferences(SHARED_PREFERENCE_FILE, Context.MODE_PRIVATE).edit();
+            prefs.putString("STORAGE_DIRECTORY", STORAGE_DIRECTORY);
+            prefs.putString("DESTINY_CHILD_PACKAGE", DESTINY_CHILD_PACKAGE);
+            prefs.putString("DC_FILES_DIRECTORY", DC_FILES_DIRECTORY);
+            prefs.putString("DC_MODELS_DIRECTORY", DC_MODELS_DIRECTORY);
+            prefs.putString("DC_BACKGROUNDS_DIRECTORY", DC_BACKGROUNDS_DIRECTORY);
+            prefs.putString("DC_SOUNDS_DIRECTORY", DC_FILES_DIRECTORY);
+            prefs.putString("DC_LOCALE_FILE", DC_LOCALE_FILE);
+            prefs.putString("DC_MODEL_INFO_FILE", DC_MODEL_INFO_FILE);
+            prefs.apply();
+        }
+
+        // load from shared prefs
+        public static void load(Context context) {
+            SharedPreferences prefs = context.getSharedPreferences(SHARED_PREFERENCE_FILE, Context.MODE_PRIVATE);
+            STORAGE_DIRECTORY = prefs.getString("STORAGE_DIRECTORY", STORAGE_DIRECTORY);
+            DESTINY_CHILD_PACKAGE = prefs.getString("DESTINY_CHILD_PACKAGE", DESTINY_CHILD_PACKAGE);
+            DC_FILES_DIRECTORY = prefs.getString("DC_FILES_DIRECTORY", DC_FILES_DIRECTORY);
+            DC_MODELS_DIRECTORY = prefs.getString("DC_MODELS_DIRECTORY", DC_MODELS_DIRECTORY);
+            DC_BACKGROUNDS_DIRECTORY = prefs.getString("DC_BACKGROUNDS_DIRECTORY", DC_BACKGROUNDS_DIRECTORY);
+            DC_SOUNDS_DIRECTORY = prefs.getString("DC_SOUNDS_DIRECTORY", DC_SOUNDS_DIRECTORY);
+            DC_LOCALE_FILE = prefs.getString("DC_LOCALE_FILE", DC_LOCALE_FILE);
+            DC_MODEL_INFO_FILE = prefs.getString("DC_MODEL_INFO_FILE", DC_MODEL_INFO_FILE);
         }
 
     }
@@ -149,11 +180,11 @@ public class DCTools {
                 .execute(src, dst);
     }
 
-    public static File pack(File src, Context context) throws Exception {
-        return pack(src, new File(src.getParent(), src.getParentFile().getName()+".pck"), context);
+    public static File pack(File src) throws Exception {
+        return pack(src, new File(src.getParent(), src.getParentFile().getName()+".pck"));
     }
 
-    public static File pack(File src, File dst, Context context) throws Exception {
+    public static File pack(File src, File dst) throws Exception {
         if(src.exists()) {
             if(src.isDirectory()) {
                 src = new File(src, "_header");
@@ -216,17 +247,20 @@ public class DCTools {
                 .execute(src);
     }
 
-    public static Pck unpack(File src, Context context) throws Exception {
-        return unpack(src, 0, context, null);
+    public static Pck unpack(File src) throws Exception {
+        return unpack(src, 0, null);
     }
 
-    public static Pck unpack(File src, int key, Context context, FutureCallback<String> progressCallback) throws Exception {
-        //create folder name
-        String output = src.getName().replace(".pck", "");
+    public static Pck unpack(File src, int key, FutureCallback<String> progressCallback) throws Exception {
+        return unpack(src, getUnpackPath(src.getName().replace(".pck", "")), key, progressCallback);
+    }
 
-        //clear output path
-        if(getUnpackPath(output).isDirectory()) {
-            for(File tempFile : getUnpackPath(output).listFiles()) {
+    public static Pck unpack(File src, File dst, int key, FutureCallback<String> progressCallback) throws Exception {
+        //make sure folders exist
+        if(!dst.exists() || !dst.isDirectory()) {
+            dst.mkdirs();
+        }else {
+            for(File tempFile : dst.listFiles()) {
                 if(!tempFile.equals(src)) {
                     tempFile.delete();
                 }
@@ -234,7 +268,7 @@ public class DCTools {
         }
 
         //create new pck struct
-        Pck pck = new Pck(src, getUnpackPath(output));
+        Pck pck = new Pck(src, dst);
 
         //buffer src bytes
         RandomAccessFile fs = new RandomAccessFile(src, "r");
@@ -243,10 +277,10 @@ public class DCTools {
         mbb.position(0);
 
         //begin byte analysis
-        byte[] idenftifier = new byte[8];
+        byte[] identifier = new byte[8];
         //byte(8) pck identifier
-        mbb.get(idenftifier);
-        if(Arrays.equals(idenftifier, PCK_IDENTIFIER)) {
+        mbb.get(identifier);
+        if(Arrays.equals(identifier, PCK_IDENTIFIER)) {
             //byte(4) count
             int count = mbb.getInt();
             Log.d("mTag:Unpack", "File Count: "+count);
@@ -295,7 +329,9 @@ public class DCTools {
                 if(progressCallback != null) progressCallback.onCompleted(null, logLine);
 
                 //save extracted file (files starting with _ are unprocessed)
-                File filepath = getUnpackPath(output, String.format("%08d.%s", i, getExtStr(ext)));
+                File filepath = new File(dst, String.format("%08d.%s", i, getExtStr(ext)));
+                if(!dst.exists()) dst.mkdirs();
+
                 FileOutputStream fos = new FileOutputStream(filepath);
                 fos.write(file_bytes);
                 fos.close();
@@ -379,7 +415,7 @@ public class DCTools {
 
     public static void patchLocale(File file_locale, DCLocalePatch patch, Context context) throws Exception {
         //load and patch locale
-        DCLocale locale = new DCLocale(DCTools.unpack(file_locale, context));
+        DCLocale locale = new DCLocale(DCTools.unpack(file_locale));
         locale.patch(patch);
 
         //move files
@@ -391,7 +427,7 @@ public class DCTools {
         }
 
         //move patched file
-        File packed_locale = DCTools.pack(locale.getOutput(), file_locale, context);
+        File packed_locale = DCTools.pack(locale.getOutput(), file_locale);
 
         //write new md5's
         PreferenceManager.getDefaultSharedPreferences(context).edit()
@@ -431,7 +467,7 @@ public class DCTools {
     }
 
     public static void extractChildNames(File src, Context context) throws Exception {
-        DCLocale srcLocale = new DCLocale(unpack(src, context));
+        DCLocale srcLocale = new DCLocale(unpack(src));
         //dirty match hash
         Pck.PckFile pckModelIds = null;
         for(Pck.PckFile pckFile : srcLocale.getFiles()) {
@@ -440,6 +476,17 @@ public class DCTools {
                 break;
             }
         }
+
+        //very dirty attempt at global
+        if(pckModelIds == null) {
+            for(Pck.PckFile pckFile : srcLocale.getFiles()) {
+                if(bytesToHex(pckFile.getHash()).equalsIgnoreCase("C40E0023B21758D3")) {
+                    pckModelIds = pckFile;
+                    break;
+                }
+            }
+        }
+
         if(pckModelIds != null) {
             //get model id's to name and title
             JSONObject jsonWikiBase = new JSONObject();
@@ -451,7 +498,7 @@ public class DCTools {
                 try {
                     String key = entry.getKey(); String value = entry.getValue();
                     //only if matches format
-                    if(key.contains("_") && value.contains("\t")) {
+                    if(key.contains("_") && value.contains("\t") && value.contains("_")) {
                         value = value.substring(0, value.indexOf("\t"));
                         String modelId = key.substring(0, key.indexOf("_")),
                                 modelFlag = key.substring(key.indexOf("_")+1),
@@ -488,7 +535,7 @@ public class DCTools {
     }
 
     public static void extractCardNames(File src, Context context) throws Exception {
-        DCLocale srcLocale = new DCLocale(unpack(src, context));
+        DCLocale srcLocale = new DCLocale(unpack(src));
         //dirty match hash
         Pck.PckFile pckCardDescs = null, pckCardSkills = null;
         for(Pck.PckFile pckFile : srcLocale.getFiles()) {
@@ -571,7 +618,7 @@ public class DCTools {
         DCLocalePatch patch = new DCLocalePatch(Utils.fileToJson(ASSET_ENGLISH_PATCH));
 
         //load locale
-        DCLocale srcLocale = new DCLocale(unpack(src, context));
+        DCLocale srcLocale = new DCLocale(unpack(src));
         new DCLocalePatch(srcLocale).save(new File(Define.BASE_DIRECTORY, "extracted_current.json"));
 
         JSONObject generated = new JSONObject();
@@ -689,7 +736,7 @@ public class DCTools {
                         File backup = new File(file.getParentFile(), "_"+file.getName());
 
                         //unpack pck file
-                        DCModel dcModel = DCTools.pckToModel(DCTools.unpack(file, context.get()));
+                        DCModel dcModel = DCTools.pckToModel(DCTools.unpack(file, 1, null));
                         L2DModel toL2D = dcModel.asL2DModel();
                         publishProgress(toL2D.getModelName()+" "+toL2D.getModelId());
 
@@ -701,7 +748,7 @@ public class DCTools {
                             publishProgress("swapping: "+fromL2D.getModelName()+" ~> "+toL2D.getModelName());
 
                             //pack swap to pck
-                            File swapPck = DCTools.pack(swapper.getLastSwapFolder(), context.get());
+                            File swapPck = DCTools.pack(swapper.getLastSwapFolder());
                             publishProgress("swap pck: "+swapPck.getAbsolutePath());
 
                             //update model info

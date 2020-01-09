@@ -9,6 +9,10 @@ public class TabSpannableFactory extends Spannable.Factory {
     public Spannable newSpannable(CharSequence source) {
         SpannableStringBuilder ssb = new SpannableStringBuilder();
         String[] parts = source.toString().split("\t");
+        // fail safe for global
+        if(parts.length == 0)
+            return ssb.append(source);
+
         for(int i = 0; i < parts.length-1; i++) {
             ssb.append(parts[i]);
             ssb.append("\\t");

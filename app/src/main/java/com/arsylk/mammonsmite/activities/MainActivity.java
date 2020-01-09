@@ -163,6 +163,8 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             }
         });
 
+        // load resources from shared prefs
+        DCTools.Resources.load(context);
 
         // init views & load resources
         initViews();
@@ -180,7 +182,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             });
 
             // check application version
-            new AsyncVersionChecker(context).execute();
+            //new AsyncVersionChecker(context).execute();
         }
     }
 
@@ -303,6 +305,9 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             case R.id.dcmodels_swap:
                 startActivity(new Intent(context, DCSwapActivity.class));
                 break;
+            case R.id.dcicons_swap:
+                startActivity(new Intent(context, DCSwapIconsActivity.class));
+                break;
             case R.id.wiki_open:
                 openDCWiki();
                 break;
@@ -363,17 +368,6 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 if(adapter != null) {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(adapter.getItem(position).getUrl())));
                 }
-            }
-        });
-        announcementList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                if(adapter != null) {
-                    DCAnnouncementItem announcement = adapter.getItem(position);
-                    announcement.setShowTranslated(!announcement.isShowTranslated());
-                    adapter.notifyDataSetChanged();
-                }
-                return true;
             }
         });
     }
