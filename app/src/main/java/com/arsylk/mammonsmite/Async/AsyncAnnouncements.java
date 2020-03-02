@@ -5,12 +5,15 @@ import android.os.Process;
 import android.util.Log;
 import com.arsylk.mammonsmite.Adapters.DCAnnouncementItem;
 import com.arsylk.mammonsmite.Async.interfaces.OnAnnouncementPost;
+import com.arsylk.mammonsmite.utils.Define;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,7 +41,12 @@ public class AsyncAnnouncements extends AsyncWithDialog<Integer, DCAnnouncementI
         Process.setThreadPriority(Process.THREAD_PRIORITY_LOWEST);
         List<DCAnnouncementItem> announcementList = new ArrayList<>();
         try {
-            Document document = Jsoup.connect("https://kr-gf.line.games/notice/DC/ANDROID/inGame")
+            SSLContext sslcontext = SSLContext.getInstance("TLSv1");
+            sslcontext.init(null, null, null);
+            SSLSocketFactory sslSocketFactory = new Tls12SocketFactory(sslcontext.getSocketFactory());
+
+            Document document = Jsoup.connect(Define.ONLINE_ANNOUNCEMNT_BANNERS)
+                    .sslSocketFactory(sslSocketFactory)
                     .method(Connection.Method.GET)
                     .ignoreContentType(true)
                     .ignoreHttpErrors(true)

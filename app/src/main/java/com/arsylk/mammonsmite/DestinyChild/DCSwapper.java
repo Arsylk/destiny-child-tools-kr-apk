@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.DestinyChild;
 
+import android.annotation.SuppressLint;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.arsylk.mammonsmite.Live2D.L2DModel;
@@ -213,6 +214,7 @@ public class DCSwapper {
 
     }
 
+    @SuppressLint("NewApi")
     public boolean swapModels() {
         if(matches == null || problems == null) return false;
         if(!problems.isEmpty() && output != null) {
@@ -241,6 +243,21 @@ public class DCSwapper {
                     //add value
                     if(action.add) {
                         textures.put(action.value);
+
+                        //if its a motion change file
+                        if(modelInfoJson.has("motions")) {
+                            JSONObject motions = modelInfoJson.getJSONObject("motions");
+                            Iterator<String> keysIterator = motions.keys();
+                            while(keysIterator.hasNext()) {
+                                String key = keysIterator.next();
+                                JSONObject motion = motions.getJSONArray(key).getJSONObject(0);
+                                if(motion.getString("file").equalsIgnoreCase(action.value)) {
+                                    modelInfoJson.getJSONObject("motions")
+                                            .getJSONArray(key).getJSONObject(0)
+                                            .put("file", toL2D.getModelId()+"_idle.mtn");
+                                }
+                            }
+                        }
                     //remove last
                     }else {
                         textures.remove(textures.length()-1);

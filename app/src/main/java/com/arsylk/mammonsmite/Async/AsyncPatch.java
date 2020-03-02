@@ -8,12 +8,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import com.arsylk.mammonsmite.DestinyChild.DCLocalePatch;
 import com.arsylk.mammonsmite.DestinyChild.DCTools;
+import com.arsylk.mammonsmite.utils.Utils;
 
 import java.lang.ref.WeakReference;
 
 public class AsyncPatch extends AsyncTask<DCLocalePatch, Void, Boolean> {
     private WeakReference<Context> context;
     private boolean showGui = false;
+    private Utils.OnPostExecute<Boolean> onPostExecute = null;
 
     private AlertDialog dialog = null;
 
@@ -22,24 +24,22 @@ public class AsyncPatch extends AsyncTask<DCLocalePatch, Void, Boolean> {
         this.showGui = showGui;
     }
 
+    public AsyncPatch setOnPostExecute(Utils.OnPostExecute<Boolean> onPostExecute) {
+        this.onPostExecute = onPostExecute;
+        return this;
+    }
+
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
         if(showGui) {
             dialog = new AlertDialog.Builder(context.get())
                     .setTitle("Patching locale...")
-                    .setItems(new String[]{"Join our discord!!!"}, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            context.get().startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://discord.gg/wDdq7C8")));
-                        }
-                    })
-                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            dialog.dismiss();
-                        }
-                    }).setCancelable(false).show();
+                    .setItems(new String[]{"Join our discord!!!"},
+                            (dialogInterface, i) -> context.get().startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://discord.gg/wDdq7C8"))))
+                    .setPositiveButton("Close",
+                            (dialogInterface, i) -> dialog.dismiss())
+                    .setCancelable(false).show();
             dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(false);
         }
     }
@@ -61,5 +61,6 @@ public class AsyncPatch extends AsyncTask<DCLocalePatch, Void, Boolean> {
             dialog.setTitle(success ? "Finished" : "Failed");
             dialog.getButton(DialogInterface.BUTTON_POSITIVE).setEnabled(true);
         }
+        if(onPostExecute != null) onPostExecute.onPostExecute(success);
     }
 }

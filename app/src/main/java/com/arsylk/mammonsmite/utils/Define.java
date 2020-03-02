@@ -19,6 +19,8 @@ public final class Define {
     public static final int REQUEST_PERMISSION_STORAGE = 997;
     public static final int REQUEST_FILE_UNPACK = 227, REQUEST_FILE_PACK = 228, REQUEST_WALLPAPER_SET = 229, REQUEST_FILE_PATCH = 230;
 
+    public static final String ONLINE_ANNOUNCEMNT_BANNERS = "https://kr-gf.line.games/notice/DC/ANDROID/inGame";
+
     public static final String ONLINE_MODELS_URL = "https://arsylk.pythonanywhere.com/api/get_models?offset=%s";
     public static final String ONLINE_MODEL_FILE_URL = "https://arsylk.pythonanywhere.com/api/get_model_file/%s";
     public static final String ONLINE_MODEL_PREVIEW_URL = "https://arsylk.pythonanywhere.com/api/get_model_preview/%s";

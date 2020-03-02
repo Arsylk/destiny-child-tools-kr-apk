@@ -16,7 +16,7 @@ public class DCAnnouncementItem {
 
     public DCAnnouncementItem(String url, String banner) {
         this.url = url;
-        this.banner = banner;
+        this.banner = banner.replace("https", "http");
         this.bannerFile = new File(Define.BITMAP_CACHE_DIRECTORY, Utils.md5(banner)+"_announcement.png");
     }
 

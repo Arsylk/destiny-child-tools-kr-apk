@@ -79,8 +79,9 @@
     <item android:title="@string/menu_group_credits" android:menuCategory="container" >
         <menu>
             <group>
-                <item android:title="@string/user_whocares" android:enabled="false" />
                 <item android:title="@string/user_banana" android:enabled="false" />
+                <item android:title="@string/user_whocares" android:enabled="false" />
+                <item android:title="@string/user_falzar" android:enabled="false" />
                 <item android:title="@string/user_envy" android:enabled="false" />
                 <item
                         android:id="@+id/discord_open"

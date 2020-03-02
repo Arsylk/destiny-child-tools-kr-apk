@@ -6,11 +6,105 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.arsylk.mammonsmite.DestinyChild.DCDefine.PCK_IDENTIFIER;
+
 public class Pck {
+    public static class PckHeader {
+        public class Item {
+            public int length, i;
+            public byte[] hash = new byte[8];
+            public String hashs;
+            public int flag, offset, size, size_p;
+
+            @Override
+            public String toString() {
+                return String.format("<%d/%d %s [%016X | %6d] %02d>", i+1, length, hashs, offset, size, flag);
+            }
+        }
+
+        private File file;
+        private boolean valid;
+        private Item[] items = null;
+
+
+        public PckHeader(File file) {
+            this.file = file;
+            valid = read();
+        }
+
+        //methods
+        private boolean read() {
+            try {
+                //buffer src bytes
+                RandomAccessFile fs = new RandomAccessFile(file, "r");
+                MappedByteBuffer mbb = fs.getChannel().map(FileChannel.MapMode.READ_ONLY, 0, fs.length()).load();
+                mbb.order(ByteOrder.LITTLE_ENDIAN);
+                mbb.position(0);
+
+                //begin byte analysis
+                byte[] identifier = new byte[8];
+                //byte(8) pck identifier
+                mbb.get(identifier);
+                if(Arrays.equals(identifier, PCK_IDENTIFIER)) {
+                    //byte(4) count
+                    items = new Item[mbb.getInt()];
+                    for(int i = 0; i < items.length; i++) {
+                        items[i] = new Item();
+                        items[i].length = items.length; items[i].i = i;
+
+                        //byte(8) hash
+                        mbb.get(items[i].hash);
+                        items[i].hashs = Utils.bytesToHex(items[i].hash);
+                        //byte(1) flag
+                        items[i].flag = mbb.get();
+                        //byte(4) offset
+                        items[i].offset = mbb.getInt();
+                        //byte(4) compressed size
+                        items[i].size_p = mbb.getInt();
+                        //byte(4) original size
+                        items[i].size = mbb.getInt();
+                        //byte(4) ???
+                        mbb.position(mbb.position()+4);
+                    }
+                }else {
+                    return false;
+                }
+                mbb.clear();
+                fs.close();
+
+                return true;
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+        //getters
+        public File getFile() {
+            return file;
+        }
+
+        public boolean isValid() {
+            return valid;
+        }
+
+        public int getSize() {
+            return items != null ? items.length : 0;
+        }
+
+        public Item[] getItems() {
+            return items != null ? items : new Item[0];
+        }
+    }
+
     public class PckFile {
         private File file;
         private byte[] hash;

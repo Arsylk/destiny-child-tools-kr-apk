@@ -9,6 +9,7 @@ import jp.live2d.android.Live2DModelAndroid;
 import jp.live2d.android.UtOpenGL;
 import jp.live2d.motion.Live2DMotion;
 import jp.live2d.motion.MotionQueueManager;
+import org.apache.commons.io.FileUtils;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -199,6 +200,7 @@ public class L2DRenderer implements GLSurfaceView.Renderer {
     private synchronized void loadModel() {
         Log.d("mTag:Thread", "Model fileLoad start "+ (Thread.currentThread().getName()));
         InputStream in; File motionFile;
+        StringBuilder mtnString;
         try {
             dcModel = new L2DModel(config.getModelPath());
         }catch(Exception e) {
@@ -229,9 +231,14 @@ public class L2DRenderer implements GLSurfaceView.Renderer {
             //motion idle
             motionFile = dcModel.getMotion("idle");
             if(motionFile != null) {
-                in = new FileInputStream(motionFile);
-                motionIdle = Live2DMotion.loadMotion(in);
-                in.close();
+                mtnString = new StringBuilder();
+                for(String line : FileUtils.readLines(motionFile, "utf-8")) {
+                    if(line.startsWith("$tag:"))
+                        continue;
+                    mtnString.append(line);
+                    mtnString.append("\n");
+                }
+                motionIdle = Live2DMotion.loadMotion(mtnString.toString().getBytes());
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -240,9 +247,14 @@ public class L2DRenderer implements GLSurfaceView.Renderer {
             //motion attack
             motionFile = dcModel.getMotion("attack");
             if(motionFile != null) {
-                in = new FileInputStream(motionFile);
-                motionAttack = Live2DMotion.loadMotion(in);
-                in.close();
+                mtnString = new StringBuilder();
+                for(String line : FileUtils.readLines(motionFile, "utf-8")) {
+                    if(line.startsWith("$tag:"))
+                        continue;
+                    mtnString.append(line);
+                    mtnString.append("\n");
+                }
+                motionAttack = Live2DMotion.loadMotion(mtnString.toString().getBytes());
             }
         }catch(Exception e) {
             e.printStackTrace();
@@ -260,10 +272,12 @@ public class L2DRenderer implements GLSurfaceView.Renderer {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             if(bg_file.exists()) {
+                Log.d("bgtest", bg_file.toString());
                 Bitmap src = BitmapFactory.decodeFile(bg_file.getAbsolutePath());
                 src.compress(Bitmap.CompressFormat.PNG, 100, bos);
                 width = src.getWidth();
                 height = src.getHeight();
+                Log.d("bgtest", src.getWidth()+"");
                 src.recycle();
             }else {
                 Bitmap test = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888);

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.arsylk.mammonsmite" android:screenOrientation="portrait">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.arsylk.mammonsmite" android:screenOrientation="portrait">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>-->
+
 
     <application
             android:allowBackup="true"
@@ -102,6 +105,18 @@
         <activity android:name=".activities.DCSwapIconsActivity">
         </activity>
 
+<!--        <receiver android:name=".receivers.BootCompleteAutoTranslate"-->
+<!--                  android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.BOOT_COMPLETED"/>-->
+<!--                <action android:name="android.intent.action.BOOT_COMPLETE"/>-->
+<!--                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>-->
+<!--                <action android:name="android.intent.action.REBOOT"/>-->
+<!--                <action android:name="android.intent.action.USER_UNLOCKED"/>-->
+<!--                <action android:name="android.intent.action.MEDIA_MOUNTED"/>-->
+<!--                <action android:name="android.intent.action.SIM_STATE_CHANGED"/>-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
         <receiver android:name=".views.PickModelWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>

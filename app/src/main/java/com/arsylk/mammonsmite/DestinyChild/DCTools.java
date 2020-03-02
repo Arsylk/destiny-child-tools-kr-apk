@@ -126,7 +126,8 @@ public class DCTools {
         File[] bgs = DCTools.getDCBackgroundsPath().listFiles(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
-                return name.startsWith("bg") && name.endsWith("_f.png");
+                return name.startsWith("bg")
+                        && (name.endsWith("_f.png") || name.endsWith("_f.dcp") );
             }
         });
         if(bgs == null)

@@ -20,15 +20,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.arsylk.mammonsmite.Adapters.DCAnnouncementItem;
 import com.arsylk.mammonsmite.Adapters.DCAnnouncementsAdapter;
 import com.arsylk.mammonsmite.Async.AsyncBanners;
 import com.arsylk.mammonsmite.Async.AsyncPatch;
-import com.arsylk.mammonsmite.Async.AsyncVersionChecker;
 import com.arsylk.mammonsmite.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.mammonsmite.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.mammonsmite.BuildConfig;
-import com.arsylk.mammonsmite.DestinyChild.DCLocalePatch;
 import com.arsylk.mammonsmite.DestinyChild.DCModel;
 import com.arsylk.mammonsmite.DestinyChild.DCTools;
 import com.arsylk.mammonsmite.Live2D.L2DModel;
@@ -37,15 +34,11 @@ import com.arsylk.mammonsmite.utils.Define;
 import com.arsylk.mammonsmite.utils.LoadAssets;
 import com.arsylk.mammonsmite.utils.Utils;
 import com.arsylk.mammonsmite.views.PickWhichDialog;
-import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.async.http.AsyncHttpRequest;
-import com.koushikdutta.async.http.Headers;
 import com.koushikdutta.ion.Ion;
-import com.koushikdutta.ion.loader.AsyncHttpRequestFactory;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -152,15 +145,12 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             getBaseContext().getResources().getConfiguration().locale = Locale.US;
         }
         Ion.getDefault(context).getConscryptMiddleware().enable(false);
-        Ion.getDefault(context).configure().setAsyncHttpRequestFactory(new AsyncHttpRequestFactory() {
-            @Override
-            public AsyncHttpRequest createAsyncHttpRequest(Uri uri, String method, Headers headers) {
-                AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers);
-                request.getHeaders().set("Apk-Name", BuildConfig.APPLICATION_ID);
-                request.getHeaders().set("Apk-Version", BuildConfig.VERSION_NAME);
-                request.getHeaders().set("Device-Token", Utils.getDeviceToken(context));
-                return request;
-            }
+        Ion.getDefault(context).configure().setAsyncHttpRequestFactory((uri, method, headers) -> {
+            AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers);
+            request.getHeaders().set("Apk-Name", BuildConfig.APPLICATION_ID);
+            request.getHeaders().set("Apk-Version", BuildConfig.VERSION_NAME);
+            request.getHeaders().set("Device-Token", Utils.getDeviceToken(context));
+            return request;
         });
 
         // load resources from shared prefs
@@ -170,19 +160,19 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
         initViews();
         if(!handleIntent()) {
             // check remote assets
-            LoadAssets.guiFullLoad(context, new Utils.Callback() {
-                @Override
-                public void onCall() {
-                    // load up-to-date announcements
-                    adapter.loadAnnouncements();
+            LoadAssets.guiFullLoad(context, () -> {
+                // load up-to-date announcements
+                adapter.loadAnnouncements();
 
-                    // load up-to-date banners
-                    new AsyncBanners(context, false).execute();
-                }
+                // load up-to-date banners
+                new AsyncBanners(context, false).execute();
             });
 
             // check application version
             //new AsyncVersionChecker(context).execute();
+
+            //TODO DEBUG
+            //sendBroadcast(new Intent(context, BootCompleteAutoTranslate.class));
         }
     }
 
@@ -192,24 +182,18 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
             keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
             keyList.add(new PickWhichDialog.Option<>("Global",1));
-            new PickWhichDialog<>(context, keyList).setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
-                @Override
-                public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
-                    if(option != null){
-                        final int key = option.getObject();
-                        DCTools.asyncUnpack(new File(getIntent().getData().getPath()), key, context, new OnUnpackFinishedListener() {
-                            @Override
-                            public void onFinished(DCModel dcModel) {
-                                if(dcModel != null) {
-                                    if(dcModel.isLoaded()) {
-                                        DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                                    }
-                                }else {
-                                    Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
-                                }
+            new PickWhichDialog<>(context, keyList).setOnOptionPicked(option -> {
+                if(option != null){
+                    final int key = option.getObject();
+                    DCTools.asyncUnpack(new File(getIntent().getData().getPath()), key, context, dcModel -> {
+                        if(dcModel != null) {
+                            if(dcModel.isLoaded()) {
+                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
                             }
-                        });
-                    }
+                        }else {
+                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }).show();
             return true;
@@ -247,12 +231,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 DCTools.fullPckSwap(context, new L2DModel(new File(Define.MODELS_DIRECTORY, "yukine")));
                 return true;
             case R.id.dev_swap_all_restore:
-                File[] backups = DCTools.getDCModelsPath().listFiles(new FileFilter() {
-                    @Override
-                    public boolean accept(File file) {
-                        return file.getName().startsWith("_") && file.getName().endsWith(".pck");
-                    }
-                });
+                File[] backups = DCTools.getDCModelsPath().listFiles(file -> file.getName().startsWith("_") && file.getName().endsWith(".pck"));
 
                 //restore model_info.json
                 try {
@@ -376,7 +355,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
         if(DCTools.getDCModelsPath().exists()) {
             startActivity(new Intent(context, DCModelsActivity.class));
         }else {
-            Toast.makeText(context, "Destiny Child Kr not installed!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Destiny Child not installed!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -401,21 +380,11 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     }
 
     private void openEnglishPatcher() {
-        LoadAssets.updateEnglishPatch(context, new FutureCallback<DCLocalePatch>() {
-            @Override
-            public void onCompleted(Exception e, DCLocalePatch patch) {
-                new AsyncPatch(context, true).execute(patch);
-            }
-        });
+        LoadAssets.updateEnglishPatch(context, (e, patch) -> new AsyncPatch(context, true).execute(patch));
     }
 
     private void openRussianPatcher() {
-        LoadAssets.updateRussianPatch(context, new FutureCallback<DCLocalePatch>() {
-            @Override
-            public void onCompleted(Exception e, DCLocalePatch patch) {
-                new AsyncPatch(context, true).execute(patch);
-            }
-        });
+        LoadAssets.updateRussianPatch(context, (e, patch) -> new AsyncPatch(context, true).execute(patch));
 
     }
 
