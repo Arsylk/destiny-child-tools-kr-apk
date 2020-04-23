@@ -370,6 +370,7 @@ public class Utils {
         try {
             FileUtils.forceMkdir(Define.ASSETS_DIRECTORY);
             FileUtils.forceMkdir(Define.BITMAP_CACHE_DIRECTORY);
+            FileUtils.forceMkdir(Define.DUMP_DATA_DIRECTORY);
             FileUtils.forceMkdir(Define.BASE_DIRECTORY);
             FileUtils.forceMkdir(Define.UNPACKER_DIRECTORY);
             FileUtils.forceMkdir(Define.MODELS_DIRECTORY);
@@ -615,4 +616,14 @@ public class Utils {
         prefs.edit().clear().apply();
     }
     /*preference end*/
+
+    /*iterator to for loop*/
+    public static <T> List<T> forloop(Iterator<T> iterator) {
+        List<T> list = new ArrayList<>();
+        while(iterator.hasNext()) {
+            list.add(iterator.next());
+        }
+        return list;
+    }
+    /*iterator end*/
 }

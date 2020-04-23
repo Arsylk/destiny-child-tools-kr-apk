@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.arsylk.mammonsmite" android:screenOrientation="portrait">
+          package="com.arsylk.mammonsmite"
+          android:screenOrientation="portrait">
+
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-<!--    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>-->
-
 
     <application
             android:allowBackup="true"
@@ -17,8 +17,7 @@
             android:supportsRtl="true"
             android:testOnly="false"
             android:theme="@style/Theme.AppCompat">
-        <activity
-                android:name=".activities.MainActivity"
+        <activity android:name=".activities.MainActivity"
                 android:label="@string/app_name"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
@@ -67,36 +66,34 @@
         </activity>
         <activity android:name=".activities.DCSwapActivity">
         </activity>
-        <activity
-                android:name=".activities.OnlineModelsActivity"
+        <activity android:name=".activities.OnlineModelsActivity"
                 android:enabled="@string/isSpecial"
                 android:label="Online Models">
         </activity>
-        <activity
-                android:name=".activities.DCWikiPageActivity"
+        <activity android:name=".activities.DCNewWikiActivity"
+                  android:label="@string/text_new_wiki"
+                  android:theme="@style/Theme.AppCompat.NoActionBar">
+        </activity>
+        <activity android:name=".activities.DCWikiPageActivity"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity
-                android:name=".activities.WikiFragmentManagerActivity"
+        <activity android:name=".activities.WikiFragmentManagerActivity"
                 android:exported="true"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
-        <activity
-                android:name=".activities.LocaleTranslateActivity"
+        <activity android:name=".activities.LocaleTranslateActivity"
                 android:configChanges="orientation|keyboardHidden"
                 android:label="Locale Translate"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
         <activity android:name=".activities.SettingsActivity">
         </activity>
-        <activity
-                android:name=".activities.ExceptionActivity"
+        <activity android:name=".activities.ExceptionActivity"
                 android:excludeFromRecents="true"
                 android:label="@string/activity_uncaught_exception"
                 android:theme="@style/Theme.AppCompat.Dialog">
         </activity>
-        <activity
-                android:name=".activities.DCBannerWidgetConfigureActivity"
+        <activity android:name=".activities.DCBannerWidgetConfigureActivity"
                 android:label="Event Banners">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
@@ -105,18 +102,19 @@
         <activity android:name=".activities.DCSwapIconsActivity">
         </activity>
 
-<!--        <receiver android:name=".receivers.BootCompleteAutoTranslate"-->
-<!--                  android:exported="true">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.BOOT_COMPLETED"/>-->
-<!--                <action android:name="android.intent.action.BOOT_COMPLETE"/>-->
-<!--                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>-->
-<!--                <action android:name="android.intent.action.REBOOT"/>-->
-<!--                <action android:name="android.intent.action.USER_UNLOCKED"/>-->
-<!--                <action android:name="android.intent.action.MEDIA_MOUNTED"/>-->
-<!--                <action android:name="android.intent.action.SIM_STATE_CHANGED"/>-->
-<!--            </intent-filter>-->
-<!--        </receiver>-->
+
+        <!-- <receiver android:name=".receivers.BootCompleteAutoTranslate" -->
+        <!-- android:exported="true"> -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="android.intent.action.BOOT_COMPLETED"/> -->
+        <!-- <action android:name="android.intent.action.BOOT_COMPLETE"/> -->
+        <!-- <action android:name="android.intent.action.QUICKBOOT_POWERON"/> -->
+        <!-- <action android:name="android.intent.action.REBOOT"/> -->
+        <!-- <action android:name="android.intent.action.USER_UNLOCKED"/> -->
+        <!-- <action android:name="android.intent.action.MEDIA_MOUNTED"/> -->
+        <!-- <action android:name="android.intent.action.SIM_STATE_CHANGED"/> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
         <receiver android:name=".views.PickModelWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
@@ -136,13 +134,11 @@
                     android:resource="@xml/dcbanner_widget_info"/>
         </receiver>
 
-        <service
-                android:name=".widgets.dcbanner.DCBannerWidgetService"
+        <service android:name=".widgets.dcbanner.DCBannerWidgetService"
                 android:enabled="true"
                 android:permission="android.permission.BIND_REMOTEVIEWS">
         </service>
-        <service
-                android:name=".Live2D.LiveWallpaperService"
+        <service android:name=".Live2D.LiveWallpaperService"
                 android:label="Live2DService"
                 android:permission="android.permission.BIND_WALLPAPER">
             <intent-filter>
@@ -157,5 +153,4 @@
                     android:resource="@xml/wallpaper"/>
         </service>
     </application>
-
 </manifest>

@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.activities;
 
+import android.app.AlertDialog;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -27,6 +28,7 @@ import com.arsylk.mammonsmite.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.mammonsmite.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.mammonsmite.BuildConfig;
 import com.arsylk.mammonsmite.DestinyChild.DCModel;
+import com.arsylk.mammonsmite.DestinyChild.DCNewWiki;
 import com.arsylk.mammonsmite.DestinyChild.DCTools;
 import com.arsylk.mammonsmite.Live2D.L2DModel;
 import com.arsylk.mammonsmite.R;
@@ -39,9 +41,9 @@ import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.util.*;
 
 import static com.arsylk.mammonsmite.utils.Define.*;
 
@@ -110,7 +112,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
+        setSupportActionBar(findViewById(R.id.toolbar));
 
         // request permission
         if(Utils.requestPermission(context)) {
@@ -172,7 +174,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             //new AsyncVersionChecker(context).execute();
 
             //TODO DEBUG
-            //sendBroadcast(new Intent(context, BootCompleteAutoTranslate.class));
+            //startActivity(new Intent(context, DCNewWikiActivity.class));
         }
     }
 
@@ -287,6 +289,9 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             case R.id.dcicons_swap:
                 startActivity(new Intent(context, DCSwapIconsActivity.class));
                 break;
+            case R.id.new_wiki_open:
+                openDCNewWiki();
+                break;
             case R.id.wiki_open:
                 openDCWiki();
                 break;
@@ -380,12 +385,111 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     }
 
     private void openEnglishPatcher() {
-        LoadAssets.updateEnglishPatch(context, (e, patch) -> new AsyncPatch(context, true).execute(patch));
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("English Patch");
+        builder.setItems(new String[] {"Apply", "Restore"}, (dialog, which) -> {
+            if(which == 0) {
+                LoadAssets.updateEnglishPatch(context, (e, patch) -> new AsyncPatch(context, true).execute(patch));
+            }else if(which == 1) {
+                String msg;
+
+                File[] files = DCTools.getDCFilesPath().listFiles((dir, name) -> name.matches("^locale_.*\\.bak$"));
+                Arrays.sort(files, (o1, o2) -> Long.compare(o1.length(), o2.length()));
+                long sizeUncompressed = 0, difference = 0;
+                for(int i = 1; i < files.length; i++) {
+                    long testDifference = files[i].length() - files[i-1].length();
+                    if(testDifference > difference) {
+                        difference = testDifference;
+                        sizeUncompressed = files[i].length();
+                    }
+                }
+
+                Arrays.sort(files, (o1, o2) -> Long.compare(o2.lastModified(), o1.lastModified()));
+                File backupCompressed = null;
+                for(File file : files) {
+                    if(file.length() < sizeUncompressed) {
+                        backupCompressed = file;
+                        break;
+                    }
+                }
+                if(backupCompressed != null) {
+                    try {
+                        File locale = DCTools.getDCLocalePath();
+                        File restoreBackup = new File(locale.getParent(), "locale_restore_backup.pck.bak");
+                        if(restoreBackup.exists() && restoreBackup.isFile())
+                            restoreBackup.delete();
+                        FileUtils.moveFile(locale, restoreBackup);
+                        FileUtils.moveFile(backupCompressed, locale);
+
+                        msg = String.format("Restored %s", backupCompressed.getName().replaceAll("\\.bak$", ""));
+                    }catch(Exception e) {
+                        msg = e.toString();
+                        e.printStackTrace();
+                    }
+                }else {
+                    msg = "No backup files found";
+                }
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNeutralButton("Cancel", null);
+        builder.show();
     }
 
     private void openRussianPatcher() {
-        LoadAssets.updateRussianPatch(context, (e, patch) -> new AsyncPatch(context, true).execute(patch));
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("Russian Patch");
+        builder.setItems(new String[] {"Apply", "Restore"}, (dialog, which) -> {
+            if(which == 0) {
+                LoadAssets.updateRussianPatch(context, (e, patch) -> new AsyncPatch(context, true).execute(patch));
+            }else if(which == 1) {
+                String msg;
 
+                File[] files = DCTools.getDCFilesPath().listFiles((dir, name) -> name.matches("^locale_.*\\.bak$"));
+                Arrays.sort(files, (o1, o2) -> Long.compare(o1.length(), o2.length()));
+                long sizeUncompressed = 0, difference = 0;
+                for(int i = 1; i < files.length; i++) {
+                    long testDifference = files[i].length() - files[i-1].length();
+                    if(testDifference > difference) {
+                        difference = testDifference;
+                        sizeUncompressed = files[i].length();
+                    }
+                }
+
+                Arrays.sort(files, (o1, o2) -> Long.compare(o2.lastModified(), o1.lastModified()));
+                File backupCompressed = null;
+                for(File file : files) {
+                    if(file.length() < sizeUncompressed) {
+                        backupCompressed = file;
+                        break;
+                    }
+                }
+                if(backupCompressed != null) {
+                    try {
+                        File locale = DCTools.getDCLocalePath();
+                        File restoreBackup = new File(locale.getParent(), "locale_restore_backup.pck.bak");
+                        if(restoreBackup.exists() && restoreBackup.isFile())
+                            restoreBackup.delete();
+                        FileUtils.moveFile(locale, restoreBackup);
+                        FileUtils.moveFile(backupCompressed, locale);
+
+                        msg = String.format("Restored %s", backupCompressed.getName().replaceAll("\\.bak$", ""));
+                    }catch(Exception e) {
+                        msg = e.toString();
+                        e.printStackTrace();
+                    }
+                }else {
+                    msg = "No backup files found";
+                }
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNeutralButton("Cancel", null);
+        builder.show();
+    }
+
+    private void openDCNewWiki() {
+        startActivity(new Intent(context, DCNewWikiActivity.class));
     }
 
     private void openDCWiki() {

@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="10dp">
+
+
+    <!-- Basic Search Input -->
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_search_basic" />
+    <EditText
+            android:id="@+id/search_input_basic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"/>
+
+
+    <!-- Skills Search Input -->
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_search_skills" />
+    <EditText
+            android:id="@+id/search_input_skills"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"/>
+
+    <!-- Skill Logic Menu -->
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Skill Logic"/>
+    <AutoCompleteTextView
+            android:id="@+id/search_menu_buff_logic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"/>
+
+    <!-- Exact Search Panel -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="10dp">
+
+        <!-- Character Idx Search -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+            <TextView
+                    android:text="Character Idx"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            <EditText
+                    android:id="@+id/search_input_idx"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <!-- Skill Idx Search -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+            <TextView
+                    android:text="Skill Idx"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            <EditText
+                    android:id="@+id/search_input_skill_idx"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+        <!-- Buff Idx Search -->
+        <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_weight="1">
+
+            <TextView
+                    android:text="Buff Idx"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+            <EditText
+                    android:id="@+id/search_input_buff_idx"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Attribute & Role Layout -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+        <!-- Attribute Selector -->
+        <LinearLayout
+                android:id="@+id/search_attribute_layout"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:layout_weight="1">
+
+            <ImageView
+                    android:id="@+id/search_attribute_water"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="1"
+                    android:src="@drawable/ic_element_water"/>
+
+            <ImageView
+                    android:id="@+id/search_attribute_fire"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="2"
+                    android:src="@drawable/ic_element_fire"/>
+
+            <ImageView
+                    android:id="@+id/search_attribute_forest"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="3"
+                    android:src="@drawable/ic_element_forest"/>
+
+            <ImageView
+                    android:id="@+id/search_attribute_light"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="4"
+                    android:src="@drawable/ic_element_light"/>
+
+            <ImageView
+                    android:id="@+id/search_attribute_dark"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="5"
+                    android:src="@drawable/ic_element_dark"/>
+
+        </LinearLayout>
+
+
+        <!-- Role Selector -->
+        <LinearLayout
+                android:id="@+id/search_role_layout"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:layout_weight="1"
+                android:gravity="center_vertical">
+
+            <ImageView
+                    android:id="@+id/search_role_attacker"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="1"
+                    android:src="@drawable/ic_type_attacker"/>
+            <ImageView
+                    android:id="@+id/search_role_defender"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="2"
+                    android:src="@drawable/ic_type_tank"/>
+            <ImageView
+                    android:id="@+id/search_role_healer"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="3"
+                    android:src="@drawable/ic_type_healer"/>
+            <ImageView
+                    android:id="@+id/search_role_debuffer"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="4"
+                    android:src="@drawable/ic_type_debuffer"/>
+            <ImageView
+                    android:id="@+id/search_role_support"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:adjustViewBounds="true"
+                    android:tag="5"
+                    android:src="@drawable/ic_type_support"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Stars Selector Layout -->
+    <LinearLayout
+            android:id="@+id/search_stars_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/item_margin"
+            android:orientation="horizontal">
+
+        <ImageView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.8"
+                android:tag="0"
+                android:src="@drawable/ic_refresh_white"/>
+
+        <ImageView
+                android:id="@+id/search_star_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="1"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="2"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="3"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="4"
+                android:src="@drawable/ic_star"/>
+
+        <ImageView
+                android:id="@+id/search_star_5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:adjustViewBounds="true"
+                android:alpha="0.5"
+                android:tag="5"
+                android:src="@drawable/ic_star"/>
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -2,7 +2,9 @@
     <string name="app_name">Mammon\'s Mite</string>
 
     <string name="disclaimer_title">** ! DISCLAIMER ! **</string>
-    <string name="disclaimer_message">This is really experimental, might and probably will cause problems.\nYou can test it out for the time apk is open, or save to be your default settings by the Save button at the bottom.\n\nTo reset to default long press the input field.
+    <string name="disclaimer_message">This is really experimental, might and probably will cause problems.\nYou can test
+        it out for the time apk is open, or save to be your default settings by the Save button at the bottom.\n\nTo
+        reset to default long press the input field.
     </string>
     <string name="swap_from">Swap from:</string>
     <string name="swap_to">Swap to:</string>
@@ -82,8 +84,11 @@
     <string name="text_version">Version</string>
     <string name="text_translated">Translated</string>
     <string name="text_search">Search</string>
+    <string name="text_search_basic">Search skin names and view idx</string>
+    <string name="text_search_skills">Search buff names and logic</string>
     <string name="text_join_discord">Join Discord!!!</string>
     <string name="text_wiki">Wiki</string>
+    <string name="text_new_wiki">New Wiki</string>
 
     <string name="markup_arrow_right">=></string>
 

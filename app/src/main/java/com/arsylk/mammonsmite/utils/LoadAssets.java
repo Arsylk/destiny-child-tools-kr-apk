@@ -20,6 +20,7 @@ import static com.arsylk.mammonsmite.utils.Define.*;
 
 public class LoadAssets  {
     private static final int TAG_ASSETS = 732;
+    private static final int TAG_DUMP_DATA = 733;
 
     public static void guiFullLoad(Context context, final Utils.Callback callback) {
         new AsyncLoadAssets(context, true) {
@@ -185,6 +186,30 @@ public class LoadAssets  {
                 }
             }
         });
+    }
+
+    public static Future updateDumpData(Context context, String dump_asset) {
+        File dump_file = new File(DUMP_DATA_DIRECTORY, String.format("%s.json", dump_asset));
+        return Ion.with(context)
+                .load(String.format(REMOTE_ASSET_DUMP_DATA, dump_asset, Utils.md5(dump_file)))
+                .group(TAG_DUMP_DATA)
+                .asString(Charset.forName("utf-8")).setCallback((e, result) -> {
+                    if(e == null) {
+                        if(result.isEmpty()) {
+                            Log.d("mTag:Assets", String.format("Dump Data %s is up-to-date!", dump_asset));
+                            return;
+                        }
+                        try {
+                            FileUtils.write(dump_file, result, Charset.forName("utf-8"));
+                            Log.d("mTag:Assets", String.format("Dump Data %s updated!", dump_asset));
+                        }catch(Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }else {
+                        e.printStackTrace();
+                    }
+                }
+            );
     }
 
     public static boolean updateInProgress(Context context) {

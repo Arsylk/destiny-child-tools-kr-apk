@@ -150,7 +150,7 @@ public class DCWiki {
                 case 1:
                     return R.drawable.ic_element_water;
                 case 2:
-                    return R.drawable.ic_element_wind;
+                    return R.drawable.ic_element_forest;
                 case 3:
                     return R.drawable.ic_element_light;
                 case 4:
@@ -167,7 +167,7 @@ public class DCWiki {
                 case 1:
                     return R.drawable.frame_element_water;
                 case 2:
-                    return R.drawable.frame_element_wind;
+                    return R.drawable.frame_element_forest;
                 case 3:
                     return R.drawable.frame_element_light;
                 case 4:
@@ -542,7 +542,7 @@ public class DCWiki {
                     0,
                     R.drawable.ic_element_fire,
                     R.drawable.ic_element_water,
-                    R.drawable.ic_element_wind,
+                    R.drawable.ic_element_forest,
                     R.drawable.ic_element_light,
                     R.drawable.ic_element_dark
             })[element+1];

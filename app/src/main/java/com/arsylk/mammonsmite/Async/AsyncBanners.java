@@ -5,6 +5,7 @@ import com.arsylk.mammonsmite.Async.interfaces.OnBannerPost;
 import com.arsylk.mammonsmite.DestinyChild.DCBanners;
 import com.arsylk.mammonsmite.utils.Define;
 import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -45,7 +46,10 @@ public class AsyncBanners extends AsyncWithDialog<DCBanners, DCBanners.Banner, D
         publishProgress();
         try{
             // load document
-            Document document = Jsoup.connect("https://cafe.naver.com/MyCafeIntro.nhn?clubid=27917479").get();
+            String ghettoFix = Ion.with(context.get())
+                    .load("https://cafe.naver.com/MyCafeIntro.nhn?clubid=27917479")
+                    .setTimeout(5000).asString().get();
+            Document document = Jsoup.parse(ghettoFix);
             Elements elements = document.select("#editorMainContent a[href]");
 
 

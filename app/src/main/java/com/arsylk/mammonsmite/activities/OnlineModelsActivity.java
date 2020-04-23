@@ -10,6 +10,7 @@ import com.arsylk.mammonsmite.Adapters.OnlineModelItem;
 import com.arsylk.mammonsmite.Adapters.OnlineModelsAdapter;
 import com.arsylk.mammonsmite.Async.AsyncOnlineModels;
 import com.arsylk.mammonsmite.R;
+import com.arsylk.mammonsmite.utils.Log;
 import com.arsylk.mammonsmite.utils.Utils;
 
 public class OnlineModelsActivity extends ActivityWithExceptionRedirect {
@@ -63,17 +64,13 @@ public class OnlineModelsActivity extends ActivityWithExceptionRedirect {
 
         // load online models
         asyncLoading = new AsyncOnlineModels(context, false);
-        asyncLoading.setOnProgressUpdate(new Utils.OnProgressUpdate<OnlineModelItem>() {
-            @Override
-            public void onProgressUpdate(OnlineModelItem item) {
-                adapter.addItem(item);
-            }
+        asyncLoading.setOnProgressUpdate(item -> {
+            Log.append(OnlineModelsActivity.class.getSimpleName(), "progressUpdate: "+item.toString());
+            adapter.addItem(item);
         });
-        asyncLoading.setOnPostExecute(new Utils.OnPostExecute<Boolean>() {
-            @Override
-            public void onPostExecute(Boolean item) {
-                adapter.setFullyLoaded(!item);
-            }
+        asyncLoading.setOnPostExecute(item -> {
+            Log.append(OnlineModelsActivity.class.getSimpleName(),"fullyLoaded: "+(!item));
+            adapter.setFullyLoaded(!item);
         });
         asyncLoading.execute(offset);
     }

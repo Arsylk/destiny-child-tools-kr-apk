@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <LinearLayout
+                android:id="@+id/new_wiki_layout_header"
+                android:layout_width="match_parent"
+                android:layout_height="128dp"
+                android:orientation="horizontal"
+                android:baselineAligned="false">
+
+            <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:padding="5dp">
+
+                <TextView
+                        android:id="@+id/new_wiki_text_name"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:textAlignment="viewStart"
+                        android:textStyle="bold"
+                        android:textSize="22sp"/>
+
+                <TextView
+                        android:id="@+id/new_wiki_text_skin"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                <View android:layout_height="0dp" android:layout_width="match_parent" android:layout_weight="1"/>
+
+                <TextView
+                        android:id="@+id/new_wiki_text_idx"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="end"
+                        android:textAlignment="viewEnd"
+                        android:textSize="20sp"
+                        android:enabled="false"/>
+
+
+            </LinearLayout>
+
+
+            <RelativeLayout
+                    android:id="@+id/new_wiki_layout_icon"
+                    android:layout_width="128dp"
+                    android:layout_height="128dp">
+
+                <ImageView
+                        android:id="@+id/new_wiki_image_icon"
+                        android:layout_width="128dp"
+                        android:layout_height="128dp"/>
+
+                <ImageView
+                        android:id="@+id/new_wiki_image_overlay"
+                        android:layout_width="128dp"
+                        android:layout_height="128dp"/>
+
+                <RelativeLayout
+                        android:id="@+id/new_wiki_layout_stars"
+                        android:layout_width="match_parent"
+                        android:layout_height="36dp"
+                        android:layout_alignParentBottom="true">
+
+                    <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="0dp"
+                            android:layout_marginStart="0dp"
+                            android:src="@drawable/ic_star"
+                            android:visibility="gone"/>
+                    <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="21dp"
+                            android:layout_marginStart="21dp"
+                            android:src="@drawable/ic_star"
+                            android:visibility="gone"/>
+                    <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="42dp"
+                            android:layout_marginStart="42dp"
+                            android:src="@drawable/ic_star"
+                            android:visibility="gone"/>
+                    <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="63dp"
+                            android:layout_marginStart="63dp"
+                            android:src="@drawable/ic_star"
+                            android:visibility="gone"/>
+                    <ImageView
+                            android:layout_width="36dp"
+                            android:layout_height="36dp"
+                            android:layout_marginLeft="84dp"
+                            android:layout_marginStart="84dp"
+                            android:src="@drawable/ic_star"
+                            android:visibility="gone"/>
+
+                </RelativeLayout>
+
+                <ImageView
+                        android:id="@+id/new_wiki_image_role"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_alignParentEnd="true"/>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+                android:id="@+id/new_wiki_layout_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="8dp">
+
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"/>
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"/>
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"/>
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"/>
+            <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAlignment="center"/>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+                android:id="@+id/new_wiki_layout_skills"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="5dp">
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>

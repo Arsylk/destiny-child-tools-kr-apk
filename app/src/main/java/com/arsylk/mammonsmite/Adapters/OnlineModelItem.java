@@ -89,4 +89,22 @@ public class OnlineModelItem {
     public Bitmap getPreviewBitmap() {
         return bitmap;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append(" modelUrl: ");
+        sb.append(modelUrl);
+        sb.append("previewUrl: ");
+        sb.append(previewUrl);
+        sb.append(" id: ");
+        sb.append(id);
+        sb.append(" modelId: ");
+        sb.append(modelId);
+        sb.append(" modelName: ");
+        sb.append(modelName);
+        sb.append(" }");
+        return sb.toString();
+    }
 }

@@ -1,6 +1,8 @@
 package com.arsylk.mammonsmite.views;
 
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,6 +21,7 @@ public class BigTextDialog extends AlertDialog.Builder {
     private String title;
     private String bigText;
     private String[] lines;
+    private String filename = null;
 
 
     public BigTextDialog(Context context, String title, String bigText) {
@@ -41,16 +44,25 @@ public class BigTextDialog extends AlertDialog.Builder {
 
 
         //buttons
-        setPositiveButton("Save", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    File file = new File(Define.BASE_DIRECTORY, title+"_"+System.currentTimeMillis()+".json");
-                    FileUtils.write(file, bigText, Charset.forName("utf-8"));
-                    Toast.makeText(context, "Saved to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-                }catch(Exception e) {
-                    e.printStackTrace();
-                }
+        setPositiveButton("Save", (dialog, which) -> {
+            try {
+                String name = filename != null ? filename : title+"_"+System.currentTimeMillis()+".json";
+                File file = new File(Define.BASE_DIRECTORY, name);
+                FileUtils.write(file, bigText, Charset.forName("utf-8"));
+                Toast.makeText(context, "Saved to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+        });
+        setNeutralButton("Copy", (dialog, which) -> {
+            try {
+                ClipboardManager clipboardManager = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clipData = ClipData.newPlainText(filename != null ? filename : title, bigText);
+                clipboardManager.setPrimaryClip(clipData);
+
+                Toast.makeText(context, "Copied to clipboard!", Toast.LENGTH_SHORT).show();
+            }catch(Exception e) {
+                e.printStackTrace();
             }
         });
         setNegativeButton("Cancel", null);
@@ -126,5 +138,9 @@ public class BigTextDialog extends AlertDialog.Builder {
         recyclerView.setAdapter(new LineListAdapter(lines));
 
         return recyclerView;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }

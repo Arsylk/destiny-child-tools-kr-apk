@@ -16,7 +16,7 @@
 
                 <item
                         android:id="@+id/search_element_wind"
-                        android:icon="@drawable/ic_element_wind"
+                        android:icon="@drawable/ic_element_forest"
                         android:title="@string/wiki_wind" />
 
                 <item

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <!-- Skill Name | Skill Idx -->
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="start">
+
+        <TextView
+                android:id="@+id/new_wiki_item_skill_name"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="start"
+                android:textAlignment="viewStart"
+                android:textStyle="bold"
+                android:textSize="16sp"/>
+
+        <TextView
+                android:id="@+id/new_wiki_item_skill_idx"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:textAlignment="viewEnd"
+                android:textSize="16sp"
+                android:enabled="false"/>
+
+    </LinearLayout>
+
+    <!-- Skill Text -->
+    <TextView
+            android:id="@+id/new_wiki_item_skill_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"/>
+
+    <!-- Skill Buff Container -->
+    <LinearLayout
+            android:id="@+id/new_wiki_item_skill_buffs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <include
+                layout="@layout/item_new_wiki_buff"
+                android:id="@+id/new_wiki_item_skill_buff_0"
+                android:visibility="gone"/>
+
+        <include
+                layout="@layout/item_new_wiki_buff"
+                android:id="@+id/new_wiki_item_skill_buff_1"
+                android:visibility="gone"/>
+        <include
+                layout="@layout/item_new_wiki_buff"
+                android:id="@+id/new_wiki_item_skill_buff_2"
+                android:visibility="gone"/>
+        <include
+                layout="@layout/item_new_wiki_buff"
+                android:id="@+id/new_wiki_item_skill_buff_3"
+                android:visibility="gone"/>
+        <include
+                layout="@layout/item_new_wiki_buff"
+                android:id="@+id/new_wiki_item_skill_buff_4"
+                android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <!-- Padding Bottom -->
+    <View android:layout_width="0dp" android:layout_height="12dp"/>
+
+</LinearLayout>

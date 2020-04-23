@@ -30,7 +30,6 @@
 
     </LinearLayout>
 
-
     <!-- thumbnail -->
     <RelativeLayout
             android:id="@+id/thumbnail_layout"

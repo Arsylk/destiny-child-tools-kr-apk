@@ -19,6 +19,7 @@ import com.arsylk.mammonsmite.Live2D.L2DModel;
 import com.arsylk.mammonsmite.R;
 import com.arsylk.mammonsmite.activities.DCModelsActivity;
 import com.arsylk.mammonsmite.utils.Define;
+import com.arsylk.mammonsmite.utils.Log;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
@@ -40,8 +41,6 @@ public class OnlineModelsAdapter extends BaseAdapter {
         this.onlineModels = new ArrayList<>();
     }
 
-    //methods
-    @SuppressLint("InflateParams")
     public View getLoaderView() {
         if(loaderView == null) {
             loaderView = ((LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE))
@@ -76,27 +75,22 @@ public class OnlineModelsAdapter extends BaseAdapter {
             mod_description.setText(onlineModel.getDescription());
 
 
-            convertView.findViewById(R.id.layout_mod_metadata).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    final ProgressDialog progressDialog = new ProgressDialog(context);
-                    progressDialog.setCancelable(false);
-                    progressDialog.setMessage("Downloading...");
-                    progressDialog.show();
-                    Ion.with(context).load(onlineModel.getModelUrl())
-                            .progressDialog(progressDialog)
-                            .asInputStream().setCallback(new FutureCallback<InputStream>() {
-                        @Override
-                        public void onCompleted(Exception e, InputStream in) {
+            convertView.findViewById(R.id.layout_mod_metadata).setOnClickListener(v -> {
+                final ProgressDialog progressDialog = new ProgressDialog(context);
+                progressDialog.setCancelable(false);
+                progressDialog.setMessage("Downloading...");
+                progressDialog.show();
+                Ion.with(context).load(onlineModel.getModelUrl()).setTimeout(0)
+                        .progressDialog(progressDialog)
+                        .asInputStream().setCallback((e, in) -> {
                             progressDialog.dismiss();
                             if(e == null) {
                                 onFileLoaded(onlineModel, in);
                             }else {
+                                e.printStackTrace();
                                 Toast.makeText(context, "Failed to download!", Toast.LENGTH_SHORT).show();
                             }
-                        }
-                    });
-                }
+                        });
             });
 
             // image layout
@@ -106,6 +100,7 @@ public class OnlineModelsAdapter extends BaseAdapter {
                 onBitmapLoaded(image_preview, onlineModel.getPreviewBitmap());
             }
         }catch(Exception e) {
+            Log.append(e.getClass().getSimpleName(), e.toString());
             e.printStackTrace();
         }
 
@@ -160,21 +155,19 @@ public class OnlineModelsAdapter extends BaseAdapter {
             //save file
             File downloadedFile = new File(Define.ONLINE_DIRECTORY,modelItem.getModelId()+"."+modelItem.getCreator().toLowerCase()+".pck");
             FileUtils.copyInputStreamToFile(in, downloadedFile);
-            DCTools.asyncUnpack(downloadedFile, context, new OnUnpackFinishedListener() {
-                @Override
-                public void onFinished(DCModel dcModel) {
-                    if(dcModel != null) {
-                        if(dcModel.isLoaded()) {
-                            L2DModel l2DModel = dcModel.asL2DModel();
-                            l2DModel.setModelInfoJson(modelItem.getModelInfo());
-                            DCModelsActivity.showPickAction(context, l2DModel);
-                        }
-                    }else {
-                        Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
+            DCTools.asyncUnpack(downloadedFile, context, dcModel -> {
+                if(dcModel != null) {
+                    if(dcModel.isLoaded()) {
+                        L2DModel l2DModel = dcModel.asL2DModel();
+                        l2DModel.setModelInfoJson(modelItem.getModelInfo());
+                        DCModelsActivity.showPickAction(context, l2DModel);
                     }
+                }else {
+                    Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                 }
             });
         }catch(Exception e) {
+            Log.append(e.getClass().getSimpleName(), e.toString());
             e.printStackTrace();
         }
     }
@@ -183,6 +176,7 @@ public class OnlineModelsAdapter extends BaseAdapter {
     public void addItem(OnlineModelItem modelItem) {
         onlineModels.add(modelItem);
         notifyDataSetChanged();
+        Log.append(OnlineModelsAdapter.class.getSimpleName(), "addItem: "+modelItem.toString());
     }
 
     @Override
