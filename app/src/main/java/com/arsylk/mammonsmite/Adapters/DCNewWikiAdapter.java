@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.Build;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
@@ -93,24 +92,27 @@ public class DCNewWikiAdapter extends BaseAdapter implements Filterable {
 
         // TODO TESTING
         LinkedHashMap<String, String> nnn = DCNewWiki.getBuffLogicList();
-        ArrayAdapter zzz = new ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, Utils.forloop(nnn.keySet().iterator())) {
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View v = super.getDropDownView(position, convertView, parent);
-
-                TextView t = v.findViewById(android.R.id.text1);
-                String logic = t.getText().toString();
-                File buffIconFile = new File(DCTools.Resources.DC_FILES_DIRECTORY, String.format("effect/battle/buff/%s/img/value.png", nnn.get(logic)));
-                Bitmap bitmap = BitmapFactory.decodeFile(buffIconFile.getAbsolutePath());
-
-                SpannableStringBuilder ssb = new SpannableStringBuilder("  "+logic);
-                ssb.setSpan(new ImageSpan(context, bitmap), 0, 1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
-                t.setText(ssb, TextView.BufferType.SPANNABLE);
-
-                return v;
-            }
-        };
-        controller.buffLogicMenu.setAdapter(zzz);
+        AutocompleteAdapter autocompleteAdapter = new AutocompleteAdapter(context, nnn);
+        controller.buffLogicMenu.setAdapter(autocompleteAdapter);
+//        ArrayAdapter zzz = new AutocompleteAdapter(context, Utils.forloop(nnn.keySet().iterator())) {
+//            @Override
+//            public View getView(int position, View convertView, ViewGroup parent) {
+//                View v = super.getDropDownView(position, convertView, parent);
+//
+//                TextView t = v.findViewById(android.R.id.text1);
+//                String idx = t.getText().toString();
+//                String logic = nnn.get(idx);
+//
+//                File buffIconFile = new File(DCTools.Resources.DC_FILES_DIRECTORY, String.format("effect/battle/buff/%s/img/value.png", idx));
+//                Bitmap bitmap = BitmapFactory.decodeFile(buffIconFile.getAbsolutePath());
+//
+//                SpannableStringBuilder ssb = new SpannableStringBuilder(String.format(" %s", logic));
+//                ssb.setSpan(new ImageSpan(context, bitmap), 0, 1, Spanned.SPAN_INCLUSIVE_INCLUSIVE);
+//                t.setText(ssb, TextView.BufferType.SPANNABLE);
+//
+//                return v;
+//            }
+//        };
     }
 
     @Override
@@ -228,6 +230,7 @@ public class DCNewWikiAdapter extends BaseAdapter implements Filterable {
         public void showControllerPopup() {
             if(dialog == null) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Search");
                 builder.setView(view);
                 builder.setPositiveButton("Ok", (dialog, which) -> {
                     adapter.getFilter().filter("meme");

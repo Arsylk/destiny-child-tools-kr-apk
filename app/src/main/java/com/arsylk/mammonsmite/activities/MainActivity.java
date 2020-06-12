@@ -33,17 +33,23 @@ import com.arsylk.mammonsmite.DestinyChild.DCTools;
 import com.arsylk.mammonsmite.Live2D.L2DModel;
 import com.arsylk.mammonsmite.R;
 import com.arsylk.mammonsmite.utils.Define;
+import com.arsylk.mammonsmite.utils.EquationParser;
 import com.arsylk.mammonsmite.utils.LoadAssets;
 import com.arsylk.mammonsmite.utils.Utils;
 import com.arsylk.mammonsmite.views.PickWhichDialog;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.arsylk.mammonsmite.utils.Define.*;
 
@@ -393,7 +399,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             }else if(which == 1) {
                 String msg;
 
-                File[] files = DCTools.getDCFilesPath().listFiles((dir, name) -> name.matches("^locale_.*\\.bak$"));
+                File[] files = DCTools.getDCFilesPath().listFiles((dir, name) -> name.matches(PATTERN_LOCALE_DATE.pattern()));
                 Arrays.sort(files, (o1, o2) -> Long.compare(o1.length(), o2.length()));
                 long sizeUncompressed = 0, difference = 0;
                 for(int i = 1; i < files.length; i++) {
@@ -404,7 +410,26 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                     }
                 }
 
-                Arrays.sort(files, (o1, o2) -> Long.compare(o2.lastModified(), o1.lastModified()));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Arrays.sort(files, (o1, o2) -> {
+                    long l1 = o1.lastModified(), l2 = o2.lastModified();
+                    try {
+                        Matcher m1 = PATTERN_LOCALE_DATE.matcher(o1.getName());
+                        if(m1.find()) {
+                            l1 = dateFormat.parse(m1.group(1)).getTime();
+                        }
+                        Matcher m2 = PATTERN_LOCALE_DATE.matcher(o2.getName());
+                        if(m2.find()) {
+                            l2 = dateFormat.parse(m2.group(1)).getTime();
+                        }
+                    }catch(Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    return Long.compare(l2, l1);
+                });
+
+
                 File backupCompressed = null;
                 for(File file : files) {
                     if(file.length() < sizeUncompressed) {
@@ -445,7 +470,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             }else if(which == 1) {
                 String msg;
 
-                File[] files = DCTools.getDCFilesPath().listFiles((dir, name) -> name.matches("^locale_.*\\.bak$"));
+                File[] files = DCTools.getDCFilesPath().listFiles((dir, name) -> name.matches(PATTERN_LOCALE_DATE.pattern()));
                 Arrays.sort(files, (o1, o2) -> Long.compare(o1.length(), o2.length()));
                 long sizeUncompressed = 0, difference = 0;
                 for(int i = 1; i < files.length; i++) {
@@ -456,7 +481,26 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                     }
                 }
 
-                Arrays.sort(files, (o1, o2) -> Long.compare(o2.lastModified(), o1.lastModified()));
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yyyy");
+                Arrays.sort(files, (o1, o2) -> {
+                    long l1 = o1.lastModified(), l2 = o2.lastModified();
+                    try {
+                        Matcher m1 = PATTERN_LOCALE_DATE.matcher(o1.getName());
+                        if(m1.find()) {
+                            l1 = dateFormat.parse(m1.group(1)).getTime();
+                        }
+                        Matcher m2 = PATTERN_LOCALE_DATE.matcher(o2.getName());
+                        if(m2.find()) {
+                            l2 = dateFormat.parse(m2.group(1)).getTime();
+                        }
+                    }catch(Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    return Long.compare(l2, l1);
+                });
+
+
                 File backupCompressed = null;
                 for(File file : files) {
                     if(file.length() < sizeUncompressed) {

@@ -46,6 +46,7 @@ public final class Define {
             "SKILL_ACTIVE_DATA",
             "SKILL_BUFF_DATA",
             "IGNITION_CHARACTER_SKILL_DATA",
+            "SKILL_LEVEL_EQUATIONS",
             "english_patch",
     };
 
@@ -90,6 +91,7 @@ public final class Define {
 
     public static final Pattern PATTERN_BANNER_DATE = Pattern.compile(".*(\\d{1,2})월\\D*?(\\d{1,2})일.*?(\\d{1,2})월\\D*?(\\d{1,2})일.*");
     public static final Pattern PATTERN_BANNER_DATE_TIME = Pattern.compile(".*(\\d{1,2})월\\D*?(\\d{1,2})일\\D*?(\\d{1,2})시.*?(\\d{1,2})월\\D*?(\\d{1,2})일\\D*?(\\d{1,2})시.*");
+    public static final Pattern PATTERN_LOCALE_DATE = Pattern.compile("^locale_(\\d{2}-\\d{2}-\\d{4})\\.pck\\.bak$");
 
 
     public static final String[] CHILD_ATTRIBUTE_NAME = new String[] {

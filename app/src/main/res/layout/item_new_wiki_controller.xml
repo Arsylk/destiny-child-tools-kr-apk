@@ -38,7 +38,8 @@
             android:id="@+id/search_menu_buff_logic"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:lines="1"/>
 
     <!-- Exact Search Panel -->
     <LinearLayout
@@ -62,7 +63,8 @@
             <EditText
                     android:id="@+id/search_input_idx"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:lines="1"/>
 
         </LinearLayout>
 
@@ -76,7 +78,8 @@
             <TextView
                     android:text="Skill Idx"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:lines="1"/>
 
             <EditText
                     android:id="@+id/search_input_skill_idx"
@@ -100,7 +103,8 @@
             <EditText
                     android:id="@+id/search_input_buff_idx"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:lines="1"/>
 
         </LinearLayout>
 

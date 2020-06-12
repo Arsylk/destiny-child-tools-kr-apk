@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -125,6 +126,7 @@ public class DCNewWikiActivity extends AppCompatActivity {
         TextView skinView = childItemView.findViewById(R.id.new_wiki_text_skin);
         ViewGroup skillsViewGroup = childItemView.findViewById(R.id.new_wiki_layout_skills);
         skillsViewGroup.removeAllViews();
+        TextView skillLevelView = childItemView.findViewById(R.id.search_level_label);
 
 
         // load & display images
@@ -152,6 +154,41 @@ public class DCNewWikiActivity extends AppCompatActivity {
 
             return true;
         });
+
+        // fill search seek bar
+        SeekBar seekBar = childItemView.findViewById(R.id.search_level);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                // set values
+                skillLevelView.setText(String.format("Level: %d", progress+1));
+                child.setLevel(progress+1);
+
+                // generate skills
+                try {
+                    for(int i = 0; i < skillsViewGroup.getChildCount(); i++) {
+                        View view = skillsViewGroup.getChildAt(i);
+                        if(view.getTag() instanceof DCNewWiki.Skill) {
+                            DCNewWiki.Skill skillTag = (DCNewWiki.Skill) view.getTag();
+                            skillTag.setLevel(progress+1);
+                            fillSkillView(skillTag, view);
+                        }
+                    }
+                }catch(Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        seekBar.setProgress(69);
 
         // fill status values
         for(int i = 0; i < statusViewGroup.getChildCount(); i++) {
@@ -182,8 +219,9 @@ public class DCNewWikiActivity extends AppCompatActivity {
                 if(skillTag.ignited) {
                     fillSkillView(child.getSkill(skill.type), view);
                 }else {
-                    if(child.getIgnitedSkill(skill.type) != null)
+                    if(child.getIgnitedSkill(skill.type) != null) {
                         fillSkillView(child.getIgnitedSkill(skill.type), view);
+                    }
                 }
             }
         });

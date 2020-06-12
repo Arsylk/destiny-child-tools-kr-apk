@@ -70,7 +70,7 @@
                 android:enabled="@string/isSpecial"
                 android:label="Online Models">
         </activity>
-        <activity android:name=".activities.DCNewWikiActivity"
+        <activity android:name=".activities.DCNewWikiActivity" android:exported="true"
                   android:label="@string/text_new_wiki"
                   android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>

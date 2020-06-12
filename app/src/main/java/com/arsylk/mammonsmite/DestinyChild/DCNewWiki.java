@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.util.Pair;
 import com.arsylk.mammonsmite.Async.CachedImage;
 import com.arsylk.mammonsmite.utils.Define;
+import com.arsylk.mammonsmite.utils.EquationParser;
 import com.arsylk.mammonsmite.utils.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,6 +23,7 @@ public class DCNewWiki {
     public static JSONObject IGNITION_SKILL_DATA = null;
     public static JSONObject SKILL_TEXT_DATA = null;
     public static JSONObject CHARACTER_TEXT_DATA = null;
+    public static JSONObject SKILL_LEVEL_EQUATIONS = null;
     public static List<Child> ALL_CHILDREN = new ArrayList<>();
     public static void load() throws Exception {
         CHARACTER_DATA = Utils.fileToJson(new File(Define.DUMP_DATA_DIRECTORY, String.format("%s.json", Define.DUMP_DATA[0])));
@@ -29,8 +31,9 @@ public class DCNewWiki {
         SKILL_ACTIVE_DATA = Utils.fileToJson(new File(Define.DUMP_DATA_DIRECTORY, String.format("%s.json", Define.DUMP_DATA[2])));
         SKILL_BUFF_DATA = Utils.fileToJson(new File(Define.DUMP_DATA_DIRECTORY, String.format("%s.json", Define.DUMP_DATA[3])));
         IGNITION_SKILL_DATA = Utils.fileToJson(new File(Define.DUMP_DATA_DIRECTORY, String.format("%s.json", Define.DUMP_DATA[4])));
+        SKILL_LEVEL_EQUATIONS = Utils.fileToJson(new File(Define.DUMP_DATA_DIRECTORY, String.format("%s.json", Define.DUMP_DATA[5])));
 
-        JSONObject localeJson = Utils.fileToJson(new File(Define.DUMP_DATA_DIRECTORY, String.format("%s.json", Define.DUMP_DATA[5])));
+        JSONObject localeJson = Utils.fileToJson(new File(Define.DUMP_DATA_DIRECTORY, String.format("%s.json", Define.DUMP_DATA[6])));
         SKILL_TEXT_DATA = localeJson.getJSONObject("files").getJSONObject("f80a001a49cfda65").getJSONObject("dict");
         CHARACTER_TEXT_DATA = localeJson.getJSONObject("files").getJSONObject("c40e0023a077cb28").getJSONObject("dict");
 
@@ -59,6 +62,7 @@ public class DCNewWiki {
         public String idx;
         public String name;
         public int attribute, role, grade;
+        public int level = 1;
         public List<Pair<String, Integer>> status;
         public LinkedHashMap<String, Skill> skills;
         public LinkedHashMap<String, Skill> skills_ignited;
@@ -177,6 +181,11 @@ public class DCNewWiki {
             }
         }
 
+        public void setLevel(int level) {
+            this.level = Math.min(Math.max(level, 1), 70);
+            for(Skill skill : skills.values()) skill.setLevel(this.level);
+            for(Skill skill : skills_ignited.values()) skill.setLevel(this.level);
+        }
 
         public CachedImage getIcon() {
             return image;
@@ -213,6 +222,7 @@ public class DCNewWiki {
         public int attribute, type, cost, gauge_per_sec, time_cool;
         public List<SkillPart> parts;
         public boolean ignited = false;
+        public int level = 1;
 
         public Skill(String idx) {
             this.idx = idx;
@@ -237,6 +247,11 @@ public class DCNewWiki {
             for(int i = 0; i < 5; i++) {
                 parts.add(new SkillPart(json, i));
             }
+        }
+
+        public void setLevel(int level) {
+            this.level = level;
+            for(SkillPart part : parts) part.level = level;
         }
 
         public String getName() {
@@ -265,16 +280,22 @@ public class DCNewWiki {
             String text = getText();
             if(text != null) {
                 for(SkillPart part : parts) {
-                    String valueText = part.value_type == 1 ? String.format("%d", part.value) : String.format("%d%%", part.value/10);
+                    int value = part.getValueForLevel();
+                    String valueText = String.format("%d", value);
+                    if(part.value_type == 2) {
+                        valueText = (value % 10 == 0)
+                                ? String.format("%d%%", value/10)
+                                : String.format("%.01f%%", (float) value/10);
+                    }
                     if(part.value_type == 2 && text.contains("{value}") && text.contains("{p_value}")) {
-                        text = text.replaceAll(String.format("\\{%s\\}", part.makeKey("value")), String.format("%d", part.value));
+                        text = text.replaceAll(String.format("\\{%s\\}", part.makeKey("value")), String.format("%d", value));
                     }
 
                     text = text.replaceAll(String.format("\\{%s\\}", part.makeKey("value")), valueText);
                     text = text.replaceAll(String.format("\\{%s\\}", part.makeKey("p_value")), valueText);
                     text = text.replaceAll(String.format("\\{%s\\}", part.makeKey("h_value")), valueText);
 
-                    String durationText = String.format("%d Seconds", part.duration);
+                    String durationText = String.format("%d", part.duration);
                     text = text.replaceAll(String.format("\\{%s\\}", part.makeKey("duration")), durationText);
                 }
             }
@@ -287,11 +308,14 @@ public class DCNewWiki {
         public JSONObject buff_json = null;
         public String buff_idx = "", buff_logic = "";
         public String buff_name = "", buff_icon = "", buff_description = "";
+        public int level = 1;
         private int part_num;
         private int duration, duration_type, duration_time;
         private String n_attack, target;
-        private int target_fit;
-        private int value, value_type;
+        private int target_fit, value, value_type;
+        private int level_equation_idx;
+        private String level_equation;
+
 
         public SkillPart(JSONObject skillJson, int part_num) {
             this.part_num = part_num;
@@ -321,6 +345,12 @@ public class DCNewWiki {
             // value & type
             value = skillJson.getInt(makeKey("value"));
             value_type = skillJson.getInt(makeKey("value")+"_type");
+
+            // level equation
+            level_equation_idx = skillJson.getInt(makeKey("level_equation"));
+            if(SKILL_LEVEL_EQUATIONS.has(String.valueOf(level_equation_idx))) {
+                level_equation = SKILL_LEVEL_EQUATIONS.getString(String.valueOf(level_equation_idx));
+            }
 
             // buff info
             if(skillJson.has(makeKey("buff"))) {
@@ -361,19 +391,31 @@ public class DCNewWiki {
             }
             return null;
         }
+
+        public int getValueForLevel() {
+            return EquationParser.Companion.parse(level_equation, value, level);
+        }
     }
 
     public static LinkedHashMap<String, String> getBuffLogicList() {
         LinkedHashMap<String, String> logicList = new LinkedHashMap<>();
-        for(String idx : Utils.forloop(SKILL_BUFF_DATA.keys())) {
+        for(String skillIdx : Utils.forloop(SKILL_ACTIVE_DATA.keys())) {
             try {
-                String logic = SKILL_BUFF_DATA.getJSONObject(idx).getString("logic");
-                if(logicList.get(logic) == null)
-                    logicList.put(logic, idx);
+                JSONObject skillData = SKILL_ACTIVE_DATA.getJSONObject(skillIdx);
+                for(int i = 1; i < 5; i++) {
+                    String key = String.format("buff_%d", i);
+                    String idx = skillData.getString(key);
+                    if(!idx.equalsIgnoreCase("0")) {
+                        String logic = SKILL_BUFF_DATA.getJSONObject(idx).getString("logic");
+                        if(logicList.get(idx) == null) logicList.put(idx, logic);
+                    }
+                }
             }catch(Exception e) {
                 e.printStackTrace();
             }
+
         }
+
         return logicList;
     }
 }

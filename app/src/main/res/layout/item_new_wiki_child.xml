@@ -169,6 +169,18 @@
                 android:padding="5dp">
         </LinearLayout>
 
+        <!-- Level Selector Layout -->
+        <TextView
+                android:id="@+id/search_level_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+        <SeekBar
+                android:id="@+id/search_level"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="5dp"
+                android:max="69"/>
+
     </LinearLayout>
 
 </ScrollView>
