@@ -71,29 +71,18 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 return;
             switch(requestCode) {
                 case REQUEST_FILE_UNPACK: {
-                    List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
-                    keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
-                    keyList.add(new PickWhichDialog.Option<>("Global",1));
-                    new PickWhichDialog<>(context, keyList).setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
+                    DCTools.asyncUnpack(file, context, new OnUnpackFinishedListener() {
                         @Override
-                        public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
-                            if(option != null){
-                                final int key = option.getObject();
-                                DCTools.asyncUnpack(file, key, context, new OnUnpackFinishedListener() {
-                                    @Override
-                                    public void onFinished(DCModel dcModel) {
-                                        if(dcModel != null) {
-                                            if(dcModel.isLoaded()) {
-                                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                                            }
-                                        }else {
-                                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                        public void onFinished(DCModel dcModel) {
+                            if(dcModel != null) {
+                                if(dcModel.isLoaded()) {
+                                    DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                                }
+                            }else {
+                                Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                             }
                         }
-                    }).show();
+                    });
                     break;
                 }
                 case REQUEST_FILE_PACK: {
@@ -187,23 +176,15 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
 
     private boolean handleIntent() {
         if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null) {
-            List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
-            keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
-            keyList.add(new PickWhichDialog.Option<>("Global",1));
-            new PickWhichDialog<>(context, keyList).setOnOptionPicked(option -> {
-                if(option != null){
-                    final int key = option.getObject();
-                    DCTools.asyncUnpack(new File(getIntent().getData().getPath()), key, context, dcModel -> {
-                        if(dcModel != null) {
-                            if(dcModel.isLoaded()) {
-                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                            }
-                        }else {
-                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            DCTools.asyncUnpack(new File(getIntent().getData().getPath()), context, dcModel -> {
+                if(dcModel != null) {
+                    if(dcModel.isLoaded()) {
+                        DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                    }
+                }else {
+                    Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                 }
-            }).show();
+            });
             return true;
         }
         return false;

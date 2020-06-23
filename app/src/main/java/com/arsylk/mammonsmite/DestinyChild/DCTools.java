@@ -12,6 +12,7 @@ import com.arsylk.mammonsmite.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.mammonsmite.Async.interfaces.OnPackFinishedListener;
 import com.arsylk.mammonsmite.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.mammonsmite.Live2D.L2DModel;
+import com.arsylk.mammonsmite.activities.DCModelsActivity;
 import com.arsylk.mammonsmite.activities.L2DModelsActivity;
 import com.arsylk.mammonsmite.utils.Define;
 import com.arsylk.mammonsmite.utils.LoadAssets;
@@ -237,14 +238,19 @@ public class DCTools {
 
     //unpacking pck files
     public static void asyncUnpack(File src, Context context, OnUnpackFinishedListener onUnpackFinishedListener) {
-        new AsyncUnpack(context, true)
-                .setOnUnpackFinishedListener(onUnpackFinishedListener)
-                .execute(src);
-    }
-
-    public static void asyncUnpack(File src, int key, Context context, OnUnpackFinishedListener onUnpackFinishedListener) {
-        new AsyncUnpack(context, key, true)
-                .setOnUnpackFinishedListener(onUnpackFinishedListener)
+        new AsyncUnpack(context, 0,true) // try kr key first
+                .setOnUnpackFinishedListener(new OnUnpackFinishedListener() {
+                    @Override
+                    public void onFinished(DCModel dcModel) {
+                        if(dcModel != null) {
+                            onUnpackFinishedListener.onFinished(dcModel);
+                        }else {
+                            new AsyncUnpack(context, 1, true) // try global key if failed
+                                    .setOnUnpackFinishedListener(onUnpackFinishedListener)
+                                    .execute(src);
+                        }
+                    }
+                })
                 .execute(src);
     }
 
