@@ -12,7 +12,6 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
@@ -24,32 +23,21 @@ import android.widget.Toast;
 import com.arsylk.mammonsmite.Adapters.DCAnnouncementsAdapter;
 import com.arsylk.mammonsmite.Async.AsyncBanners;
 import com.arsylk.mammonsmite.Async.AsyncPatch;
-import com.arsylk.mammonsmite.Async.interfaces.OnPackFinishedListener;
-import com.arsylk.mammonsmite.Async.interfaces.OnUnpackFinishedListener;
 import com.arsylk.mammonsmite.BuildConfig;
-import com.arsylk.mammonsmite.DestinyChild.DCModel;
-import com.arsylk.mammonsmite.DestinyChild.DCNewWiki;
 import com.arsylk.mammonsmite.DestinyChild.DCTools;
 import com.arsylk.mammonsmite.Live2D.L2DModel;
 import com.arsylk.mammonsmite.R;
 import com.arsylk.mammonsmite.utils.Define;
-import com.arsylk.mammonsmite.utils.EquationParser;
 import com.arsylk.mammonsmite.utils.LoadAssets;
 import com.arsylk.mammonsmite.utils.Utils;
-import com.arsylk.mammonsmite.views.PickWhichDialog;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.arsylk.mammonsmite.utils.Define.*;
 
@@ -61,6 +49,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     private ListView announcementList;
     private DCAnnouncementsAdapter adapter;
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -71,40 +60,23 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 return;
             switch(requestCode) {
                 case REQUEST_FILE_UNPACK: {
-                    List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
-                    keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
-                    keyList.add(new PickWhichDialog.Option<>("Global",1));
-                    new PickWhichDialog<>(context, keyList).setOnOptionPicked(new PickWhichDialog.Option.OnOptionPicked<Integer>() {
-                        @Override
-                        public void onOptionPicked(PickWhichDialog.Option<Integer> option) {
-                            if(option != null){
-                                final int key = option.getObject();
-                                DCTools.asyncUnpack(file, key, context, new OnUnpackFinishedListener() {
-                                    @Override
-                                    public void onFinished(DCModel dcModel) {
-                                        if(dcModel != null) {
-                                            if(dcModel.isLoaded()) {
-                                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                                            }
-                                        }else {
-                                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
+                    DCTools.asyncUnpack(file, context, dcModel -> {
+                        if(dcModel != null) {
+                            if(dcModel.isLoaded()) {
+                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
                             }
+                        }else {
+                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                         }
-                    }).show();
+                    });
                     break;
                 }
                 case REQUEST_FILE_PACK: {
-                    DCTools.asyncPack(file, null, context, new OnPackFinishedListener() {
-                        @Override
-                        public void onFinished(File file) {
-                            if(file != null) {
-                                Toast.makeText(context, "Packed to: "+file.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-                            }else {
-                                Toast.makeText(context, "Failed to pack!", Toast.LENGTH_SHORT).show();
-                            }
+                    DCTools.asyncPack(file, null, context, file1 -> {
+                        if(file1 != null) {
+                            Toast.makeText(context, "Packed to: "+ file1.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+                        }else {
+                            Toast.makeText(context, "Failed to pack!", Toast.LENGTH_SHORT).show();
                         }
                     });
                     break;
@@ -175,35 +147,21 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 // load up-to-date banners
                 new AsyncBanners(context, false).execute();
             });
-
-            // check application version
-            //new AsyncVersionChecker(context).execute();
-
-            //TODO DEBUG
-            //startActivity(new Intent(context, DCNewWikiActivity.class));
         }
     }
 
 
     private boolean handleIntent() {
         if(Intent.ACTION_VIEW.equals(getIntent().getAction()) && getIntent().getData() != null) {
-            List<PickWhichDialog.Option<Integer>> keyList = new ArrayList<>();
-            keyList.add(new PickWhichDialog.Option<>("Korea/Japan",0));
-            keyList.add(new PickWhichDialog.Option<>("Global",1));
-            new PickWhichDialog<>(context, keyList).setOnOptionPicked(option -> {
-                if(option != null){
-                    final int key = option.getObject();
-                    DCTools.asyncUnpack(new File(getIntent().getData().getPath()), key, context, dcModel -> {
-                        if(dcModel != null) {
-                            if(dcModel.isLoaded()) {
-                                DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
-                            }
-                        }else {
-                            Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            DCTools.asyncUnpack(new File(getIntent().getData().getPath()), context, dcModel -> {
+                if(dcModel != null) {
+                    if(dcModel.isLoaded()) {
+                        DCModelsActivity.showPickAction(context, dcModel.asL2DModel());
+                    }
+                }else {
+                    Toast.makeText(context, "Failed to unpack!", Toast.LENGTH_SHORT).show();
                 }
-            }).show();
+            });
             return true;
         }
         return false;
@@ -379,6 +337,14 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     }
 
     private void pickFileIntent(int requestCode) {
+        //TODO finally implement custom file picker
+        // PickDirectoryDialog directoryDialog = new PickDirectoryDialog(context, Environment.getExternalStorageDirectory());
+        // directoryDialog.setCallback(file -> {
+        //     Toast.makeText(context, file.toString(), Toast.LENGTH_SHORT).show();
+        // });
+        // directoryDialog.show();
+        // if(true) return;
+
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);

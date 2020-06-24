@@ -1,6 +1,7 @@
 package com.arsylk.mammonsmite.activities;
 
 import android.content.Context;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -36,8 +37,8 @@ public class DCSwapIconsActivity extends AppCompatActivity  {
         setContentView(R.layout.activity_dcswap_icons);
 
         //TODO DEBUG
-        defaultIconsLocation = new File(Define.BASE_DIRECTORY, "global_default_icon/portrait");
-        customIconsLocation = new File(Define.BASE_DIRECTORY, "global_custom_icon/portrait");
+        defaultIconsLocation = Environment.getExternalStorageDirectory();
+        customIconsLocation = Environment.getExternalStorageDirectory();
         initViews();
     }
 
@@ -46,60 +47,38 @@ public class DCSwapIconsActivity extends AppCompatActivity  {
         customIconsView = findViewById(R.id.dcicons_custom_location);
         iconsLog = findViewById(R.id.dcicons_log);
 
-        defaultIconsView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new PickDirectoryDialog(context, defaultIconsLocation).setCallback(new Utils.OnPostExecute<File>() {
-                    @Override
-                    public void onPostExecute(File file) {
-                        if(file != null) {
-                            if(file.isDirectory()) {
-                                defaultIconsLocation = file;
-                                defaultIconsView.setText(file.getAbsolutePath());
-                            }
-                        }
-                    }
-                }).show();
+        defaultIconsView.setOnClickListener(view -> new PickDirectoryDialog(context, defaultIconsLocation).setCallback(file -> {
+            if(file != null) {
+                if(file.isDirectory()) {
+                    defaultIconsLocation = file;
+                    defaultIconsView.setText(file.getAbsolutePath());
+                }
             }
-        });
-        customIconsView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                new PickDirectoryDialog(context, customIconsLocation).setCallback(new Utils.OnPostExecute<File>() {
-                    @Override
-                    public void onPostExecute(File file) {
-                        if(file != null) {
-                            if(file.isDirectory()) {
-                                customIconsLocation = file;
-                                customIconsView.setText(file.getAbsolutePath());
-                            }
-                        }
-                    }
-                }).show();
+        }).show());
+        customIconsView.setOnClickListener(view -> new PickDirectoryDialog(context, customIconsLocation).setCallback(file -> {
+            if(file != null) {
+                if(file.isDirectory()) {
+                    customIconsLocation = file;
+                    customIconsView.setText(file.getAbsolutePath());
+                }
             }
-        });
+        }).show());
 
 
-        findViewById(R.id.dcicons_swap).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(defaultIconsLocation != null && customIconsLocation != null) {
-                    List<File> matchedIconFiles = Arrays.asList(defaultIconsLocation.listFiles(new FileFilter() {
-                        @Override
-                        public boolean accept(File pathname) {
-                            if (pathname.getName().endsWith(".pck")) {
-                                return new File(customIconsLocation, pathname.getName()).exists();
-                            }
-
-                            return false;
-                        }
-                    }));
-                    Collections.sort(matchedIconFiles);
-                    iconsLog.append(matchedIconFiles.toString());
-
-                    for(File defaultFile : matchedIconFiles) {
-                        unpackAndSwitch(context, defaultFile, new File(customIconsLocation, defaultFile.getName()));
+        findViewById(R.id.dcicons_swap).setOnClickListener(view -> {
+            if(defaultIconsLocation != null && customIconsLocation != null) {
+                List<File> matchedIconFiles = Arrays.asList(defaultIconsLocation.listFiles(pathname -> {
+                    if (pathname.getName().endsWith(".pck")) {
+                        return new File(customIconsLocation, pathname.getName()).exists();
                     }
+
+                    return false;
+                }));
+                Collections.sort(matchedIconFiles);
+                iconsLog.append(matchedIconFiles.toString());
+
+                for(File defaultFile : matchedIconFiles) {
+                    unpackAndSwitch(context, defaultFile, new File(customIconsLocation, defaultFile.getName()));
                 }
             }
         });
@@ -110,8 +89,8 @@ public class DCSwapIconsActivity extends AppCompatActivity  {
             @Override
             protected File doInBackground(File... files) {
                 try {
-                    Pck defaultPck = DCTools.unpack(files[0], new File(workspace, "default_"+defaultFile.getName().replace(".pck", "")), 1 , null);
-                    Pck customPck = DCTools.unpack(files[1], new File(workspace, "custom_"+customFile.getName().replace(".pck", "")), 1, null);
+                    Pck defaultPck = DCTools.unpack(files[0], new File(workspace, "default_"+defaultFile.getName().replace(".pck", "")), null);
+                    Pck customPck = DCTools.unpack(files[1], new File(workspace, "custom_"+customFile.getName().replace(".pck", "")), null);
 
                     if(defaultPck == null || customPck == null)
                         return null;

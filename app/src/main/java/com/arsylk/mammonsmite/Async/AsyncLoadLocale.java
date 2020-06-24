@@ -5,7 +5,6 @@ import com.arsylk.mammonsmite.Async.interfaces.OnLocaleUnpackFinished;
 import com.arsylk.mammonsmite.DestinyChild.DCLocale;
 import com.arsylk.mammonsmite.DestinyChild.DCLocalePatch;
 import com.arsylk.mammonsmite.DestinyChild.DCTools;
-import com.koushikdutta.async.future.FutureCallback;
 
 import java.io.File;
 
@@ -33,12 +32,7 @@ public class AsyncLoadLocale extends AsyncWithDialog<File, String, DCLocalePatch
         if(files.length > 0) {
             try {
                 //unpack game file
-                DCLocale locale = new DCLocale(DCTools.unpack(files[0], 0, new FutureCallback<String>() {
-                    @Override
-                    public void onCompleted(Exception e, String result) {
-                        publishProgress(result);
-                    }
-                }));
+                DCLocale locale = new DCLocale(DCTools.unpack(files[0], (e, result) -> publishProgress(result)));
                 return new DCLocalePatch(locale);
             }catch(Exception e) {
                 e.printStackTrace();

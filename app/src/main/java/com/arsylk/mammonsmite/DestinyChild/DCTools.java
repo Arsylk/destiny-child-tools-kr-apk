@@ -242,18 +242,16 @@ public class DCTools {
                 .execute(src);
     }
 
-    public static void asyncUnpack(File src, int key, Context context, OnUnpackFinishedListener onUnpackFinishedListener) {
-        new AsyncUnpack(context, key, true)
-                .setOnUnpackFinishedListener(onUnpackFinishedListener)
-                .execute(src);
-    }
-
     public static Pck unpack(File src) throws Exception {
-        return unpack(src, 0, null);
+        return unpack(src, null);
     }
 
-    public static Pck unpack(File src, int key, FutureCallback<String> progressCallback) throws Exception {
-        return unpack(src, getUnpackPath(src.getName().replace(".pck", "")), key, progressCallback);
+    public static Pck unpack(File src, FutureCallback<String> progressCallback) throws Exception {
+        return unpack(src, getUnpackPath(src.getName().replace(".pck", "")), progressCallback);
+    }
+
+    public static Pck unpack(File src, File dst, FutureCallback<String> progressCallback) throws Exception {
+        return unpack(src, dst, 0, progressCallback);
     }
 
     public static Pck unpack(File src, File dst, int key, FutureCallback<String> progressCallback) throws Exception {
@@ -310,16 +308,24 @@ public class DCTools {
                 byte[] file_bytes = new byte[size_p];
                 mbb.get(file_bytes);
 
-                //change if necessary
-                if(flag == 2 || flag == 3) {
-                    //aes
-                    byte[] after_aes = Utils.aes_decrypt(file_bytes, key);
-                    file_bytes = after_aes;
-                }
-                if(flag == 1 || flag == 3) {
-                    //yappy
-                    byte[] after_yappy = Utils.yappy_uncompress(file_bytes, size);
-                    file_bytes = after_yappy;
+                //try-catch both encryption keys
+                try {
+                    //change if necessary (korea/japan)
+                    if(flag == 2 || flag == 3) {
+                        //aes
+                        byte[] after_aes = Utils.aes_decrypt(file_bytes, key);
+                        file_bytes = after_aes;
+                    }
+                    if(flag == 1 || flag == 3) {
+                        //yappy
+                        byte[] after_yappy = Utils.yappy_uncompress(file_bytes, size);
+                        file_bytes = after_yappy;
+                    }
+                }catch(Exception e) {
+                    //attempt global or raise exception
+                    if(key == 0)
+                        return unpack(src, dst, 1, progressCallback);
+                    throw e;
                 }
 
                 ext = getExtId(file_bytes[0] & 0xFF);
@@ -737,7 +743,7 @@ public class DCTools {
                         File backup = new File(file.getParentFile(), "_"+file.getName());
 
                         //unpack pck file
-                        DCModel dcModel = DCTools.pckToModel(DCTools.unpack(file, 1, null));
+                        DCModel dcModel = DCTools.pckToModel(DCTools.unpack(file));
                         L2DModel toL2D = dcModel.asL2DModel();
                         publishProgress(toL2D.getModelName()+" "+toL2D.getModelId());
 

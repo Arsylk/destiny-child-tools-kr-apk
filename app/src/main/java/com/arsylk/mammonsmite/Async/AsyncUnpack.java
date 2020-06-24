@@ -14,12 +14,7 @@ import java.util.List;
 
 public class AsyncUnpack extends AsyncWithDialog<File, String, DCModel> {
     private OnUnpackFinishedListener onUnpackFinishedListener = null;
-    private int key = 0;
 
-    public AsyncUnpack(Context context, int key, boolean showGui) {
-        super(context, showGui, "Unpacking...");
-        this.key = key;
-    }
 
     public AsyncUnpack(Context context, boolean showGui) {
         super(context, showGui, "Unpacking...");
@@ -40,12 +35,7 @@ public class AsyncUnpack extends AsyncWithDialog<File, String, DCModel> {
     @Override
     protected DCModel doInBackground(File... files) {
         try {
-            return new DCModel(DCTools.unpack(files[0], key, new FutureCallback<String>() {
-                @Override
-                public void onCompleted(Exception e, String result) {
-                    publishProgress(result);
-                }
-            }));
+            return new DCModel(DCTools.unpack(files[0], (e, result) -> publishProgress(result)));
         }catch(Exception e) {
             e.printStackTrace();
         }
