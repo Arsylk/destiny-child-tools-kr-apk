@@ -343,15 +343,14 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
         PickFileDialog fileDialog = new PickFileDialog(context, Environment.getExternalStorageDirectory());
         fileDialog.setCallback(file -> onActivityResult(requestCode, 0, new Intent().setData(Uri.fromFile(file))));
         fileDialog.show();
-        if(true) return;
         //TODO finally implement custom file picker
 
 
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        intent.setType("*/*");
-        startActivityForResult(Intent.createChooser(intent, "Pick file"), requestCode);
+        // Intent intent = new Intent();
+        // intent.setAction(Intent.ACTION_GET_CONTENT);
+        // intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // intent.setType("*/*");
+        // startActivityForResult(Intent.createChooser(intent, "Pick file"), requestCode);
     }
 
     private void openTranslateLocale() {
