@@ -172,12 +172,7 @@ public class PickDirectoryDialog extends AlertDialog.Builder {
             textView.setTag(getItem(position));
             textView.setText(getItem(position).getName());
             textView.setEnabled(getItem(position).isDirectory());
-            textView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DirectoriesAdapter.this.setDirectory((File) v.getTag());
-                }
-            });
+            textView.setOnClickListener(v -> DirectoriesAdapter.this.setDirectory((File) v.getTag()));
 
             return convertView;
         }

@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -30,6 +31,7 @@ import com.arsylk.mammonsmite.R;
 import com.arsylk.mammonsmite.utils.Define;
 import com.arsylk.mammonsmite.utils.LoadAssets;
 import com.arsylk.mammonsmite.utils.Utils;
+import com.arsylk.mammonsmite.views.PickFileDialog;
 import com.koushikdutta.async.http.AsyncHttpRequest;
 import com.koushikdutta.ion.Ion;
 import org.apache.commons.io.FileUtils;
@@ -338,12 +340,12 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
 
     private void pickFileIntent(int requestCode) {
         //TODO finally implement custom file picker
-        // PickDirectoryDialog directoryDialog = new PickDirectoryDialog(context, Environment.getExternalStorageDirectory());
-        // directoryDialog.setCallback(file -> {
-        //     Toast.makeText(context, file.toString(), Toast.LENGTH_SHORT).show();
-        // });
-        // directoryDialog.show();
-        // if(true) return;
+        PickFileDialog fileDialog = new PickFileDialog(context, Environment.getExternalStorageDirectory());
+        fileDialog.setCallback(file -> onActivityResult(requestCode, 0, new Intent().setData(Uri.fromFile(file))));
+        fileDialog.show();
+        if(true) return;
+        //TODO finally implement custom file picker
+
 
         Intent intent = new Intent();
         intent.setAction(Intent.ACTION_GET_CONTENT);
