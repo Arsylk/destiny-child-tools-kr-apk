@@ -339,18 +339,9 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     }
 
     private void pickFileIntent(int requestCode) {
-        //TODO finally implement custom file picker
         PickFileDialog fileDialog = new PickFileDialog(context, Environment.getExternalStorageDirectory());
         fileDialog.setCallback(file -> onActivityResult(requestCode, 0, new Intent().setData(Uri.fromFile(file))));
         fileDialog.show();
-        //TODO finally implement custom file picker
-
-
-        // Intent intent = new Intent();
-        // intent.setAction(Intent.ACTION_GET_CONTENT);
-        // intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // intent.setType("*/*");
-        // startActivityForResult(Intent.createChooser(intent, "Pick file"), requestCode);
     }
 
     private void openTranslateLocale() {
@@ -397,7 +388,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 });
 
 
-                File backupCompressed = null;
+                File backupCompressed = files.length > 1 ? null : files[0];
                 for(File file : files) {
                     if(file.length() < sizeUncompressed) {
                         backupCompressed = file;
@@ -468,7 +459,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 });
 
 
-                File backupCompressed = null;
+                File backupCompressed = files.length > 1 ? null : files[0];
                 for(File file : files) {
                     if(file.length() < sizeUncompressed) {
                         backupCompressed = file;

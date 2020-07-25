@@ -53,7 +53,7 @@ class PickFileDialog(context: Context, var directory: File) : AlertDialog.Builde
 }
 
 class FilesAdapter(var context: Context, var directory: File) : BaseAdapter() {
-    private lateinit var alertDialog: AlertDialog
+    private var alertDialog: AlertDialog? = null
     private var directoryContent: ArrayList<File> = ArrayList()
     var callback: Utils.OnPostExecute<File>? = null
 
@@ -65,12 +65,13 @@ class FilesAdapter(var context: Context, var directory: File) : BaseAdapter() {
         directoryContent = ArrayList()
         directoryContent.addAll(directory.listFiles().filter { it.isDirectory }.sortedBy { it.name.toLowerCase() })
         directoryContent.addAll(directory.listFiles().filter { it.isFile }.sortedBy { it.name.toLowerCase() })
+        alertDialog?.run { setTitle(directory.absolutePath) }
         notifyDataSetChanged()
     }
 
     fun setDialog(dialog: AlertDialog) {
         alertDialog = dialog
-        alertDialog.setTitle(directory.name ?: "")
+        alertDialog?.run { setTitle(directory.absolutePath) }
     }
 
 
@@ -104,7 +105,7 @@ class FilesAdapter(var context: Context, var directory: File) : BaseAdapter() {
                 setDirectory()
             }else if(file.isFile) {
                 callback?.onPostExecute(file)
-                alertDialog.dismiss()
+                alertDialog?.dismiss()
             }
         }
 
