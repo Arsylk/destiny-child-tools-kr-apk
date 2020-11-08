@@ -22,8 +22,8 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
     private LinearLayout layout;
     private PopupWindow disclaimer;
     private EditText inputStorage, inputPackage;
-    private EditText inputFiles, inputModels, inputBackgrounds, inputSounds, inputLocale, inputModelInfo;
-    private Button editFiles, editModels, editBackgrounds, editSounds, editLocale, editModelInfo;
+    private EditText inputFiles, inputModels, inputBackgrounds, inputSounds, inputTitleScreens, inputLocale, inputModelInfo;
+    private Button editFiles, editModels, editBackgrounds, editSounds, editTitleScreens, editLocale, editModelInfo;
     private List<Button> edits;
 
     @Override
@@ -83,6 +83,11 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
         editSounds.setTag(inputSounds);
         edits.add(editSounds);
 
+        inputTitleScreens = findViewById(R.id.settings_input_title_screens);
+        editTitleScreens = findViewById(R.id.settings_edit_title_screens);
+        editTitleScreens.setTag(inputTitleScreens);
+        edits.add(editTitleScreens);
+
         inputLocale = findViewById(R.id.settings_input_locale);
         editLocale = findViewById(R.id.settings_edit_locale);
         editLocale.setTag(inputLocale);
@@ -119,6 +124,7 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
         editModels.setOnClickListener(onEditButtonClick);
         editBackgrounds.setOnClickListener(onEditButtonClick);
         editSounds.setOnClickListener(onEditButtonClick);
+        editTitleScreens.setOnClickListener(onEditButtonClick);
         editLocale.setOnClickListener(onEditButtonClick);
         editModelInfo.setOnClickListener(onEditButtonClick);
 
@@ -185,6 +191,9 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
         inputSounds.setText(DC_SOUNDS_DIRECTORY);
         inputSounds.setTextColor(new File(DC_SOUNDS_DIRECTORY).exists() ? Color.GREEN : Color.RED);
 
+        inputTitleScreens.setText(DC_TITLE_SCREENS_DIRECTORY);
+        inputTitleScreens.setTextColor(new File(DC_TITLE_SCREENS_DIRECTORY).exists() ? Color.GREEN : Color.RED);
+
         inputLocale.setText(DC_LOCALE_FILE);
         inputLocale.setTextColor(new File(DC_LOCALE_FILE).exists() ? Color.GREEN : Color.RED);
 
@@ -205,6 +214,9 @@ public class SettingsActivity extends ActivityWithExceptionRedirect {
                 break;
             case R.id.settings_input_sounds:
                 DC_SOUNDS_DIRECTORY = text;
+                break;
+            case R.id.settings_input_title_screens:
+                DC_TITLE_SCREENS_DIRECTORY = text;
                 break;
             case R.id.settings_input_locale:
                 DC_LOCALE_FILE = text;

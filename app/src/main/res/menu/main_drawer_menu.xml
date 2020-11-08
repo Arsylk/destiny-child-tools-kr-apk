@@ -71,6 +71,9 @@
                         android:id="@+id/dcicons_swap"
                         android:title="@string/menu_item_swap_icons" />
                 <item
+                        android:id="@+id/dctitle_screen"
+                        android:title="@string/menu_item_title_screen" />
+                <item
                         android:id="@+id/dcbanner_widget_open"
                         android:title="@string/menu_item_add_widget" />
             </group>
@@ -82,8 +85,9 @@
             <group>
                 <item android:title="@string/user_banana" android:enabled="false" />
                 <item android:title="@string/user_whocares" android:enabled="false" />
-                <item android:title="@string/user_falzar" android:enabled="false" />
                 <item android:title="@string/user_envy" android:enabled="false" />
+                <item android:title="@string/user_falzar" android:enabled="false" />
+                <item android:title="@string/user_ace012" android:enabled="false" />
                 <item
                         android:id="@+id/discord_open"
                         android:title="@string/text_join_discord" />

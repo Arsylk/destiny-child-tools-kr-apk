@@ -192,6 +192,26 @@
 
 
                 <TextView
+                        android:text="Title Screens"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/activity_margin" />
+                <EditText
+                        android:id="@+id/settings_input_title_screens"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="DC_TITLE_SCREENS_DIRECTORY"
+                        android:inputType="textMultiLine"
+                        android:enabled="false"
+                        android:scrollHorizontally="false"/>
+                <Button
+                        android:id="@+id/settings_edit_title_screens"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Edit"/>
+
+
+                <TextView
                         android:text="Locale"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

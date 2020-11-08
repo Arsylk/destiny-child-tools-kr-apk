@@ -92,6 +92,11 @@ public final class Define {
     public static final Pattern PATTERN_BANNER_DATE = Pattern.compile(".*(\\d{1,2})월\\D*?(\\d{1,2})일.*?(\\d{1,2})월\\D*?(\\d{1,2})일.*");
     public static final Pattern PATTERN_BANNER_DATE_TIME = Pattern.compile(".*(\\d{1,2})월\\D*?(\\d{1,2})일\\D*?(\\d{1,2})시.*?(\\d{1,2})월\\D*?(\\d{1,2})일\\D*?(\\d{1,2})시.*");
     public static final Pattern PATTERN_LOCALE_DATE = Pattern.compile("^locale_(\\d{2}-\\d{2}-\\d{4})\\.pck\\.bak$");
+    public static final Pattern PATTERN_TITLE_SCREEN = Pattern.compile(".*?main_title_(.+\\d{3})_?(\\d{2})?.*?\\.mvd.*?");
+
+    public static final byte[] BYTE_PATTERN_ASSET_VIEW_IDX = new byte[] {0x61, 0x73, 0x73, 0x65, 0x74, 0x5C, 0x63, 0x68, 0x61, 0x72, 0x61, 0x63, 0x74, 0x65, 0x72, 0x5C};
+    public static final byte[] BYTE_PATTERN_ASSET_STAGE = new byte[] {0x73, 0x74, 0x61, 0x67, 0x65, 0x5C};
+    public static final byte[] BYTE_PATTERN_ASSET_OFFSETS = new byte[] {0x6C, 0x69, 0x76, 0x65, 0x32, 0x64, 0x5F, 0x63, 0x68, 0x61, 0x72, 0x61, 0x63, 0x74, 0x65, 0x72};
 
 
     public static final String[] CHILD_ATTRIBUTE_NAME = new String[] {

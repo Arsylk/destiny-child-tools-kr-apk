@@ -28,7 +28,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.*;
 
-import static com.arsylk.mammonsmite.utils.Define.ASSET_ENGLISH_PATCH;
+import static com.arsylk.mammonsmite.utils.Define.*;
 import static com.arsylk.mammonsmite.utils.Utils.bytesToHex;
 import static com.arsylk.mammonsmite.utils.Utils.getUnpackPath;
 import static com.arsylk.mammonsmite.DestinyChild.DCDefine.*;
@@ -50,6 +50,7 @@ public class DCTools {
         public static String DC_FILES_DIRECTORY = STORAGE_DIRECTORY + "/Android/data/" + DESTINY_CHILD_PACKAGE + "/files";
         public static String DC_MODELS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/character";
         public static String DC_SOUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/sound/voice";
+        public static String DC_TITLE_SCREENS_DIRECTORY = DC_FILES_DIRECTORY + "/ux/title";
         public static String DC_BACKGROUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/scenario/image";
         public static String DC_LOCALE_FILE = DC_FILES_DIRECTORY + "/locale.pck";
         public static String DC_MODEL_INFO_FILE = DC_MODELS_DIRECTORY + "/model_info.json";
@@ -62,6 +63,7 @@ public class DCTools {
             DC_FILES_DIRECTORY = STORAGE_DIRECTORY + "/Android/data/" + DESTINY_CHILD_PACKAGE + "/files";
             DC_MODELS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/character";
             DC_SOUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/sound/voice";
+            DC_TITLE_SCREENS_DIRECTORY = DC_FILES_DIRECTORY + "/ux/title";
             DC_BACKGROUNDS_DIRECTORY = DC_FILES_DIRECTORY + "/asset/scenario/image";
             DC_LOCALE_FILE = DC_FILES_DIRECTORY + "/locale.pck";
             DC_MODEL_INFO_FILE = DC_MODELS_DIRECTORY + "/model_info.json";
@@ -76,6 +78,7 @@ public class DCTools {
             prefs.putString("DC_MODELS_DIRECTORY", DC_MODELS_DIRECTORY);
             prefs.putString("DC_BACKGROUNDS_DIRECTORY", DC_BACKGROUNDS_DIRECTORY);
             prefs.putString("DC_SOUNDS_DIRECTORY", DC_FILES_DIRECTORY);
+            prefs.putString("DC_TITLE_SCREENS_DIRECTORY", DC_TITLE_SCREENS_DIRECTORY);
             prefs.putString("DC_LOCALE_FILE", DC_LOCALE_FILE);
             prefs.putString("DC_MODEL_INFO_FILE", DC_MODEL_INFO_FILE);
             prefs.apply();
@@ -90,6 +93,7 @@ public class DCTools {
             DC_MODELS_DIRECTORY = prefs.getString("DC_MODELS_DIRECTORY", DC_MODELS_DIRECTORY);
             DC_BACKGROUNDS_DIRECTORY = prefs.getString("DC_BACKGROUNDS_DIRECTORY", DC_BACKGROUNDS_DIRECTORY);
             DC_SOUNDS_DIRECTORY = prefs.getString("DC_SOUNDS_DIRECTORY", DC_SOUNDS_DIRECTORY);
+            DC_TITLE_SCREENS_DIRECTORY = prefs.getString("DC_TITLE_SCREENS_DIRECTORY", DC_TITLE_SCREENS_DIRECTORY);
             DC_LOCALE_FILE = prefs.getString("DC_LOCALE_FILE", DC_LOCALE_FILE);
             DC_MODEL_INFO_FILE = prefs.getString("DC_MODEL_INFO_FILE", DC_MODEL_INFO_FILE);
         }
@@ -104,8 +108,13 @@ public class DCTools {
     public static File getDCModelsPath() {
         return new File(DC_MODELS_DIRECTORY);
     }
+
     public static File getDCSoundsPath() {
         return new File(DC_SOUNDS_DIRECTORY);
+    }
+
+    public static File getDCTitleScreensPath() {
+        return new File(DC_TITLE_SCREENS_DIRECTORY);
     }
 
     public static File getDCBackgroundsPath() {

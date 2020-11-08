@@ -74,7 +74,7 @@ public class DCSwapper {
         line = "\n------------------------  files  ------------------------";
         System.out.println(line);
         if(output != null) output.append(line+"\n");
-        for(File fileSlot : matchingTextures ? listFiles(toL2D) : listFilesIgnoreTextures(toL2D)) {
+        for(File fileSlot : listFilesIgnoreTextures(toL2D)) {
             //direct & replace idx match
             File fromMatch = new File(fromL2D.getOutput(), fileSlot.getName().replace(toL2D.getModelId(), fromL2D.getModelId()));
             if(fromMatch.exists()) {
@@ -91,10 +91,34 @@ public class DCSwapper {
         }
 
         //not matching textures
-        if(!matchingTextures) {
-            line = "\n------------------------  textures  ------------------------";
-            System.out.println(line);
-            if(output != null) output.append(line+"\n");
+        line = "\n------------------------  textures  ------------------------";
+        System.out.println(line);
+        if(output != null) output.append(line+"\n");
+        if(matchingTextures) {
+            // same => same
+            for(int i = 0; i < fromL2D.getTextures().length; i++) {
+                String stringFrom = String.format("%s/%s", fromL2D.getOutput().getName(), fromL2D.getTextures()[i].getName());
+                String stringTo = String.format("%s/%s", "swap", toL2D.getTextures()[i].getName());
+                line = String.format("(%s) => (%s)", stringFrom, stringTo);
+                System.out.println(line);
+                if(output != null) output.append(line+"\n");
+
+                matches.put(fromL2D.getTextures()[i], toL2D.getTextures()[i]);
+
+                // fix textures from other swaps
+                if(!fromL2D.getTextures()[i].getName().contains("texture_")) {
+                    for(File toL2DFile : listFilesIgnoreTextures(toL2D)) {
+                        if(fromL2D.getTextures()[i].getName().equals(toL2DFile.getName())) {
+                            line = "! ! ! Swapping already swapped models ! ! !";
+                            System.out.println(line);
+                            if(output != null) output.append(line+"\n");
+
+                            problems.add(new Problem(null, toL2DFile, false));
+                        }
+                    }
+                }
+            }
+        }else {
             //more => less
             for(int i = 0; i < fromL2D.getTextures().length; i++) {
                 //texture slots available

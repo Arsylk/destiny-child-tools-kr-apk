@@ -61,6 +61,14 @@
     <string name="config_hint_model_path">MyMod123, DCMod943…</string>
     <string name="config_model_path">Folder name:</string>
 
+    <string name="title_screen_dialog_view_idx">View Idx</string>
+    <string name="title_screen_dialog_stage">Stage</string>
+    <string name="title_screen_dialog_x">Position X</string>
+    <string name="title_screen_dialog_y">Position Y</string>
+    <string name="title_screen_dialog_x_scale">Scale X</string>
+    <string name="title_screen_dialog_y_scale">Scale Y</string>
+
+
     <string name="menu_group_models">Models</string>
     <string name="menu_group_pck">PCK</string>
     <string name="menu_group_locale_patches">Patches</string>
@@ -76,6 +84,7 @@
     <string name="menu_item_russian_patch">Russian Patch</string>
     <string name="menu_item_swap_models">Swap Models</string>
     <string name="menu_item_swap_icons">Swap Icons</string>
+    <string name="menu_item_title_screen">Title Screens</string>
     <string name="menu_item_add_widget">Add Banner Widget</string>
 
     <string name="text_destiny_child">Destiny Child</string>
@@ -96,6 +105,7 @@
     <string name="user_banana">TinyBanana</string>
     <string name="user_envy">Envy</string>
     <string name="user_falzar">Falzar ฅ\'ω\'ฅ</string>
+    <string name="user_ace012">ace012</string>
     <string name="menu_add_key">Add Key</string>
     <string name="menu_load_patch">Load patch</string>
     <string name="menu_show_patches">Show patches</string>

@@ -32,12 +32,7 @@ public class DCModelsAdapter extends BaseAdapter implements Filterable {
         for(File file : dir.listFiles()) {
             srcModels.add(new DCModelItem(file));
         }
-        Collections.sort(srcModels, new Comparator<DCModelItem>() {
-            @Override
-            public int compare(DCModelItem item1, DCModelItem item2) {
-                return item1.getFile().getName().compareToIgnoreCase(item2.getFile().getName());
-            }
-        });
+        Collections.sort(srcModels, (item1, item2) -> item1.getFile().getName().compareToIgnoreCase(item2.getFile().getName()));
         models = srcModels;
     }
 
@@ -67,7 +62,7 @@ public class DCModelsAdapter extends BaseAdapter implements Filterable {
         TextView sublabel = convertView.findViewById(R.id.sub_label);
 
         label.setText(dcPck.getFormatted());
-        sublabel.setText(dcPck.isLoaded() ? dcPck.getFile().getName() : dcPck.getFile().getName());
+        sublabel.setText(dcPck.getFile().getName());
 
         return convertView;
     }

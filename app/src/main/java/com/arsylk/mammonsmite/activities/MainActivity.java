@@ -261,6 +261,9 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
             case R.id.wiki_open:
                 openDCWiki();
                 break;
+            case R.id.dctitle_screen:
+                openDCTitleScreen();
+                break;
             case R.id.translate_locale:
                 openTranslateLocale();
                 break;
@@ -312,12 +315,9 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
         announcementList = findViewById(R.id.main_announcements_list);
         announcementList.setAdapter(adapter);
         announcementList.addFooterView(adapter.getLoaderView());
-        announcementList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if(adapter != null) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(adapter.getItem(position).getUrl())));
-                }
+        announcementList.setOnItemClickListener((parent, view, position, id) -> {
+            if(adapter != null) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(adapter.getItem(position).getUrl())));
             }
         });
     }
@@ -496,6 +496,10 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
 
     private void openDCWiki() {
         startActivity(new Intent(context, WikiFragmentManagerActivity.class));
+    }
+
+    private void openDCTitleScreen() {
+        startActivity(new Intent(context, DCTitleScreensActivity.class));
     }
 
     private void openDCBannerWidget() {

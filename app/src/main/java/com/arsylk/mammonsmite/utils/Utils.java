@@ -327,6 +327,26 @@ public class Utils {
     }
     /*buffer end*/
 
+    /*byte search start*/
+    public static int findBytePatternPosition(MappedByteBuffer mbb, byte[] pattern) {
+        for(int i = 0; i < mbb.limit(); i++) {
+            if(mbb.get(i) == pattern[0] && mbb.limit() - i  >= pattern.length) {
+                boolean matches = true;
+                for(int j = 0; j < pattern.length; j++) {
+                    if(mbb.get(i + j) != pattern[j]) {
+                        matches = false;
+                        break;
+                    }
+                }
+                if(matches) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+    /*byte search end*/
+
     /*permissions start*/
     public static boolean requestPermission(Context context) {
         //get write permission all SDK
