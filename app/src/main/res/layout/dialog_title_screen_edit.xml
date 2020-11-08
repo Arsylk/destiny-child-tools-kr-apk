@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:padding="8dp">
+
+    <TextView
+            android:text="@string/title_screen_dialog_view_idx"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+    <EditText
+            android:id="@+id/input_view_idx"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="textNoSuggestions" />
+
+    <TextView
+            android:text="@string/title_screen_dialog_stage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+    <EditText
+            android:id="@+id/input_stage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="text" />
+
+    <TextView
+            android:text="@string/title_screen_dialog_x"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+    <EditText
+            android:id="@+id/input_x"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="numberDecimal|numberSigned" />
+
+    <TextView
+            android:text="@string/title_screen_dialog_y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+    <EditText
+            android:id="@+id/input_y"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="numberDecimal|numberSigned" />
+
+    <TextView
+            android:text="@string/title_screen_dialog_x_scale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+    <EditText
+            android:id="@+id/input_x_scale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="numberDecimal|numberSigned" />
+
+    <TextView
+            android:text="@string/title_screen_dialog_y_scale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp" />
+    <EditText
+            android:id="@+id/input_y_scale"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:lines="1"
+            android:inputType="numberDecimal|numberSigned" />
+
+</LinearLayout>
