@@ -337,7 +337,7 @@ public class DCTools {
                     throw e;
                 }
 
-                ext = getExtId(file_bytes[0] & 0xFF);
+                ext = file_bytes.length > 0 ? getExtId(file_bytes[0] & 0xFF) : UNKNOWN;
 
                 //display progress
                 String logLine = String.format("File %2d/%d %s [%016X | %6d] %02d %s", i+1, count, hashs, offset, size, flag, getExtStr(ext));

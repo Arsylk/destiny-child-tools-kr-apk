@@ -7,14 +7,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    compileSdkVersion 28
+    compileSdkVersion 29
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId 'com.Arsylk.MammonsMite'
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 11
-        versionName '1.11'
+        versionCode 12
+        versionName '1.12'
     }
     signingConfigs {
         def keystoreProperties = new Properties()

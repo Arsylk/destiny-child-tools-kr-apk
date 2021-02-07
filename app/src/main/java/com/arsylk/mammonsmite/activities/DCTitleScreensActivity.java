@@ -2,6 +2,7 @@ package com.arsylk.mammonsmite.activities;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -88,15 +89,30 @@ public class DCTitleScreensActivity extends ActivityWithExceptionRedirect {
         editYScale.setText(String.valueOf(titleScreen.getYScale()));
 
 
-
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle(titleScreen.getFile().getName());
         builder.setView(view);
         builder.setPositiveButton("Save", (dialogInterface, which) -> {
-            dialogInterface.dismiss();
-            Toast.makeText(context, "Saved !", Toast.LENGTH_SHORT).show();
+            try {
+                titleScreen.setStage(editStage.getText().toString());
+                titleScreen.setViewIdx(editViewIdx.getText().toString());
+                titleScreen.setX(Float.parseFloat(editX.getText().toString()));
+                titleScreen.setY(Float.parseFloat(editY.getText().toString()));
+                titleScreen.setXScale(Float.parseFloat(editXScale.getText().toString()));
+                titleScreen.setYScale(Float.parseFloat(editYScale.getText().toString()));
+
+                new Thread(() -> {
+                    try {
+                        titleScreen.save();
+                        runOnUiThread(() -> Toast.makeText(context, "Saved!", Toast.LENGTH_SHORT).show());
+                    } catch (Exception e) {
+                        runOnUiThread(() -> Toast.makeText(context, "Something went wrong!", Toast.LENGTH_SHORT).show());
+                    }
+                    runOnUiThread(dialogInterface::dismiss);
+                }).start();
+            } catch (Exception ignored) {
+            }
         });
         builder.show();
-
     }
 }

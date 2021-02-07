@@ -239,6 +239,7 @@ public class DCNewWikiAdapter extends BaseAdapter implements Filterable {
                     dialog.dismiss();
                 });
                 dialog = builder.create();
+                dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
             dialog.show();
         }

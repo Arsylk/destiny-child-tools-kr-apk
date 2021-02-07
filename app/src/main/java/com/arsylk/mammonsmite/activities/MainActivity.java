@@ -96,7 +96,15 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
 
         // request permission
         if(Utils.requestPermission(context)) {
-           onCreatePermissionGranted();
+            // notify that it won't work on android 11+
+            if(Build.VERSION.SDK_INT > 29) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setTitle("Android 11");
+                builder.setMessage("Due to recent changes to access to /sdcard/Android/data most of the features will not work.\nThis is an intentional design feature of scoped storage.\nThere is no solution other than root, and this will not change in the future.");
+                builder.setPositiveButton("Ok", null);
+                builder.show();
+            }
+            onCreatePermissionGranted();
         }
     }
 
