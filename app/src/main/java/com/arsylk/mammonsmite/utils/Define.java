@@ -1,6 +1,9 @@
 package com.arsylk.mammonsmite.utils;
 
+import android.os.Build;
 import android.os.Environment;
+import androidx.core.content.ContextCompat;
+
 import com.arsylk.mammonsmite.BuildConfig;
 import com.arsylk.mammonsmite.R;
 
@@ -8,8 +11,9 @@ import java.io.File;
 import java.util.regex.Pattern;
 
 public final class Define {
-    public static final File ASSETS_DIRECTORY = new File(Environment.getExternalStorageDirectory(),
-            "/Android/data/"+ BuildConfig.APPLICATION_ID+"/files");
+    public static final File ASSETS_DIRECTORY = Build.VERSION.SDK_INT <= 29 ?
+            new File(Environment.getExternalStorageDirectory(),"/Android/data/"+ BuildConfig.APPLICATION_ID+"/files") :
+            new File(Environment.getDataDirectory(), "/data/"+ BuildConfig.APPLICATION_ID + "/files");
     public static final File BASE_DIRECTORY = new File(Environment.getExternalStorageDirectory(), "DCUnpacker");
     public static final File UNPACKER_DIRECTORY = new File(BASE_DIRECTORY, "Unpacked");
     public static final File MODELS_DIRECTORY = new File(BASE_DIRECTORY, "Models");

@@ -104,4 +104,16 @@
             </group>
         </menu>
     </item>
+
+    <item android:title="@string/text_settings" android:menuCategory="container" >
+        <menu>
+            <group>
+
+                <item android:id="@+id/menu_settings"
+                    android:title="@string/text_settings"
+                    android:enabled="true" />
+
+            </group>
+        </menu>
+    </item>
 </menu>

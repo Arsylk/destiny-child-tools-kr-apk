@@ -2,9 +2,8 @@ package com.arsylk.mammonsmite.activities;
 
 import android.content.Context;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import com.arsylk.mammonsmite.Async.AsyncWithDialog;
@@ -12,12 +11,10 @@ import com.arsylk.mammonsmite.DestinyChild.DCTools;
 import com.arsylk.mammonsmite.DestinyChild.Pck;
 import com.arsylk.mammonsmite.R;
 import com.arsylk.mammonsmite.utils.Define;
-import com.arsylk.mammonsmite.utils.Utils;
 import com.arsylk.mammonsmite.views.PickDirectoryDialog;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;

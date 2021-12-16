@@ -8,17 +8,15 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.support.annotation.NonNull;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
+import androidx.annotation.NonNull;
+import com.google.android.material.navigation.NavigationView;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 import com.arsylk.mammonsmite.Adapters.DCAnnouncementsAdapter;
@@ -193,7 +191,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 drawerLayout.openDrawer(GravityCompat.START);
                 return true;
             case R.id.main_settings:
-                startActivity(new Intent(context, SettingsActivity.class));
+                openSettings();
                 return true;
 
             //dev menu
@@ -286,6 +284,11 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
                 break;
             case R.id.discord_open:
                 openDiscord();
+                break;
+            case R.id.menu_settings:
+                openSettings();
+                break;
+
         }
 
         if(drawerLayout.isDrawerOpen(Gravity.START)) {
@@ -518,5 +521,9 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
 
     private void openDiscord() {
         startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://discord.gg/wDdq7C8")));
+    }
+
+    private void openSettings() {
+        startActivity(new Intent(context, SettingsActivity.class));
     }
 }

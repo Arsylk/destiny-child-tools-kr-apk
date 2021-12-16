@@ -1,21 +1,19 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+}
 
 android {
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    compileSdkVersion 29
-    buildToolsVersion '28.0.3'
+    compileSdk 31
+
     defaultConfig {
         applicationId 'com.Arsylk.MammonsMite'
         minSdkVersion 15
-        targetSdkVersion 28
-        versionCode 12
-        versionName '1.12'
+        targetSdkVersion 31
+        versionCode 13
+        versionName '1.13.1'
     }
+
     signingConfigs {
         def keystoreProperties = new Properties()
         keystoreProperties.load(new FileInputStream(rootProject.file('keystore.properties')))
@@ -26,6 +24,7 @@ android {
             storePassword keystoreProperties.getProperty('storePassword')
         }
     }
+
     applicationVariants.all { variant ->
         if (variant.name == 'github' || variant.name == 'googleplay') {
             variant.outputs.all { output ->
@@ -34,6 +33,7 @@ android {
             }
         }
     }
+
     buildTypes {
         debug {
             debuggable true
@@ -57,26 +57,28 @@ android {
             resValue('string', 'isSpecial', 'true')
         }
     }
+
     productFlavors {
     }
-}
 
-allprojects {
-    repositories {
-        jcenter()
-        google()
+
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:28.0.0'
-    implementation 'com.android.support:design:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
+
     implementation 'commons-io:commons-io:2.6'
     implementation 'com.koushikdutta.ion:ion:2.2.1'
     implementation 'org.jsoup:jsoup:1.13.1'
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
 }

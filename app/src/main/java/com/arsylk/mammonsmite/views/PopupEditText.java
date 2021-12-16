@@ -3,7 +3,7 @@ package com.arsylk.mammonsmite.views;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import com.arsylk.mammonsmite.R;
 
-public class PopupEditText extends android.support.v7.widget.AppCompatTextView implements View.OnClickListener {
+public class PopupEditText extends androidx.appcompat.widget.AppCompatTextView implements View.OnClickListener {
     public interface OnTextChangedListener {
         void onTextChanged(String text);
     }
@@ -40,7 +40,7 @@ public class PopupEditText extends android.support.v7.widget.AppCompatTextView i
         dialogView = (RelativeLayout) ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE))
                 .inflate(R.layout.dialog_popup_edittext, null, false);
 
-        editText = new android.support.v7.widget.AppCompatEditText(getContext()) {
+        editText = new androidx.appcompat.widget.AppCompatEditText(getContext()) {
             @Override
             public boolean onKeyPreIme(int keyCode, KeyEvent event) {
                 if(keyCode == KeyEvent.KEYCODE_BACK) {

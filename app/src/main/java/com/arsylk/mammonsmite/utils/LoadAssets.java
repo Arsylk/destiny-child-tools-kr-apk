@@ -80,23 +80,20 @@ public class LoadAssets  {
 
     public static Future updateSoulCartas(Context context) {
         return Ion.with(context).load(String.format(REMOTE_ASSET_SOUL_CARTA, Utils.md5(ASSET_SOUL_CARTA))).group(TAG_ASSETS)
-                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
-                    @Override
-                    public void onCompleted(Exception e, String result) {
-                        if(e == null) {
-                            if(result.isEmpty()) {
-                                Log.d("mTag:Assets", "Soul Cartas are up-to-date!");
-                                return;
-                            }
-                            try {
-                                FileUtils.write(ASSET_SOUL_CARTA, result, Charset.forName("utf-8"));
-                                Log.d("mTag:Assets", "Soul Cartas updated!");
-                            }catch(Exception e1) {
-                                e1.printStackTrace();
-                            }
-                        }else {
-                            e.printStackTrace();
+                .asString(Charset.forName("utf-8")).setCallback((e, result) -> {
+                    if(e == null) {
+                        if(result.isEmpty()) {
+                            Log.d("mTag:Assets", "Soul Cartas are up-to-date!");
+                            return;
                         }
+                        try {
+                            FileUtils.write(ASSET_SOUL_CARTA, result, Charset.forName("utf-8"));
+                            Log.d("mTag:Assets", "Soul Cartas updated!");
+                        }catch(Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }else {
+                        e.printStackTrace();
                     }
                 });
     }
@@ -127,31 +124,30 @@ public class LoadAssets  {
         progressDialog.setMessage("Updating english patch...");
         progressDialog.show();
         Ion.with(context).load(String.format(REMOTE_ASSET_ENGLISH_PATCH, Utils.md5(ASSET_ENGLISH_PATCH))).group(TAG_ASSETS)
-                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
-            @Override
-            public void onCompleted(Exception e, String result) {
-                if(e == null) {
-                    DCLocalePatch dcLocalePatch = null;
-                    if(result.isEmpty()) {
-                        Log.d("mTag:Assets", "English patch is up-to-date!");
-                        dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_ENGLISH_PATCH));
-                    }else {
-                        try {
-                            Log.d("mTag:Assets", "English patch updated!");
-                            FileUtils.write(ASSET_ENGLISH_PATCH, result, Charset.forName("utf-8"));
-                            dcLocalePatch = new DCLocalePatch(new JSONObject(result));
-                        }catch(Exception e1) {
-                            e1.printStackTrace();
+                .asString(Charset.forName("utf-8")).setCallback((e, result) -> {
+                    if(e == null) {
+                        DCLocalePatch dcLocalePatch = null;
+                        if(result.isEmpty()) {
+                            Log.d("mTag:Assets", "English patch is up-to-date!");
+                            dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_ENGLISH_PATCH));
+                        }else {
+                            try {
+                                Log.d("mTag:Assets", "English patch updated!");
+                                try {
+                                    FileUtils.write(ASSET_ENGLISH_PATCH, result, Charset.forName("utf-8"));
+                                }catch(Exception ignored) {}
+                                dcLocalePatch = new DCLocalePatch(new JSONObject(result));
+                            }catch(Exception e1) {
+                                e1.printStackTrace();
+                            }
                         }
+                        //finish update
+                        progressDialog.dismiss();
+                        callback.onCompleted(null, dcLocalePatch);
+                    }else {
+                        e.printStackTrace();
                     }
-                    //finish update
-                    progressDialog.dismiss();
-                    callback.onCompleted(null, dcLocalePatch);
-                }else {
-                    e.printStackTrace();
-                }
-            }
-        });
+                });
     }
 
     public static void updateRussianPatch(Context context, final FutureCallback<DCLocalePatch> callback) {
@@ -161,31 +157,30 @@ public class LoadAssets  {
         progressDialog.setMessage("Updating russian patch...");
         progressDialog.show();
         Ion.with(context).load(String.format(REMOTE_ASSET_RUSSIAN_PATCH, Utils.md5(ASSET_RUSSIAN_PATCH))).group(TAG_ASSETS)
-                .asString(Charset.forName("utf-8")).setCallback(new FutureCallback<String>() {
-            @Override
-            public void onCompleted(Exception e, String result) {
-                if(e == null) {
-                    DCLocalePatch dcLocalePatch = null;
-                    if(result.isEmpty()) {
-                        Log.d("mTag:Assets", "Russian patch is up-to-date!");
-                        dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_RUSSIAN_PATCH));
-                    }else {
-                        try {
-                            Log.d("mTag:Assets", "Russian patch updated!");
-                            FileUtils.write(ASSET_RUSSIAN_PATCH, result, Charset.forName("utf-8"));
-                            dcLocalePatch = new DCLocalePatch(new JSONObject(result));
-                        }catch(Exception e1) {
-                            e1.printStackTrace();
+                .asString(Charset.forName("utf-8")).setCallback((e, result) -> {
+                    if(e == null) {
+                        DCLocalePatch dcLocalePatch = null;
+                        if(result.isEmpty()) {
+                            Log.d("mTag:Assets", "Russian patch is up-to-date!");
+                            dcLocalePatch = new DCLocalePatch(Utils.fileToJson(Define.ASSET_RUSSIAN_PATCH));
+                        }else {
+                            try {
+                                Log.d("mTag:Assets", "Russian patch updated!");
+                                try {
+                                    FileUtils.write(ASSET_RUSSIAN_PATCH, result, Charset.forName("utf-8"));
+                                }catch(Exception ignored) {}
+                                dcLocalePatch = new DCLocalePatch(new JSONObject(result));
+                            }catch(Exception e1) {
+                                e1.printStackTrace();
+                            }
                         }
+                        //finish update
+                        progressDialog.dismiss();
+                        callback.onCompleted(null, dcLocalePatch);
+                    }else {
+                        e.printStackTrace();
                     }
-                    //finish update
-                    progressDialog.dismiss();
-                    callback.onCompleted(null, dcLocalePatch);
-                }else {
-                    e.printStackTrace();
-                }
-            }
-        });
+                });
     }
 
     public static Future updateDumpData(Context context, String dump_asset) {

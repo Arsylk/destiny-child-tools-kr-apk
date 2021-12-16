@@ -5,7 +5,7 @@
         android:orientation="vertical">
 
     <!-- Toolbar Layout -->
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_wiki"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
