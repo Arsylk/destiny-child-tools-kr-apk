@@ -116,4 +116,22 @@
     <string name="text_japan">Japan</string>
     <string name="text_settings">Settings</string>
     <string name="activity_uncaught_exception">Uncaught Exception</string>
+    <string name="filter_files_label">Files</string>
+    <string name="filter_all_label">All</string>
+    <string name="filter_destinychild_label">Destiny Child</string>
+    <string name="wiki_button">Wiki</string>
+    <string name="files">Files</string>
+    <string name="settings_presets_label">Destiny Child</string>
+    <string name="models_path_label">Models</string>
+    <string name="files_path_label">Files</string>
+    <string name="backgrounds_path_label">Backgrounds</string>
+    <string name="sounds_path_label">Sounds</string>
+    <string name="path_input_error">File does not exist</string>
+    <string name="title_screens_path_label">Title Screens</string>
+    <string name="locale_path_label">Locale</string>
+    <string name="model_info_path_label">Model Info</string>
+    <string name="select">Select</string>
+    <string name="settings_saved">Settings Saved !</string>
+    <string name="pck_unpack_tab_packed">Packed</string>
+    <string name="pck_unpack_tab_unpacked">Unpacked</string>
 </resources>

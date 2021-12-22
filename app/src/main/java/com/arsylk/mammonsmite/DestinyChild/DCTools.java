@@ -77,7 +77,7 @@ public class DCTools {
             prefs.putString("DC_FILES_DIRECTORY", DC_FILES_DIRECTORY);
             prefs.putString("DC_MODELS_DIRECTORY", DC_MODELS_DIRECTORY);
             prefs.putString("DC_BACKGROUNDS_DIRECTORY", DC_BACKGROUNDS_DIRECTORY);
-            prefs.putString("DC_SOUNDS_DIRECTORY", DC_FILES_DIRECTORY);
+            prefs.putString("DC_SOUNDS_DIRECTORY", DC_SOUNDS_DIRECTORY);
             prefs.putString("DC_TITLE_SCREENS_DIRECTORY", DC_TITLE_SCREENS_DIRECTORY);
             prefs.putString("DC_LOCALE_FILE", DC_LOCALE_FILE);
             prefs.putString("DC_MODEL_INFO_FILE", DC_MODEL_INFO_FILE);
@@ -132,13 +132,8 @@ public class DCTools {
 
     // methods
     public static File getRandomDCBackground() {
-        File[] bgs = DCTools.getDCBackgroundsPath().listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("bg")
-                        && (name.endsWith("_f.png") || name.endsWith("_f.dcp") );
-            }
-        });
+        File[] bgs = DCTools.getDCBackgroundsPath().listFiles((dir, name) -> name.startsWith("bg")
+                && (name.endsWith("_f.png") || name.endsWith("_f.dcp") ));
         if(bgs == null)
             return null;
         if(bgs.length == 0)

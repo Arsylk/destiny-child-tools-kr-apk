@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="128dp"
+    android:layout_height="36dp">
+
+    <ImageView
+        android:id="@+id/star1"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginStart="0dp"
+        android:src="@drawable/ic_star"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/star2"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="21dp"
+        android:layout_marginStart="21dp"
+        android:src="@drawable/ic_star"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/star3"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="42dp"
+        android:layout_marginStart="42dp"
+        android:src="@drawable/ic_star"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/star4"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="63dp"
+        android:layout_marginStart="63dp"
+        android:src="@drawable/ic_star"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/star5"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="84dp"
+        android:layout_marginStart="84dp"
+        android:src="@drawable/ic_star"
+        android:visibility="gone"/>
+
+</RelativeLayout>

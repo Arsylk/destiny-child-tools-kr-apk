@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:orientation="vertical"
+        android:scrollbars="vertical"
+        android:overScrollMode="never"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/default_padding">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/presetsMenu"
+                style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/settings_presets_label"
+                android:layout_marginBottom="16dp">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.arsylk.mammonsmite.presentation.view.input.PathInputEditText
+                android:id="@+id/filesInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:piLabel="@string/files_path_label"
+                app:piFileType="folder"/>
+
+            <com.arsylk.mammonsmite.presentation.view.input.PathInputEditText
+                android:id="@+id/modelsInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:piLabel="@string/models_path_label"
+                app:piFileType="folder"/>
+
+            <com.arsylk.mammonsmite.presentation.view.input.PathInputEditText
+                android:id="@+id/backgroundsInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:piLabel="@string/backgrounds_path_label"
+                app:piFileType="folder"/>
+
+            <com.arsylk.mammonsmite.presentation.view.input.PathInputEditText
+                android:id="@+id/soundsInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:piLabel="@string/sounds_path_label"
+                app:piFileType="folder"/>
+
+            <com.arsylk.mammonsmite.presentation.view.input.PathInputEditText
+                android:id="@+id/titleScreensInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:piLabel="@string/title_screens_path_label"
+                app:piFileType="folder"/>
+
+            <com.arsylk.mammonsmite.presentation.view.input.PathInputEditText
+                android:id="@+id/localeInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:piLabel="@string/locale_path_label"
+                app:piFileType="file"/>
+
+            <com.arsylk.mammonsmite.presentation.view.input.PathInputEditText
+                android:id="@+id/modelInfoInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:piLabel="@string/model_info_path_label"
+                app:piFileType="file"/>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/saveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="24dp"
+                android:text="@string/text_save"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="@dimen/default_padding"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

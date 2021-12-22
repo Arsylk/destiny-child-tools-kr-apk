@@ -1,5 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/activity_dcmodels.xml" value="0.19791666666666666" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/activity_dcwiki_page.xml" value="0.2608695652173913" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/activity_main.xml" value="0.16927083333333334" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/activity_main_old.xml" value="0.19635416666666666" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/activity_main_x.xml" value="0.16927083333333334" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/activity_settings.xml" value="0.33" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/dialog_file_picker.xml" value="0.203125" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/dialog_pck_unpack.xml" value="0.1" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/fragment_dcmodels.xml" value="0.19791666666666666" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/fragment_destiny_child_models.xml" value="0.19791666666666666" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/fragment_home.xml" value="0.16927083333333334" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/fragment_models_destinychild.xml" value="0.2608695652173913" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/fragment_settings.xml" value="0.209375" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_announcement.xml" value="0.19322916666666667" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_dropdown.xml" value="0.209375" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_file_picker.xml" value="0.203125" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_model_packed.xml" value="0.26077097505668934" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_model_packed_file.xml" value="0.209375" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_model_pck.xml" value="0.36829268292682926" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_new_wiki_child.xml" value="0.19791666666666666" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_pck_header_entry.xml" value="0.1" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/item_wiki_child.xml" value="0.19791666666666666" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/view_path_input_edit_text.xml" value="0.21875" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/view_path_input_text.xml" value="0.21875" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/layout/view_stars.xml" value="0.19791666666666666" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/menu/dialog_pck_unpack_tabs.xml" value="0.14583333333333334" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/menu/models_destinychild_filters_primary.xml" value="0.2140625" />
+        <entry key="..\:/Android/AndroidProjects/DestinyChildToolsKR/app/src/main/res/menu/translate_menu.xml" value="0.19791666666666666" />
+      </map>
+    </option>
+  </component>
+  <component name="EntryPointsManager">
+    <list size="1">
+      <item index="0" class="java.lang.String" itemvalue="com.google.gson.annotations.SerializedName" />
+    </list>
+  </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
       <profile-state>

@@ -89,7 +89,7 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_old);
         setSupportActionBar(findViewById(R.id.toolbar));
 
         // request permission

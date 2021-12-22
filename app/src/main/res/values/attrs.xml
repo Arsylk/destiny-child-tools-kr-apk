@@ -3,4 +3,12 @@
     <declare-styleable name="SquareLinearLayout">
         <attr name="squareWidth" format="boolean">true</attr>
     </declare-styleable>
+    <declare-styleable name="PathInputEditText">
+        <attr name="piLabel" format="string|reference"/>
+        <attr name="piFileType" format="enum">
+            <enum name="file" value="0"/>
+            <enum name="folder" value="1"/>
+            <enum name="any" value="2"/>
+        </attr>
+    </declare-styleable>
 </resources>

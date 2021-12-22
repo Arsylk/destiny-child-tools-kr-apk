@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/tab_packed"
+        android:enabled="true"
+        android:icon="@drawable/ic_file"
+        android:title="@string/pck_unpack_tab_packed"/>
+    <item
+        android:id="@+id/tab_unpacked"
+        android:enabled="true"
+        android:icon="@drawable/ic_log"
+        android:title="@string/pck_unpack_tab_unpacked"/>
+</menu>

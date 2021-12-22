@@ -1,11 +1,14 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Base.Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#e65100</item>
+        <item name="colorPrimaryDark">#A13800</item>
+        <item name="colorOnPrimary">#ffffff</item>
+
+        <item name="colorSecondary">#ff9800</item>
+        <item name="colorSecondaryVariant">#B26A00</item>
+        <item name="colorOnSecondary">#ffffff</item>
     </style>
 
     <style name="shadowEffect">

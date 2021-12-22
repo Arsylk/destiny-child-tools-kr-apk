@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/fragment_home">
+
+    <action
+        android:id="@+id/action_home"
+        app:launchSingleTop="true"
+        app:destination="@id/fragment_home"/>
+
+    <action
+        android:id="@+id/action_models_destinychild"
+        app:launchSingleTop="true"
+        app:destination="@id/fragment_models_destinychild"/>
+
+    <action
+        android:id="@+id/action_settings"
+        app:launchSingleTop="true"
+        app:destination="@+id/fragment_settings"/>
+
+    <fragment
+        android:id="@+id/fragment_home"
+        android:name="com.arsylk.mammonsmite.presentation.fragment.home.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home"/>
+
+    <fragment
+        android:id="@+id/fragment_models_destinychild"
+        android:name="com.arsylk.mammonsmite.presentation.fragment.models.destinychild.ModelsDestinyChildFragment"
+        android:label="Destiny Child Models"
+        tools:layout="@layout/fragment_models_destinychild" />
+
+    <fragment
+        android:id="@+id/fragment_settings"
+        android:name="com.arsylk.mammonsmite.presentation.fragment.settings.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings"/>
+
+</navigation>

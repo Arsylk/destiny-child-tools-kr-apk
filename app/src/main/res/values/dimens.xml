@@ -5,6 +5,8 @@
     <dimen name="item_margin">5dp</dimen>
     <dimen name="widget_margin">8dp</dimen>
     <dimen name="wiki_condition_icon">14sp</dimen>
+    <dimen name="default_padding">16dp</dimen>
+    <dimen name="model_packed_star_margin">9dp</dimen>
 
 
 </resources>
