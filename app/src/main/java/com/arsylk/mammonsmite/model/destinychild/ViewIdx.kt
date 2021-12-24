@@ -1,7 +1,11 @@
 package com.arsylk.mammonsmite.model.destinychild
 
 import com.arsylk.mammonsmite.Cfg
+import com.arsylk.mammonsmite.domain.serializer.ViewIdxSerializer
+import kotlinx.serialization.Serializable
 
+
+@Serializable(with = ViewIdxSerializer::class)
 data class ViewIdx(
     val type: String,
     val number: Int,

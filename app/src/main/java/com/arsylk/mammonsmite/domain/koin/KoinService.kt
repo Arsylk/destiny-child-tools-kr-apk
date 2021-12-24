@@ -2,24 +2,30 @@ package com.arsylk.mammonsmite.domain.koin
 
 import android.app.Application
 import android.content.Context
+import androidx.compose.foundation.ExperimentalFoundationApi
 import com.arsylk.mammonsmite.Cfg
+import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.repo.CharacterRepository
 import com.arsylk.mammonsmite.domain.retrofit.JsoupConverterFactory
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitBannerService
+import com.arsylk.mammonsmite.domain.sync.SyncService
 import com.arsylk.mammonsmite.presentation.activity.main.MainViewModel
 import com.arsylk.mammonsmite.presentation.dialog.file.picker.FilePickerViewModel
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackViewModel
 import com.arsylk.mammonsmite.presentation.fragment.home.HomeViewModel
+import com.arsylk.mammonsmite.presentation.fragment.l2dpreview.L2DPreviewViewModel
 import com.arsylk.mammonsmite.presentation.fragment.models.destinychild.ModelsDestinyChildViewModel
 import com.arsylk.mammonsmite.presentation.fragment.settings.SettingsViewModel
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType
 import okhttp3.OkHttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -31,7 +37,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+
 @ExperimentalCoroutinesApi
+@ExperimentalFoundationApi
+@ExperimentalSerializationApi
 object KoinService {
 
     fun start(app: Application) {
@@ -41,14 +50,15 @@ object KoinService {
             modules(
                 module {
                     single { provideAppCoroutineScope() }
-                    single { provideGson() }
+                    single { provideJson() }
                     single { provideOkHttpClient() }
-                    single { provideGsonConverterFactory(get()) }
                     single { provideRetrofitApiService(get(), get()) }
                     single { provideRetrofitBannerService(get()) }
                     single { provideAppPreferences(get()) }
-                    single { provideCharacterRepository(get(), get()) }
+                    single { provideSyncService(get(), get(), get()) }
+                    single { provideCharacterRepository(get(), get(), get()) }
                     single { providePckTools(get()) }
+                    single { provideL2DTools(get()) }
                 },
                 module {
                     viewModel { MainViewModel(get()) }
@@ -57,6 +67,7 @@ object KoinService {
                     viewModel { SettingsViewModel(get()) }
                     viewModel { param -> FilePickerViewModel(param.get()) }
                     viewModel { param -> PckUnpackViewModel(get(), file = param.get()) }
+                    viewModel { param -> L2DPreviewViewModel(get(), l2dFile = param.get(), get()) }
                 }
             )
         }
@@ -65,11 +76,14 @@ object KoinService {
     private fun provideAppCoroutineScope() =
         CoroutineScope(SupervisorJob())
 
-    private fun provideGson() =
-        GsonBuilder()
-            .serializeNulls()
-            .setPrettyPrinting()
-            .create()
+    private fun provideJson() =
+        Json {
+            prettyPrint = true
+            ignoreUnknownKeys = true
+            isLenient = true
+            coerceInputValues = true
+            encodeDefaults = true
+        }
 
     private fun provideOkHttpClient() =
         OkHttpClient.Builder()
@@ -79,12 +93,9 @@ object KoinService {
             .callTimeout(30, TimeUnit.SECONDS)
             .build()
 
-    private fun provideGsonConverterFactory(gson: Gson) =
-        GsonConverterFactory.create(gson)
-
-    private fun provideRetrofitApiService(gson: Gson, okHttpClient: OkHttpClient) =
+    private fun provideRetrofitApiService(json: Json, okHttpClient: OkHttpClient) =
         Retrofit.Builder()
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(json.asConverterFactory(MediaType.get("application/json")))
             .baseUrl(Cfg.API_URL)
             .client(okHttpClient)
             .build()
@@ -101,9 +112,15 @@ object KoinService {
     private fun provideAppPreferences(context: Context) =
         AppPreferences(context)
 
-    private fun provideCharacterRepository(scope: CoroutineScope, apiService: RetrofitApiService) =
-        CharacterRepository(scope, apiService)
+    private fun provideSyncService(json: Json, apiService: RetrofitApiService, characterRepository: CharacterRepository) =
+        SyncService(json, apiService, characterRepository)
 
-    private fun providePckTools(gson: Gson) =
-        PckTools(gson)
+    private fun provideCharacterRepository(scope: CoroutineScope, apiService: RetrofitApiService, json: Json) =
+        CharacterRepository(scope, apiService, json)
+
+    private fun providePckTools(json: Json) =
+        PckTools(json)
+
+    private fun provideL2DTools(json: Json) =
+        L2DTools(json)
 }

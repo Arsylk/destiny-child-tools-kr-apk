@@ -1,16 +1,22 @@
 package com.arsylk.mammonsmite.model.live2d
 
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonElement
 
+@Serializable
 data class L2DExpression(
-    @SerializedName("type")
+    @SerialName("type")
     val type: String,
 
-    @SerializedName("fade_in")
-    val fadeIn: Int?,
+    @SerialName("fade_in")
+    val fadeIn: Int? = null,
 
-    @SerializedName("fade_out")
-    val fadeOut: Int?,
+    @SerialName("fade_out")
+    val fadeOut: Int? = null,
+
+    @SerialName("params")
+    val params: JsonElement? = null
 ) {
 
     companion object {

@@ -2,12 +2,12 @@ package com.arsylk.mammonsmite.model.pck.unpacked
 
 import com.arsylk.mammonsmite.model.pck.PckEntryFileType
 import java.io.File
+import java.io.Serializable
 
-open class UnpackedPckFile(
+data class UnpackedPckFile(
     val folder: File,
     val header: UnpackedPckHeader,
-) {
-    @Transient
+): Serializable {
     val headerFile = File(folder, HEADER_FILENAME)
 
     fun getEntries(type: PckEntryFileType) =

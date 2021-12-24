@@ -4,11 +4,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavDirections
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
 import coil.load
+import com.arsylk.mammonsmite.NavGraphDirections
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.databinding.FragmentModelsDestinychildBinding
 import com.arsylk.mammonsmite.databinding.ItemModelPackedBinding
@@ -18,9 +23,14 @@ import com.arsylk.mammonsmite.presentation.fragment.BaseBindingFragment
 import com.arsylk.mammonsmite.presentation.fragment.models.destinychild.adapter.ModelPackedAdapter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
+
+@ExperimentalSerializationApi
+@ExperimentalFoundationApi
+@ExperimentalMaterialApi
 @ExperimentalCoroutinesApi
 class ModelsDestinyChildFragment : BaseBindingFragment<FragmentModelsDestinychildBinding>() {
     private val viewModel by viewModel<ModelsDestinyChildViewModel>()
@@ -89,8 +99,9 @@ class ModelsDestinyChildFragment : BaseBindingFragment<FragmentModelsDestinychil
     }
 
     private fun openPckUnpackDialog(file: File) {
-        PckUnpackDialog.newInstance(file)
-            .show(parentFragmentManager, PckUnpackDialog.TAG)
+        val direction = NavGraphDirections
+            .actionPckUnpack(file)
+        findNavController().navigate(direction)
     }
 
     enum class ModelsTab { DESTINYCHILD, ALl, FILES }

@@ -14,6 +14,12 @@ data class OperationProgress(
     fun endAt(@FloatRange(from = MIN.toDouble(), to = MAX.toDouble()) end: Float) =
         copy(progress = percentage * end)
 
+    fun between(
+        @FloatRange(from = MIN.toDouble(), to = MAX.toDouble()) start: Float,
+        @FloatRange(from = MIN.toDouble(), to = MAX.toDouble()) end: Float,
+    ) =
+        copy(progress = start  + (percentage * (end - start)) )
+
     companion object {
         const val MIN: Float = 0.0f
         const val MAX: Float = 100.0f
@@ -28,7 +34,12 @@ sealed class OperationStateResult<T: Any?> {
     data class InProgress<T: Any?>(
         val current: Int,
         val max: Int,
-    ) : OperationStateResult<T>()
+    ) : OperationStateResult<T>() {
+        constructor(
+            @FloatRange(from = OperationProgress.MIN.toDouble(), to = OperationProgress.MAX.toDouble())
+            progress: Float
+        ) : this(progress.toInt(), OperationProgress.MAX.toInt())
+    }
     sealed class Finished<T: Any?> : OperationStateResult<T>()
     data class Success<T: Any?>(val result: T) : Finished<T>()
     data class Failure<T: Any?>(val t: Throwable) : Finished<T>()

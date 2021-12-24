@@ -2,21 +2,27 @@ package com.arsylk.mammonsmite.domain
 
 import android.content.res.TypedArray
 import android.graphics.Paint
+import android.os.Build
+import android.view.WindowInsets
+import android.view.WindowManager
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.arsylk.mammonsmite.model.common.OperationStateResult
-import com.arsylk.mammonsmite.model.pck.packed.PackedPckFile
-import com.google.gson.Gson
-import com.google.gson.JsonIOException
-import com.google.gson.JsonParseException
-import com.google.gson.JsonSyntaxException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.last
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.decodeFromStream
+import kotlinx.serialization.json.encodeToStream
 import java.io.File
-import java.io.FileReader
 import java.io.IOException
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 
 fun File?.safeListFiles(filter: (file: File) -> Boolean = { true }): List<File> {
@@ -49,14 +55,70 @@ suspend fun <T> Flow<OperationStateResult<T>>.asSuccess(): T {
         else -> throw IllegalStateException()
     }
 }
+@Throws(Throwable::class)
+suspend fun <T> Flow<OperationStateResult<T>>.asResult(): Result<T> {
+    val result = this.last()
+    when (result) {
+        is OperationStateResult.Success -> return Result.success(result.result)
+        is OperationStateResult.Failure -> return Result.failure(result.t)
+        else -> return Result.failure(IllegalStateException())
+    }
+}
 
 fun Fragment.launchWhenResumed(block: suspend CoroutineScope.() -> Unit) {
     viewLifecycleOwner.lifecycleScope.launchWhenResumed(block)
 }
 
-@Throws(IOException::class, JsonSyntaxException::class, JsonIOException::class)
-fun <T> Gson.fromJson(file: File, clazz: Class<T>): T {
-    FileReader(file).use {
-        return this.fromJson(it, clazz) as T
+@ExperimentalSerializationApi
+@Throws(IOException::class, SerializationException::class)
+inline fun <reified T> Json.decodeFromFile(file: File): T {
+    file.inputStream().buffered().use {
+        return decodeFromStream(it)
     }
+}
+
+@ExperimentalSerializationApi
+@Throws(IOException::class, SerializationException::class)
+inline fun <reified T> Json.encodeToFile(value: T, file: File) {
+    file.outputStream().buffered().use {
+        encodeToStream(value, it)
+    }
+}
+
+
+inline fun <T> Iterable<T>.sumOf(selector: (T) -> Float): Float {
+    var sum: Float = 0.toFloat()
+    for (element in this) {
+        sum += selector(element)
+    }
+    return sum
+}
+
+fun <K, V> MutableMap<K, V>.putIfAbsentCompat(key: K, value: V): V? {
+    var v = get(key)
+    if (v == null) {
+        v = put(key, value)
+    }
+    return v
+}
+
+fun String.capitalizeFirstOnly(): String =
+    this.lowercase().replaceFirstChar { it.uppercase() }
+
+@Suppress("DEPRECATION")
+fun AppCompatActivity.setFullscreenCompat(fullscreen: Boolean) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val types = WindowInsets.Type.statusBars()
+        if (fullscreen) window.insetsController?.hide(types)
+        else window.insetsController?.show(types)
+    } else {
+        val flag = WindowManager.LayoutParams.FLAG_FULLSCREEN
+        if (fullscreen) window.setFlags(flag, flag)
+        else window.clearFlags(flag)
+    }
+}
+
+inline fun<T, R>  use(value1: T?, value2: R?, block: (T, R) -> Unit) {
+    if (value1 != null && value2 != null)
+        block.invoke(value1, value2)
 }

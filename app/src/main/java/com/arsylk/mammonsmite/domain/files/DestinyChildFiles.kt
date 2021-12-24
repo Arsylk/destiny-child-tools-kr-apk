@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.domain.files
 
+import com.arsylk.mammonsmite.domain.safeListFiles
 import com.arsylk.mammonsmite.model.destinychild.DestinyChildPackage
 import java.io.File
 
@@ -35,5 +36,9 @@ object DestinyChildFiles {
 
     fun getModelInfoFile(pkg: DestinyChildPackage): File =
         File(getModelsFolder(pkg), "/model_info.json")
+
+    fun getRandomBackgroundFile(folder: File = getBackgroundsFolder(DEFAULT_PACKAGE)): File? = folder
+        .safeListFiles { it.name.endsWith("_f.png") || it.name.endsWith("_f.dcp") }
+        .randomOrNull()
 
 }

@@ -1,6 +1,6 @@
 package com.arsylk.mammonsmite.presentation.fragment.models.destinychild.adapter
 
-import com.arsylk.mammonsmite.model.api.response.CharData
+import com.arsylk.mammonsmite.model.destinychild.CharData
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.preferred
 import java.io.File
@@ -23,7 +23,6 @@ data class ModelPacked(
         }
     }
     val secondaryText: String by lazy {
-        when {}
         if (primaryText != filesText) filesText else ""
     }
     val filesText: String by lazy {

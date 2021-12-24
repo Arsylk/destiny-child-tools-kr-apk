@@ -132,30 +132,30 @@ public class MainActivity extends ActivityWithExceptionRedirect implements Navig
         } else {
             getBaseContext().getResources().getConfiguration().locale = Locale.US;
         }
-        Ion.getDefault(context).getConscryptMiddleware().enable(false);
-        Ion.getDefault(context).configure().setAsyncHttpRequestFactory((uri, method, headers) -> {
-            AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers);
-            request.getHeaders().set("Apk-Name", BuildConfig.APPLICATION_ID);
-            request.getHeaders().set("Apk-Version", BuildConfig.VERSION_NAME);
-            request.getHeaders().set("Device-Token", Utils.getDeviceToken(context));
-            return request;
-        });
-
-        // load resources from shared prefs
-        DCTools.Resources.load(context);
+//        Ion.getDefault(context).getConscryptMiddleware().enable(false);
+//        Ion.getDefault(context).configure().setAsyncHttpRequestFactory((uri, method, headers) -> {
+//            AsyncHttpRequest request = new AsyncHttpRequest(uri, method, headers);
+//            request.getHeaders().set("Apk-Name", BuildConfig.APPLICATION_ID);
+//            request.getHeaders().set("Apk-Version", BuildConfig.VERSION_NAME);
+//            request.getHeaders().set("Device-Token", Utils.getDeviceToken(context));
+//            return request;
+//        });
+//
+//        // load resources from shared prefs
+//        DCTools.Resources.load(context);
 
         // init views & load resources
         initViews();
-        if(!handleIntent()) {
-            // check remote assets
-            LoadAssets.guiFullLoad(context, () -> {
-                // load up-to-date announcements
-                adapter.loadAnnouncements();
-
-                // load up-to-date banners
-                new AsyncBanners(context, false).execute();
-            });
-        }
+//        if(!handleIntent()) {
+//            // check remote assets
+//            LoadAssets.guiFullLoad(context, () -> {
+//                // load up-to-date announcements
+//                adapter.loadAnnouncements();
+//
+//                // load up-to-date banners
+//                new AsyncBanners(context, false).execute();
+//            });
+//        }
     }
 
 

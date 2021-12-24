@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.arsylk.mammonsmite.databinding.ItemModelPackedBinding
-import com.arsylk.mammonsmite.model.api.response.CharData
+import com.arsylk.mammonsmite.model.destinychild.CharData
 import java.io.File
 
 

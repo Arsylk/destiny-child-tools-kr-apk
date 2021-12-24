@@ -1,9 +1,12 @@
 package com.arsylk.mammonsmite.presentation.activity.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
@@ -17,7 +20,9 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.arsylk.mammonsmite.BuildConfig
 import com.arsylk.mammonsmite.R
+import com.arsylk.mammonsmite.activities.L2DModelsActivity
 import com.arsylk.mammonsmite.databinding.ActivityMainBinding
+import com.arsylk.mammonsmite.domain.setFullscreenCompat
 import com.arsylk.mammonsmite.presentation.activity.BaseActivity
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.flow.collectLatest
@@ -83,6 +88,8 @@ class MainActivity : BaseActivity(),
                 findMainNavController().navigate(R.id.action_models_destinychild)
             R.id.menu_settings ->
                 findMainNavController().navigate(R.id.action_settings)
+            R.id.l2dmodels_open ->
+                startActivity(Intent(this, L2DModelsActivity::class.java))
         }
         binding?.drawerLayout?.close()
 
@@ -94,7 +101,13 @@ class MainActivity : BaseActivity(),
         destination: NavDestination,
         arguments: Bundle?
     ) {
-        supportActionBar?.title = destination.label
+        val fullscreen = arguments?.getBoolean("fullscreen", false) == true
+        setFullscreenCompat(fullscreen)
+
+        supportActionBar?.apply {
+            title = destination.label
+            if (fullscreen) hide() else show()
+        }
     }
 
     private fun setupObservers() {

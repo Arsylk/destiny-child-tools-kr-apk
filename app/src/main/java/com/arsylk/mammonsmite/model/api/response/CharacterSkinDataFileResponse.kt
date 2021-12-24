@@ -1,11 +1,13 @@
 package com.arsylk.mammonsmite.model.api.response
 
+import com.arsylk.mammonsmite.model.destinychild.CharacterSkinData
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
-import com.google.gson.JsonArray
-import com.google.gson.JsonElement
-import com.google.gson.JsonObject
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 
-typealias CharacterSkinDataFileResponse = Map<String, JsonElement>
+typealias CharacterSkinDataFileResponse = JsonObject
 
 fun CharacterSkinDataFileResponse.parse(): List<CharacterSkinData> {
     return mapNotNull { (key, item) ->
@@ -13,13 +15,13 @@ fun CharacterSkinDataFileResponse.parse(): List<CharacterSkinData> {
             val viewIdxList = mutableListOf<ViewIdx>()
             fun innerParse(json: JsonElement?) {
                 when {
-                    json is JsonObject && json.has("view_idx") -> {
+                    json is JsonObject && json.containsKey("view_idx") -> {
                         kotlin.runCatching {
-                            val viewIdxString = json.get("view_idx").asString
+                            val viewIdxString = json["view_idx"]!!.jsonPrimitive.content
                             ViewIdx.parse(viewIdxString)?.also(viewIdxList::add)
                         }
                     }
-                    json is JsonObject -> json.entrySet()
+                    json is JsonObject -> json.entries
                         .forEach { (_, v) -> innerParse(v) }
                     json is JsonArray -> json
                         .forEach(::innerParse)
@@ -32,4 +34,3 @@ fun CharacterSkinDataFileResponse.parse(): List<CharacterSkinData> {
     }
 }
 
-data class CharacterSkinData(val idx: String, val viewIdxList: List<ViewIdx>)

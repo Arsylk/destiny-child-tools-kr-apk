@@ -1,9 +1,9 @@
 package com.arsylk.mammonsmite.domain.retrofit
 
-import com.arsylk.mammonsmite.Cfg
-import com.arsylk.mammonsmite.model.api.response.CharDataFileResponse
+
 import com.arsylk.mammonsmite.model.api.response.CharacterSkinDataFileResponse
-import com.arsylk.mammonsmite.model.api.response.LocalePatchResponse
+import com.arsylk.mammonsmite.model.destinychild.CharData
+import com.arsylk.mammonsmite.model.destinychild.LocalePatch
 import retrofit2.http.*
 
 interface RetrofitApiService {
@@ -21,7 +21,7 @@ interface RetrofitApiService {
     suspend fun getModelPreview(@Path("id") id: Int)
 
     @GET("/api/get_english_patch/{md5}")
-    suspend fun getEnglishPatch(@Path("md5") md5: String = ""): LocalePatchResponse
+    suspend fun getEnglishPatch(@Path("md5") md5: String = ""): LocalePatch
 
     @GET("/api/get_russian_patch/{md5}")
     suspend fun getRussianPatch(@Path("md5") md5: String = "")
@@ -30,7 +30,7 @@ interface RetrofitApiService {
     suspend fun getDumpFile(@Path("name") name: String, @Path("md5") md5: String)
 
     @GET("/api/get_file/CHAR_DATA/")
-    suspend fun getCharDataFile(): CharDataFileResponse
+    suspend fun getCharDataFile(): Map<String, CharData>
 
     @GET("/api/get_file/CHARACTER_SKIN_DATA/")
     suspend fun getCharacterSkinDataFile(): CharacterSkinDataFileResponse

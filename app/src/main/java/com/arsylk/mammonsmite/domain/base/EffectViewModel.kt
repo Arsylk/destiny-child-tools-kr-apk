@@ -30,11 +30,18 @@ abstract class EffectViewModel<Effect : UiEffect> : ViewModel() {
         tag: String = LOADING_TAG,
         block: suspend CoroutineScope.() -> Unit
     ) {
-        _isLoadingTags.update { it + tag }
-        viewModelScope.launch(context) { kotlin.runCatching { block.invoke(this) } }
-            .invokeOnCompletion {
-                _isLoadingTags.update { it - tag }
-            }
+        setLoading(isLoading = true, tag)
+        viewModelScope.launch(context) {
+            kotlin.runCatching { block.invoke(this) }
+                .getOrElse { it.printStackTrace() }
+        }
+        .invokeOnCompletion {
+            setLoading(isLoading = false, tag)
+        }
+    }
+
+    protected fun setLoading(isLoading: Boolean, tag: String = LOADING_TAG) {
+        _isLoadingTags.update { if (isLoading) it + tag else it - tag }
     }
 
     private fun Flow<Set<String>>.toIsLoading() =

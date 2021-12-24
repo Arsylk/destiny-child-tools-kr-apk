@@ -2,27 +2,31 @@ package com.arsylk.mammonsmite.model.destinychild
 
 import androidx.annotation.DrawableRes
 import com.arsylk.mammonsmite.R
-import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
+import kotlinx.serialization.json.JsonNames
 
+@Serializable
 enum class ChildRole(@DrawableRes val iconRes: Int) {
-    @SerializedName("0")
+    @SerialName("0")
     NONE(android.R.color.transparent),
-    @SerializedName("1")
+    @SerialName("1")
     ATTACKER(R.drawable.ic_type_attacker),
-    @SerializedName("2")
+    @SerialName("2")
     TANK(R.drawable.ic_type_tank),
-    @SerializedName("3")
+    @SerialName("3")
     HEALER(R.drawable.ic_type_healer),
-    @SerializedName("4")
+    @SerialName("4")
     DEBUFFER(R.drawable.ic_type_debuffer),
-    @SerializedName("5")
+    @SerialName("5")
     SUPPORT(R.drawable.ic_type_support),
-    @SerializedName("6")
+    @SerialName("6")
     EXP(android.R.color.transparent),
-    @SerializedName("7")
+    @SerialName("7")
     UPGRADE(android.R.color.transparent),
-    @SerializedName("8")
+    @SerialName("8")
     OVER_LIMIT(android.R.color.transparent),
-    @SerializedName("9")
+    @SerialName("9")
     MAX_EXP(android.R.color.transparent);
 }

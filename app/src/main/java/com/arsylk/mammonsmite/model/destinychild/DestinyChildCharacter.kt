@@ -1,6 +1,5 @@
 package com.arsylk.mammonsmite.model.destinychild
 
-import com.arsylk.mammonsmite.model.api.response.CharData
 
 data class DestinyChildCharacter(
     val viewIdx: ViewIdx,

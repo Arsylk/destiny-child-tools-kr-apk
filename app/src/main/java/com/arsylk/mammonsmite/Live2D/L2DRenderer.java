@@ -238,7 +238,7 @@ public class L2DRenderer implements GLSurfaceView.Renderer {
                     mtnString.append(line);
                     mtnString.append("\n");
                 }
-                motionIdle = Live2DMotion.loadMotion(mtnString.toString().getBytes());
+                // motionIdle = Live2DMotion.loadMotion(mtnString.toString().getBytes());
             }
         }catch(Exception e) {
             e.printStackTrace();

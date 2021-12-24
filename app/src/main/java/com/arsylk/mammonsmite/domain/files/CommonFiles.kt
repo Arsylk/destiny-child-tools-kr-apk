@@ -14,5 +14,12 @@ object CommonFiles {
             if (Build.VERSION.SDK_INT <= 29) File(storage, "/Android/data/${BuildConfig.APPLICATION_ID}/files")
             else File(data, "/data/${BuildConfig.APPLICATION_ID}/files")
         }
-    val appFilesFolder by lazy { File(storage, "DCUnpacker") }
+
+    object External {
+        val appFilesFolder by lazy { File(storage, "DCUnpacker") }
+    }
+
+    object Internal {
+        val englishPatchFile by lazy { File(appDataFolder, "english_patch.json")}
+    }
 }
