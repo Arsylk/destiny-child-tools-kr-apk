@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.model.live2d
 
+import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import java.io.File
 
 data class L2DFileLoaded(
@@ -12,4 +13,13 @@ data class L2DFileLoaded(
         ?.firstOrNull()?.let { File(l2dFile.folder, it.filename) }
     val motionAttackFile = modelInfo.motionMap["attack"]
         ?.firstOrNull()?.let { File(l2dFile.folder, it.filename) }
+
+    val inferredViewIdx: ViewIdx? by lazy {
+        modelInfo.motionMap.values
+            .firstNotNullOfOrNull { list ->
+                list.firstNotNullOfOrNull { item ->
+                    ViewIdx.parse(item.filename)
+                }
+            }
+    }
 }

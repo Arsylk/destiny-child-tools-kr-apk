@@ -1,4 +1,4 @@
-package com.arsylk.mammonsmite.presentation.fragment.models.destinychild
+package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild
 
 import androidx.lifecycle.viewModelScope
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
@@ -8,8 +8,8 @@ import com.arsylk.mammonsmite.domain.repo.CharacterRepository
 import com.arsylk.mammonsmite.domain.safeListFiles
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.ordered
-import com.arsylk.mammonsmite.presentation.fragment.models.destinychild.ModelsDestinyChildFragment.ModelsTab
-import com.arsylk.mammonsmite.presentation.fragment.models.destinychild.adapter.ModelPacked
+import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.PckDestinyChildFragment.Tab
+import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter.ModelPacked
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -26,7 +26,7 @@ class ModelsDestinyChildViewModel(
     private val _allModels = MutableStateFlow(emptyList<ModelPacked>())
     private val _fileModels = MutableStateFlow(emptyList<ModelPacked>())
     private val _searchQuery = MutableStateFlow("")
-    private val _searchTab = MutableStateFlow(ModelsTab.ALl)
+    private val _searchTab = MutableStateFlow(Tab.ALl)
 
     val filteredModels = _searchTab.toFilteredModels()
     val searchQuery by lazy(_searchQuery::asStateFlow)
@@ -40,7 +40,7 @@ class ModelsDestinyChildViewModel(
         _searchQuery.value = query
     }
 
-    fun setSearchTab(tab: ModelsTab) {
+    fun setSearchTab(tab: Tab) {
         _searchTab.value = tab
     }
 
@@ -122,14 +122,14 @@ class ModelsDestinyChildViewModel(
         }
     }
 
-    private fun Flow<ModelsTab>.toFilteredModels() =
+    private fun Flow<Tab>.toFilteredModels() =
         flatMapLatest { tab ->
             _searchQuery
                 .flatMapLatest { query ->
                     val source = when (tab) {
-                        ModelsTab.DESTINYCHILD -> _destinychildModels
-                        ModelsTab.ALl -> _allModels
-                        ModelsTab.FILES -> _fileModels
+                        Tab.DESTINYCHILD -> _destinychildModels
+                        Tab.ALl -> _allModels
+                        Tab.FILES -> _fileModels
                     }
                     source.mapLatest { list ->
                         list.filter { item ->

@@ -17,6 +17,7 @@ object CommonFiles {
 
     object External {
         val appFilesFolder by lazy { File(storage, "DCUnpacker") }
+        val appUnpackedFolder by lazy { File(appFilesFolder, "Unpacked") }
     }
 
     object Internal {

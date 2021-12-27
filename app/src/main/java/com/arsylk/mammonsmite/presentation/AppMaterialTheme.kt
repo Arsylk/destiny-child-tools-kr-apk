@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import com.arsylk.mammonsmite.R
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 
 
 object AppMaterialTheme {
@@ -21,8 +22,22 @@ object AppMaterialTheme {
         error = Color(0xffd32f2f),
     )
 
+    val OxygenFontFamily = FontFamily(
+        Font(R.font.oxygen_regular, FontWeight.Normal),
+        Font(R.font.oxygen_bold, FontWeight.Bold),
+        Font(R.font.oxygen_light, FontWeight.Light),
+    )
+
+    val OxygenMonoFontFamily = FontFamily(
+        Font(R.font.oxygen_mono)
+    )
+
     val ConsoleFontFamily = FontFamily(
         Font(R.font.inconsolata_regular)
+    )
+
+    val Typography = Typography(
+        defaultFontFamily = OxygenFontFamily,
     )
 }
 
@@ -31,6 +46,7 @@ object AppMaterialTheme {
 fun AppMaterialTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colors = AppMaterialTheme.DarkColors,
+        typography = AppMaterialTheme.Typography,
         content = content,
     )
 }

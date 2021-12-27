@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.model.destinychild
 
+import com.arsylk.mammonsmite.domain.serializer.LocalePatchFileTypeSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -28,12 +29,10 @@ data class LocalePatchFile(
     val dict: Map<String, String>,
 ) {
 
-    @Serializable
-    enum class Type {
-        @SerialName("1")
-        DICT,
-        @SerialName("0")
-        TABLE,
-        UNKNOWN
+    @Serializable(with = LocalePatchFileTypeSerializer::class)
+    enum class Type(val serialInt: Int) {
+        DICT(1),
+        TABLE(0),
+        UNKNOWN(-1),
     }
 }

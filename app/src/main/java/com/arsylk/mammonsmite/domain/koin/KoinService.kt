@@ -17,7 +17,8 @@ import com.arsylk.mammonsmite.presentation.dialog.file.picker.FilePickerViewMode
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackViewModel
 import com.arsylk.mammonsmite.presentation.fragment.home.HomeViewModel
 import com.arsylk.mammonsmite.presentation.fragment.l2dpreview.L2DPreviewViewModel
-import com.arsylk.mammonsmite.presentation.fragment.models.destinychild.ModelsDestinyChildViewModel
+import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.ModelsDestinyChildViewModel
+import com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.PckUnpackedViewModel
 import com.arsylk.mammonsmite.presentation.fragment.settings.SettingsViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +35,6 @@ import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 
@@ -65,9 +65,10 @@ object KoinService {
                     viewModel { HomeViewModel(get(), get()) }
                     viewModel { ModelsDestinyChildViewModel(get(), get()) }
                     viewModel { SettingsViewModel(get()) }
-                    viewModel { param -> FilePickerViewModel(param.get()) }
-                    viewModel { param -> PckUnpackViewModel(get(), file = param.get()) }
+                    viewModel { param -> FilePickerViewModel(type = param.get()) }
+                    viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), l2dFile = param.get(), get()) }
+                    viewModel { param -> PckUnpackedViewModel(get(), get(), get(), get(), saveRequest = param.get()) }
                 }
             )
         }

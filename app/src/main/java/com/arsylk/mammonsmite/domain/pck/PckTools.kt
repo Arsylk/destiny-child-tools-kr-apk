@@ -22,6 +22,7 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.*
 import java.nio.ByteOrder
@@ -29,7 +30,9 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
 @ExperimentalSerializationApi
-class PckTools(private val json: Json) {
+class PckTools(
+    private val json: Json
+) {
 
     fun readPackedPckAsFlow(
         file: File,
@@ -206,7 +209,7 @@ class PckTools(private val json: Json) {
         flow {
             emit(Initial())
             val (modelInfoEntry, modelInfo) = findModelJson(unpackedPck)
-                ?: throw IllegalArgumentException("Could not find or parse model_info.json")
+                ?: throw IllegalArgumentException("Could not find or parse model.json")
             emit(InProgress(10.0f))
 
             val entryLogger: suspend (UnpackedPckEntry, UnpackedPckEntry) -> Unit = { old, new ->
@@ -341,7 +344,7 @@ class PckTools(private val json: Json) {
         var updated = false
         val newPckFile = UnpackedPckFile(
             folder = folder,
-            header = UnpackedPckHeader(
+            header = header.copy(
                 entries = header.entries.map { entry ->
                     if (entry.hashString == newEntry.hashString) {
                         val oldFile = getEntryFile(entry)
@@ -378,6 +381,25 @@ class PckTools(private val json: Json) {
         }
     }
 
+    @Throws(IOException::class)
+    suspend fun saveUnpackedPckFile(pck: UnpackedPckFile, folder: File): UnpackedPckFile {
+        return withContext(Dispatchers.IO) {
+            pck.folder.safeListFiles().forEach {
+                it.copyTo(File(folder, it.name))
+            }
+            pck.copy(folder = folder)
+        }
+    }
+
+    @Throws(IOException::class, SerializationException::class)
+    suspend fun readUnpackedPckFile(folder: File): UnpackedPckFile {
+        return withContext(Dispatchers.IO) {
+            val file = File(folder, UnpackedPckFile.HEADER_FILENAME)
+            val header = json.decodeFromFile<UnpackedPckHeader>(file)
+            UnpackedPckFile(folder, header)
+        }
+    }
+
     companion object {
         private val PCK_IDENTIFIER = byteArrayOf(
             0x50.toByte(),
@@ -392,6 +414,6 @@ class PckTools(private val json: Json) {
         private val HASH_MODEL_OR_TEXTURE = "660E0026"
         private val HASH_CHARACTER_DAT = "050E0025"
 
-        const val MODEL_INFO_NAME = "model_info.json"
+        const val MODEL_INFO_NAME = "model.json"
     }
 }

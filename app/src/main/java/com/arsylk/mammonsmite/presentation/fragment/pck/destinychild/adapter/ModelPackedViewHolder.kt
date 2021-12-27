@@ -1,4 +1,4 @@
-package com.arsylk.mammonsmite.presentation.fragment.models.destinychild.adapter
+package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter
 
 import android.widget.ImageView
 import androidx.core.view.isVisible
@@ -8,7 +8,7 @@ import com.arsylk.mammonsmite.databinding.ItemModelPackedBinding
 import com.arsylk.mammonsmite.databinding.ItemModelPackedFileBinding
 import com.arsylk.mammonsmite.domain.base.InlineRecyclerAdapter
 import com.arsylk.mammonsmite.model.destinychild.CharData
-import com.arsylk.mammonsmite.presentation.fragment.models.destinychild.adapter.ModelPackedAdapter.*
+import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter.ModelPackedAdapter.*
 import java.io.File
 
 class ModelPackedViewHolder(

@@ -4,12 +4,16 @@ import com.arsylk.mammonsmite.domain.files.CommonFiles
 import com.arsylk.mammonsmite.domain.repo.CharacterRepository
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
 import com.arsylk.mammonsmite.domain.sumOf
+import com.arsylk.mammonsmite.domain.sync.module.cacheableModule
 import com.arsylk.mammonsmite.model.common.HashUtils
+import com.arsylk.mammonsmite.model.destinychild.LocalePatch
 import kotlinx.coroutines.flow.*
 import com.manimani.app.domain.sync.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
@@ -50,13 +54,12 @@ class SyncService(
                 tag = "locale group"
                 required = true
 
-                module {
+                cacheableModule<LocalePatch> {
                     tag = "english patch module"
-                    action {
-                        val md5 = HashUtils.md5(CommonFiles.Internal.englishPatchFile)
-                        val resp = service.getEnglishPatch(md5 ?: "")
-                        println(resp)
-                    }
+                    file = CommonFiles.Internal.englishPatchFile
+                    fetch { service.getEnglishPatch(it) }
+                    serialize { json.encodeToString(it) }
+                    deserialize { json.decodeFromString(it) }
                 }
             }
         }

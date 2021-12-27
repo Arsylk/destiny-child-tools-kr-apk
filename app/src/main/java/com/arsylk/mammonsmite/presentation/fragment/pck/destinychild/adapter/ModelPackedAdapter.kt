@@ -1,4 +1,4 @@
-package com.arsylk.mammonsmite.presentation.fragment.models.destinychild.adapter
+package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater

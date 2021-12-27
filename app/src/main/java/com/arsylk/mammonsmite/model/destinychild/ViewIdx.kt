@@ -10,7 +10,7 @@ data class ViewIdx(
     val type: String,
     val number: Int,
     val variant: Int,
-) {
+): java.io.Serializable {
     val string = "${type.lowercase()}${number.toString().padStart(3, '0')}_${variant.toString().padStart(2, '0')}"
     val iconUrl get() = "${Cfg.API_URL.trimEnd('/')}/static/icons/${string}.png"
 

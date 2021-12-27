@@ -1,57 +1,42 @@
 package com.arsylk.mammonsmite.presentation.dialog.pck.unpack
 
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
-import androidx.annotation.IdRes
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Article
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.materialIcon
+import androidx.compose.material.icons.filled.Preview
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.arsylk.mammonsmite.NavGraphDirections
-import com.arsylk.mammonsmite.R
-import com.arsylk.mammonsmite.domain.base.InlineRecyclerAdapter
 import com.arsylk.mammonsmite.domain.capitalizeFirstOnly
 import com.arsylk.mammonsmite.domain.common.IntentUtils
 import com.arsylk.mammonsmite.domain.launchWhenResumed
-import com.arsylk.mammonsmite.presentation.composable.LogLineItem
+import com.arsylk.mammonsmite.presentation.composable.Live2DSurface
 import com.arsylk.mammonsmite.presentation.composable.LogLines
-import com.arsylk.mammonsmite.presentation.dialog.BaseBindingDialog
 import com.arsylk.mammonsmite.presentation.dialog.BaseComposeDialog
+import com.arsylk.mammonsmite.presentation.view.live2d.Live2DSurfaceConfig
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
-import java.io.File
 
 @ExperimentalFoundationApi
 @ExperimentalSerializationApi
@@ -66,12 +51,11 @@ class PckUnpackDialog : BaseComposeDialog() {
                 when (effect) {
                     Effect.Dismiss -> dismiss()
                     is Effect.OpenFile -> IntentUtils.openFile(context, effect.file)
-                    is Effect.PreviewModel -> {
-                        val direction = NavGraphDirections
-                            .actionL2dpreview(effect.l2dFile)
+                    is Effect.SaveUnpacked -> {
+                        val direction = PckUnpackDialogDirections
+                            .actionSavePckUnpacked(effect.request)
                         findNavController().navigate(direction)
                     }
-                    is Effect.SaveUnpacked -> TODO()
                 }
             }
         }
@@ -79,19 +63,23 @@ class PckUnpackDialog : BaseComposeDialog() {
 
     @Composable
     override fun ComposeContent() {
+        val tab by viewModel.tab.collectAsState()
+        var expanded by remember(tab) { mutableStateOf(false) }
         Scaffold(
             topBar = { TopBar() },
             bottomBar = { BottomBar() },
-            floatingActionButton = { ActionButton() },
+            floatingActionButton = {
+                if (tab == Tab.PREVIEW) return@Scaffold
+                ActionButton(expanded) { expanded = !expanded }
+            },
         ) {
             Box(modifier = Modifier.padding(it)) {
-                val tab by viewModel.tab.collectAsState()
                 when (tab) {
                     Tab.FILES -> FilesTabContent()
+                    Tab.PREVIEW -> PreviewTabContent()
                     Tab.LOG -> LogTabContent()
                 }
             }
-
         }
     }
 
@@ -126,8 +114,7 @@ class PckUnpackDialog : BaseComposeDialog() {
     }
 
     @Composable
-    fun ActionButton() {
-        var expanded by remember { mutableStateOf(false) }
+    fun ActionButton(expanded: Boolean, onClick: () -> Unit) {
         val rotation by animateFloatAsState(targetValue = if (expanded) 90.0f else 0.0f)
         val alpha by animateFloatAsState(targetValue = if (expanded) 1.0f else 0.0f)
         val actionSet by viewModel.actionSet.collectAsState()
@@ -150,9 +137,7 @@ class PckUnpackDialog : BaseComposeDialog() {
                 Spacer(modifier = Modifier.height(12.dp))
             }
             FloatingActionButton(
-                onClick = {
-                    expanded = !expanded
-                },
+                onClick = onClick,
                 modifier = Modifier.align(Alignment.End)
             ) {
                 Icon(
@@ -170,6 +155,29 @@ class PckUnpackDialog : BaseComposeDialog() {
         LazyColumn(modifier = Modifier.fillMaxSize()) {
             items(itemList) {
                 PckHeaderItem(it)
+            }
+        }
+    }
+
+    @Composable
+    fun PreviewTabContent() {
+        val loadedL2dFile by viewModel.loadedL2dFile.collectAsState()
+        var surfaceConfig by remember { mutableStateOf(Live2DSurfaceConfig.Default) }
+        Box(Modifier.fillMaxSize()) {
+            if (loadedL2dFile != null) {
+                Live2DSurface(
+                    loadedL2dFile = loadedL2dFile,
+                    surfaceConfig = surfaceConfig,
+                    playMotion = false,
+                ) { offset, scale ->
+                    surfaceConfig = surfaceConfig.copy(
+                        scale = surfaceConfig.scale * scale,
+                        offsetX = surfaceConfig.offsetX + offset.x,
+                        offsetY = surfaceConfig.offsetY + offset.y,
+                    )
+                }
+            }else {
+                Text("Can't preview", modifier=Modifier.align(Alignment.Center))
             }
         }
     }
@@ -200,14 +208,15 @@ class PckUnpackDialog : BaseComposeDialog() {
 
 
     enum class Tab(val icon: ImageVector) {
-        FILES(Icons.Default.Description), LOG(Icons.Default.Article)
+        FILES(Icons.Default.Description),
+        PREVIEW(Icons.Default.Preview),
+        LOG(Icons.Default.Article),
     }
 
     enum class Action(val text: String) {
         CLEAN_UP("Clean up"),
         OPEN_PACKED("Open Packed"),
         OPEN_UNPACKED("Open Unpacked"),
-        PREVIEW_MODEL("Preview Model"),
-        SAVE_MODEL("Save Model"),
+        SAVE_MODEL("Save"),
     }
 }

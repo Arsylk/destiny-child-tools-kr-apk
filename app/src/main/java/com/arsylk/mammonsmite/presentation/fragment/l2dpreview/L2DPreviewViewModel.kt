@@ -7,8 +7,11 @@ import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.model.live2d.L2DFile
 import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
+import com.arsylk.mammonsmite.presentation.view.live2d.BackgroundScale
+import com.arsylk.mammonsmite.presentation.view.live2d.Live2DSurfaceConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.serialization.ExperimentalSerializationApi
 import java.io.File
 
@@ -19,9 +22,9 @@ class L2DPreviewViewModel(
     private val prefs: AppPreferences,
 ) : EffectViewModel<Effect>() {
     private val _loadedL2dFile = MutableStateFlow<L2DFileLoaded?>(null)
-    private val _backgroundFile = MutableStateFlow<File?>(null)
+    private val _surfaceConfig = MutableStateFlow(Live2DSurfaceConfig.Default)
     val loadedL2dFile by lazy(_loadedL2dFile::asStateFlow)
-    val backgroundFile by lazy(_backgroundFile::asStateFlow)
+    val surfaceConfig by lazy(_surfaceConfig::asStateFlow)
 
     init {
         withLoading {
@@ -30,8 +33,13 @@ class L2DPreviewViewModel(
             _loadedL2dFile.value = L2DFileLoaded(l2dFile, modelInfo)
 
             val bgFolder = File(prefs.destinychildBackgroundsPath)
-            _backgroundFile.value = DestinyChildFiles.getRandomBackgroundFile(bgFolder)
+            val bgFile = DestinyChildFiles.getRandomBackgroundFile(bgFolder)
+            updateSurfaceConfig { copy(bgFile = bgFile) }
         }
+    }
+
+    fun updateSurfaceConfig(update: Live2DSurfaceConfig.() -> Live2DSurfaceConfig) {
+        _surfaceConfig.update(update)
     }
 }
 

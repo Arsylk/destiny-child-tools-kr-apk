@@ -9,8 +9,6 @@ import kotlinx.serialization.Serializable
 data class L2DHeader(
     @SerialName("filename")
     val modelInfoFilename: String,
-    @SerialName("name")
-    val name: String = "",
     @SerialName("view_idx")
     val viewIdx: ViewIdx? = null,
-)
+): java.io.Serializable

@@ -1,26 +1,19 @@
-package com.arsylk.mammonsmite.presentation.fragment.models.destinychild
+package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavDirections
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DividerItemDecoration
-import coil.load
 import com.arsylk.mammonsmite.NavGraphDirections
 import com.arsylk.mammonsmite.R
-import com.arsylk.mammonsmite.databinding.FragmentModelsDestinychildBinding
-import com.arsylk.mammonsmite.databinding.ItemModelPackedBinding
-import com.arsylk.mammonsmite.domain.base.InlineRecyclerAdapter
-import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
+import com.arsylk.mammonsmite.databinding.FragmentPckDestinychildBinding
 import com.arsylk.mammonsmite.presentation.fragment.BaseBindingFragment
-import com.arsylk.mammonsmite.presentation.fragment.models.destinychild.adapter.ModelPackedAdapter
+import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter.ModelPackedAdapter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -32,12 +25,12 @@ import java.io.File
 @ExperimentalFoundationApi
 @ExperimentalMaterialApi
 @ExperimentalCoroutinesApi
-class ModelsDestinyChildFragment : BaseBindingFragment<FragmentModelsDestinychildBinding>() {
+class PckDestinyChildFragment : BaseBindingFragment<FragmentPckDestinychildBinding>() {
     private val viewModel by viewModel<ModelsDestinyChildViewModel>()
     private val adapter by lazy(::ModelPackedAdapter)
 
     override fun inflate(inflater: LayoutInflater) =
-        FragmentModelsDestinychildBinding.inflate(inflater)
+        FragmentPckDestinychildBinding.inflate(inflater)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -60,9 +53,9 @@ class ModelsDestinyChildFragment : BaseBindingFragment<FragmentModelsDestinychil
             }
             filtersView.setOnItemSelectedListener {
                 when (it.itemId) {
-                    R.id.filter_destinychild -> viewModel.setSearchTab(ModelsTab.DESTINYCHILD)
-                    R.id.filter_all -> viewModel.setSearchTab(ModelsTab.ALl)
-                    R.id.filter_files -> viewModel.setSearchTab(ModelsTab.FILES)
+                    R.id.filter_destinychild -> viewModel.setSearchTab(Tab.DESTINYCHILD)
+                    R.id.filter_all -> viewModel.setSearchTab(Tab.ALl)
+                    R.id.filter_files -> viewModel.setSearchTab(Tab.FILES)
                 }
                 return@setOnItemSelectedListener true
             }
@@ -89,9 +82,9 @@ class ModelsDestinyChildFragment : BaseBindingFragment<FragmentModelsDestinychil
             viewModel.searchTab.collectLatest { tab ->
                 binding?.apply {
                     filtersView.selectedItemId = when (tab) {
-                        ModelsTab.DESTINYCHILD -> R.id.filter_destinychild
-                        ModelsTab.ALl -> R.id.filter_all
-                        ModelsTab.FILES -> R.id.filter_files
+                        Tab.DESTINYCHILD -> R.id.filter_destinychild
+                        Tab.ALl -> R.id.filter_all
+                        Tab.FILES -> R.id.filter_files
                     }
                 }
             }
@@ -104,5 +97,5 @@ class ModelsDestinyChildFragment : BaseBindingFragment<FragmentModelsDestinychil
         findNavController().navigate(direction)
     }
 
-    enum class ModelsTab { DESTINYCHILD, ALl, FILES }
+    enum class Tab { DESTINYCHILD, ALl, FILES }
 }
