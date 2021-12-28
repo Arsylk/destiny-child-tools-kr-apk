@@ -7,6 +7,7 @@ import com.arsylk.mammonsmite.domain.asSuccess
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.files.CommonFiles
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
@@ -59,7 +60,7 @@ class PckUnpackViewModel(
         withLoading {
             _actionSet.update { it + Action.OPEN_PACKED }
             val packedPckFile = pckTools
-                .readPackedPckAsFlow(file, _logChannel)
+                .readPackedPckAsFlow(IFile(file), _logChannel)
                 .onEach { _unpackProgress.value = it.asOperationProgress().endAt(50.0f) }
                 .asSuccess()
             _packedPck.value = packedPckFile

@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter
 
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.model.destinychild.CharData
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.preferred
@@ -8,7 +9,7 @@ import java.io.File
 
 data class ModelPacked(
     val _id: Int,
-    val files: List<File>,
+    val files: List<IFile>,
     val viewIdxList: List<ViewIdx>,
     val char: CharData?,
     val resolvedName: String?,

@@ -2,24 +2,20 @@ package com.arsylk.mammonsmite.presentation.fragment.pck.unpacked
 
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material.icons.filled.Source
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.fragment.navArgs
-import com.arsylk.mammonsmite.model.destinychild.ViewIdx
-import com.arsylk.mammonsmite.presentation.composable.InputDialogContent
-import com.arsylk.mammonsmite.presentation.composable.InputDialogField
+import com.arsylk.mammonsmite.presentation.dialog.pck.unpacked.PckUnpackedConfigDialog
 import com.arsylk.mammonsmite.presentation.fragment.BaseComposeFragment
 import com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.items.UnpackedLive2DItem
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -33,7 +29,7 @@ class PckUnpackedFragment : BaseComposeFragment() {
 
     @Composable
     override fun ComposeContent() {
-        UnpackedPckSaveDialog(args.saveRequest)
+        args.saveRequest?.run { UnpackedPckSaveDialog(this) }
         Column(Modifier.fillMaxSize()) {
             var selectedTab by remember { mutableStateOf(Tab.LIVE2D) }
             Box(
@@ -63,81 +59,25 @@ class PckUnpackedFragment : BaseComposeFragment() {
     }
 
     @Composable
-    fun UnpackedPckSaveDialog(request: PckUnpackedSaveRequest?) {
-        var showDialog by remember(request) { mutableStateOf(request != null) }
-        if (!showDialog) return
-        val input by viewModel.saveInput.collectAsState()
-        input?.apply {
-            Dialog(onDismissRequest = { showDialog = !showDialog }) {
-                InputDialogContent(title = "Save Unpacked") {
-                    val viewIdx = remember(viewIdxText) { ViewIdx.parse(viewIdxText) }
-
-                    val nameError = name.isBlank()
-                    val folderError by viewModel.saveInputFolderExists.collectAsState()
-                    val viewIdxError = (viewIdx == null && viewIdxText.isNotBlank()) && isL2d
-
-
-                    Column {
-                        InputDialogField(
-                            labelText = "Name",
-                            value = name,
-                            isError = nameError,
-                            errorText = "Name can't be blank",
-                            onValueChange = { viewModel.updateSaveInput { copy(name = it) } },
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        InputDialogField(
-                            labelText = "Folder Name",
-                            value = folderName,
-                            isError = folderError,
-                            errorText = if (folderName.isBlank()) "Folder can't be blank" else "Folder already exists",
-                            onValueChange = { viewModel.updateSaveInput { copy(folderName = it) } },
-                        )
-                        if (isL2d) {
-                            Spacer(Modifier.height(12.dp))
-                            InputDialogField(
-                                labelText = "View Idx",
-                                value = viewIdxText,
-                                isError = viewIdxError,
-                                errorText = "Invalid View Idx",
-                                onValueChange = { viewModel.updateSaveInput { copy(viewIdxText = it) } },
-                            )
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        InputDialogField(
-                            labelText = "Game Relative Path",
-                            value = gameRelativePath,
-                            isError = false,
-                            onValueChange = { viewModel.updateSaveInput { copy(gameRelativePath = it) } },
-                        )
-                        Spacer(Modifier.height(12.dp))
-                        OutlinedButton(
-                            enabled = !(nameError || folderError || viewIdxError),
-                            modifier = Modifier.align(Alignment.End),
-                            onClick = {
-                                showDialog = false
-                                viewModel.saveUnpacked()
-                            },
-                        ) {
-                            Text("Save")
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    @Composable
     fun UnpackedLive2DTab(listState: LazyListState) {
         val items by viewModel.live2dItems.collectAsState()
+        var showItemConfig by remember { mutableStateOf<UnpackedLive2DItem?>(null) }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             state = listState,
         ) {
-            items(items, key = UnpackedLive2DItem::key) { item ->
-                UnpackedLive2DItem(item = item, onClick = { println(it) })
+            itemsIndexed(items, key = { _, item -> item.key }) { i, item ->
+                UnpackedLive2DItem(
+                    item = item,
+                    onClick = { showItemConfig = items[i] }
+                )
+            }
+        }
+        showItemConfig?.run {
+            UnpackedLive2DConfigDialog(this) {
+                showItemConfig = null
             }
         }
     }
@@ -145,6 +85,46 @@ class PckUnpackedFragment : BaseComposeFragment() {
     @Composable
     fun UnpackedPckTab() {
 
+    }
+
+    @Composable
+    fun UnpackedPckSaveDialog(request: PckUnpackedSaveRequest) {
+        var showDialog by remember(request) { mutableStateOf(true) }
+        if (!showDialog) return
+
+        var state by remember(request) {
+            mutableStateOf(viewModel.prepareSaveState(request))
+        }
+        PckUnpackedConfigDialog(
+            state = state,
+            onDismissRequest = { showDialog = false },
+            onStateChanged = { state = it },
+        ) {
+            showDialog = false
+            viewModel.saveUnpackedPckConfig(request, it)
+        }
+    }
+
+    @Composable
+    fun UnpackedLive2DConfigDialog(item: UnpackedLive2DItem, onDismiss: () -> Unit) {
+        var showDialog by remember(item) { mutableStateOf(true) }
+        if (!showDialog) return
+
+        var state by remember(item) {
+            mutableStateOf(viewModel.prepareLive2DConfigState(item))
+        }
+        PckUnpackedConfigDialog(
+            state = state,
+            onDismissRequest = {
+                showDialog = false
+                onDismiss.invoke()
+            },
+            onStateChanged = { state = it },
+        ) {
+            showDialog = false
+            onDismiss.invoke()
+            viewModel.saveUnpackedPckConfig(item.pck, item.l2dFile, it)
+        }
     }
 
     enum class Tab(val text: String, val icon: ImageVector) {

@@ -185,5 +185,11 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/wallpaper" />
         </service>
+
+
+        <provider
+            android:exported="true"
+            android:authorities="${applicationId}.SafProvider"
+            android:name=".domain.files.SafProvider"/>
     </application>
 </manifest>

@@ -3,6 +3,7 @@ package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild
 import androidx.lifecycle.viewModelScope
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.repo.CharacterRepository
 import com.arsylk.mammonsmite.domain.safeListFiles
@@ -47,9 +48,10 @@ class ModelsDestinyChildViewModel(
     private fun listPackedModels() {
         val _id = AtomicInteger(0)
         viewModelScope.launch(Dispatchers.IO) {
-            val files = File(prefs.destinychildModelsPath)
-                .safeListFiles { it.name.endsWith(".pck") && it.isFile }
-            val viewIdxFiles = buildMap<ViewIdx?, List<File>> {
+            val files = IFile(prefs.destinychildModelsPath)
+                .listFiles()
+                .filter { it.name.endsWith(".pck") && it.isFile }
+            val viewIdxFiles = buildMap<ViewIdx?, List<IFile>> {
                 files.forEach { file ->
                     val viewIdx = ViewIdx.parse(file.name)
                     val entry = get(viewIdx).orEmpty()

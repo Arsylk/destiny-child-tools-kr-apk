@@ -1,6 +1,7 @@
 package com.arsylk.mammonsmite.domain.pck
 
 import com.arsylk.mammonsmite.domain.*
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.model.common.*
 import com.arsylk.mammonsmite.model.common.OperationStateResult.*
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
@@ -35,7 +36,7 @@ class PckTools(
 ) {
 
     fun readPackedPckAsFlow(
-        file: File,
+        file: IFile,
         log: SendChannel<LogLine> = LogLineChannel.Default
     ): Flow<OperationStateResult<PackedPckFile>> =
         flow {

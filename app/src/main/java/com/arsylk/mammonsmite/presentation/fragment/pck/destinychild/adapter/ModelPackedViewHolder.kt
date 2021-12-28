@@ -7,6 +7,7 @@ import coil.load
 import com.arsylk.mammonsmite.databinding.ItemModelPackedBinding
 import com.arsylk.mammonsmite.databinding.ItemModelPackedFileBinding
 import com.arsylk.mammonsmite.domain.base.InlineRecyclerAdapter
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.model.destinychild.CharData
 import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter.ModelPackedAdapter.*
 import java.io.File
@@ -14,7 +15,7 @@ import java.io.File
 class ModelPackedViewHolder(
     private val binding: ItemModelPackedBinding,
 ) : RecyclerView.ViewHolder(binding.root) {
-    private val adapter = InlineRecyclerAdapter<File, ItemModelPackedFileBinding>(
+    private val adapter = InlineRecyclerAdapter<IFile, ItemModelPackedFileBinding>(
         inflate = ItemModelPackedFileBinding::inflate,
         bind = {
             binding.root.setOnClickListener { adapter.onClick(item) }
@@ -59,7 +60,7 @@ class ModelPackedViewHolder(
         }
     }
 
-    private fun bindFiles(files: List<File>, onAction: (Action) -> Unit) {
+    private fun bindFiles(files: List<IFile>, onAction: (Action) -> Unit) {
         adapter.items = files
         adapter.onClick = { onAction.invoke(Action.FileClick(it)) }
         binding.filesRecyclerView.adapter = adapter

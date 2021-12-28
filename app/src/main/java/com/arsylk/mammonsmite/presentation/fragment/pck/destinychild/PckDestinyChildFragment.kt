@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.arsylk.mammonsmite.NavGraphDirections
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.databinding.FragmentPckDestinychildBinding
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.presentation.fragment.BaseBindingFragment
 import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter.ModelPackedAdapter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -91,9 +92,9 @@ class PckDestinyChildFragment : BaseBindingFragment<FragmentPckDestinychildBindi
         }
     }
 
-    private fun openPckUnpackDialog(file: File) {
+    private fun openPckUnpackDialog(file: IFile) {
         val direction = NavGraphDirections
-            .actionPckUnpack(file)
+            .actionPckUnpack(File(file.absolutePath))
         findNavController().navigate(direction)
     }
 

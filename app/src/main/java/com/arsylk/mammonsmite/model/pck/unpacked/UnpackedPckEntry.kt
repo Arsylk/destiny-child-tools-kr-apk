@@ -14,7 +14,7 @@ data class UnpackedPckEntry(
     val filename: String,
     @SerialName("hash")
     val hashString: String,
-) {
+): java.io.Serializable {
     @Transient
     val type: PckEntryFileType = PckEntryFileType.values()
         .firstOrNull { it.extension == filename.substringAfterLast('.') }

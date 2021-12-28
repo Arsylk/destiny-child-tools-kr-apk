@@ -8,9 +8,12 @@ import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.repo.CharacterRepository
-import com.arsylk.mammonsmite.model.common.FileListFlow
+import com.arsylk.mammonsmite.domain.base.FileListFlow
+import com.arsylk.mammonsmite.model.common.InputField
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.live2d.L2DFile
+import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
+import com.arsylk.mammonsmite.presentation.dialog.pck.unpacked.PckUnpackedConfigState
 import com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.items.UnpackedLive2DItem
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -25,34 +28,103 @@ class PckUnpackedViewModel(
     private val saveRequest: PckUnpackedSaveRequest? = null,
 ) : EffectViewModel<Effect>() {
     private val folder = CommonFiles.External.appUnpackedFolder
-    private val _saveInput = MutableStateFlow<PckUnpackedSaveInput?>(null)
-    val saveInput by lazy(_saveInput::asStateFlow)
-    val saveInputFolderExists = _saveInput.toFolderExists()
 
-    private val foldersFlow = FileListFlow(viewModelScope, folder) { it.isDirectory && it.exists() && it.canRead() }
+    private val foldersFlow =
+        FileListFlow(viewModelScope, folder) { it.isDirectory && it.exists() && it.canRead() }
     val live2dItems = foldersFlow.toLive2DItems()
 
 
-    init {
-        // show save unpacked pck dialog if requested
-        saveRequest?.also(::prepareSaveInput)
+    fun prepareSaveState(request: PckUnpackedSaveRequest): PckUnpackedConfigState {
+        val folder = File(folder, request.unpackedPck.folder.name)
+        val viewIdx = saveRequest?.inferredViewIdx
+        val name = repo.viewIdxNames.value[viewIdx]
+
+        return PckUnpackedConfigState(
+            type = PckUnpackedConfigState.Type.SAVE,
+            name = InputField(
+                name ?: folder.name,
+                { it.isNotBlank() },
+                {
+                    when {
+                        it.isBlank() -> "Name can't be blank"
+                        else -> null
+                    }
+                }
+            ),
+            folder = InputField(
+                folder.name,
+                { !File(folder, it).exists() },
+                {
+                    when {
+                        File(folder, it).exists() -> "Folder already exists"
+                        it.isBlank() -> "Folder can't be blank"
+                        else -> null
+                    }
+                }
+            ),
+            isL2d = request.l2dFile != null,
+            viewIdx = InputField(
+                viewIdx?.string ?: "",
+                { ViewIdx.parse(it) != null },
+                {
+                    when {
+                        it.isBlank() -> null
+                        ViewIdx.parse(it) == null -> "Invalid View Idx"
+                        else -> null
+                    }
+                }
+            ),
+            gameRelativePath = InputField(
+                request.unpackedPck.header.gameRelativePath
+            )
+        )
     }
 
-    fun updateSaveInput(block: PckUnpackedSaveInput.() -> PckUnpackedSaveInput) {
-        _saveInput.update { if (it != null) block(it) else null }
+    fun prepareLive2DConfigState(item: UnpackedLive2DItem): PckUnpackedConfigState {
+        return PckUnpackedConfigState(
+            type = PckUnpackedConfigState.Type.CONFIG,
+            name = InputField(
+                item.pck.header.name,
+                { it.isNotBlank() },
+                {
+                    when {
+                        it.isBlank() -> "Name can't be blank"
+                        else -> null
+                    }
+                }
+            ),
+            folder = InputField(item.pck.folder.name),
+            isL2d = true,
+            viewIdx = InputField(
+                item.l2dFile.header.viewIdx?.string ?: "",
+                { ViewIdx.parse(it) != null },
+                {
+                    when {
+                        it.isBlank() -> null
+                        ViewIdx.parse(it) == null -> "Invalid View Idx"
+                        else -> null
+                    }
+                }
+            ),
+            gameRelativePath = InputField(
+                item.pck.header.gameRelativePath,
+            )
+        )
     }
 
-    fun saveUnpacked() {
+    fun saveUnpackedPckConfig(
+        request: PckUnpackedSaveRequest,
+        state: PckUnpackedConfigState
+    ) {
         withLoading {
-            val input = _saveInput.value ?: return@withLoading
-            var (pck, l2d) = saveRequest ?: return@withLoading
+            var (pck, l2d) = request
 
-            val dst = File(folder, input.folderName)
+            val dst = File(folder, state.folder.value)
             pck = pck.copy(
                 header = pck.header
                     .copy(
-                        name = input.name,
-                        gameRelativePath = input.gameRelativePath,
+                        name = state.name.value,
+                        gameRelativePath = state.gameRelativePath.value,
                     )
             )
             pck = pckTools.saveUnpackedPckFile(pck, dst)
@@ -62,7 +134,7 @@ class PckUnpackedViewModel(
                 copy(
                     folder = dst,
                     header = header.copy(
-                        viewIdx = ViewIdx.parse(input.viewIdxText),
+                        viewIdx = ViewIdx.parse(state.viewIdx.value),
                     )
                 )
             }
@@ -71,23 +143,38 @@ class PckUnpackedViewModel(
         }
     }
 
-    private fun prepareSaveInput(request: PckUnpackedSaveRequest) {
-        val folder = File(folder, request.unpackedPck.folder.name)
-        val viewIdx = saveRequest?.inferredViewIdx
-        val name = repo.viewIdxNames.value[viewIdx]
-        _saveInput.value =  PckUnpackedSaveInput(
-            folderName = folder.name,
-            name = name ?: folder.name,
-            isL2d = request.l2dFile != null,
-            viewIdxText = viewIdx?.string ?: "",
-            gameRelativePath = request.unpackedPck.header.gameRelativePath
-        )
+    fun saveUnpackedPckConfig(
+        pck: UnpackedPckFile,
+        l2d: L2DFile?,
+        state: PckUnpackedConfigState,
+    ) {
+        withLoading {
+            pckTools.writeUnpackedPckFileHeader(
+                pck.run {
+                    copy(
+                        header = header
+                            .copy(
+                                name = state.name.value,
+                                gameRelativePath = state.gameRelativePath.value,
+                            )
+                    )
+                }
+            )
+            if (l2d != null) {
+                pckTools.writeL2DFileHeader(
+                    l2d.run {
+                        copy(
+                            header = header.copy(
+                                viewIdx = ViewIdx.parse(state.viewIdx.value),
+                            )
+                        )
+                    }
+                )
+            }
+            foldersFlow.update()
+        }
     }
 
-    private fun Flow<PckUnpackedSaveInput?>.toFolderExists() =
-        mapLatest {
-            if (it != null) File(folder, it.folderName).run { isDirectory && exists() } else false
-        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
 
     private fun FileListFlow.toLive2DItems(): StateFlow<List<UnpackedLive2DItem>> {
         return shared

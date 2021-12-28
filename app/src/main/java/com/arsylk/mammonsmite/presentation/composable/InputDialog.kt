@@ -13,6 +13,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.arsylk.mammonsmite.model.common.InputField
 
 
 @Preview()
@@ -59,10 +60,32 @@ fun InputDialogContent(title: String = "Test", content: @Composable BoxScope.() 
 
 @Composable
 fun InputDialogField(
+    input: InputField<String>,
+    labelText: String? = null,
+    showErrorText: Boolean = true,
+    onValueChange: (InputField<String>) -> Unit,
+) {
+    InputDialogField(
+        value = input.value,
+        labelText = labelText,
+        isError = input.isError,
+        errorText = input.errorText,
+        showErrorText = showErrorText,
+    ) {
+        onValueChange(
+            input.copy(
+                value = it
+            )
+        )
+    }
+}
+
+@Composable
+fun InputDialogField(
     value: String,
     labelText: String? = null,
     isError: Boolean = false,
-    errorText: String = "",
+    errorText: String? = null,
     showErrorText: Boolean = true,
     onValueChange: (String) -> Unit,
 ) {
@@ -76,10 +99,9 @@ fun InputDialogField(
             modifier = Modifier.fillMaxWidth(),
         )
         if (showErrorText) Text(
-            text = if (isError) errorText else "",
+            text = if (isError) errorText ?: "" else "",
             color = MaterialTheme.colors.error,
             modifier = Modifier.padding(top = 2.dp)
         )
     }
-
 }

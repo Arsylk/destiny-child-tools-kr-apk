@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.arsylk.mammonsmite.databinding.ItemModelPackedBinding
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.model.destinychild.CharData
 import java.io.File
 
@@ -20,7 +21,7 @@ class ModelPackedAdapter : RecyclerView.Adapter<ModelPackedViewHolder>() {
             notifyItemChanged(items.indexOfFirst { it._id == old })
             notifyItemChanged(items.indexOfFirst { it._id == value })
         }
-    private var onFileClick: (File) -> Unit = {}
+    private var onFileClick: (IFile) -> Unit = {}
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -47,11 +48,11 @@ class ModelPackedAdapter : RecyclerView.Adapter<ModelPackedViewHolder>() {
         }
     }
 
-    fun onFileClick(block: (file: File) -> Unit) = apply { onFileClick = block }
+    fun onFileClick(block: (file: IFile) -> Unit) = apply { onFileClick = block }
 
     sealed class Action {
         object Click : Action()
-        data class FileClick(val file: File) : Action()
+        data class FileClick(val file: IFile) : Action()
         data class WikiClick(val charData: CharData) : Action()
     }
 }

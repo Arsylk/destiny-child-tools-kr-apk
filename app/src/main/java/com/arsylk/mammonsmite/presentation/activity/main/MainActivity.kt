@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -13,17 +15,35 @@ import com.arsylk.mammonsmite.BuildConfig
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.activities.L2DModelsActivity
 import com.arsylk.mammonsmite.databinding.ActivityMainBinding
+import com.arsylk.mammonsmite.domain.common.PermissionUtils
+import com.arsylk.mammonsmite.domain.files.SafProvider
 import com.arsylk.mammonsmite.domain.setFullscreenCompat
 import com.arsylk.mammonsmite.presentation.activity.BaseActivity
 import com.google.android.material.navigation.NavigationView
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : BaseActivity(),
     NavigationView.OnNavigationItemSelectedListener,
     NavController.OnDestinationChangedListener {
     private val viewModel by viewModel<MainViewModel>()
     private var binding: ActivityMainBinding? = null
+    private var basePermissions: Continuation<Boolean>? = null
+    private var safPermission: Continuation<Boolean>? = null
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+            basePermissions?.resume(PermissionUtils.hasPermissions(this@MainActivity))
+        }
+    private val requestSafLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val uri = it?.data?.data
+            if (uri != null) SafProvider.persistUriPermission(uri)
+            safPermission?.resume(uri != null)
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +68,31 @@ class MainActivity : BaseActivity(),
         viewModel.load()
 
         setupObservers()
+        setupPermissions()
+    }
+
+    private fun setupPermissions() {
+        lifecycleScope.launchWhenCreated {
+            val granted = async { suspendCoroutine<Boolean> { basePermissions = it } }
+            if (PermissionUtils.hasPermissions(this@MainActivity)) basePermissions?.resume(true)
+            else requestPermissionLauncher.launch(PermissionUtils.permissions)
+            val isGranted = granted.await().also { basePermissions = null }
+            if (!isGranted) {
+                Toast.makeText(this@MainActivity, "Permissions are required", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+
+
+            val safGranted = async { suspendCoroutine<Boolean> { safPermission = it } }
+            if (SafProvider.requiresPermission) {
+                val intent = SafProvider.permissionRequestIntent()
+                if (intent != null) requestSafLauncher.launch(intent)
+            } else safPermission?.resume(true)
+            val isSafGranted = safGranted.await().also { safPermission = null }
+            if (!isSafGranted) {
+                Toast.makeText(this@MainActivity, "Things will not work on Android 11+", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -57,14 +102,12 @@ class MainActivity : BaseActivity(),
         return true
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         if (BuildConfig.DEBUG)
             menuInflater.inflate(R.menu.developer_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
-
 
     override fun onBackPressed() {
         val drawer = binding?.drawerLayout
@@ -79,7 +122,7 @@ class MainActivity : BaseActivity(),
             R.id.menu_settings ->
                 findMainNavController().navigate(R.id.action_settings)
             R.id.l2dmodels_open ->
-                startActivity(Intent(this, L2DModelsActivity::class.java))
+                findMainNavController().navigate(R.id.action_pck_unpacked)
         }
         binding?.drawerLayout?.close()
 

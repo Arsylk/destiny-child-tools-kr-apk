@@ -68,7 +68,7 @@ object KoinService {
                     viewModel { param -> FilePickerViewModel(type = param.get()) }
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), l2dFile = param.get(), get()) }
-                    viewModel { param -> PckUnpackedViewModel(get(), get(), get(), get(), saveRequest = param.get()) }
+                    viewModel { param -> PckUnpackedViewModel(get(), get(), get(), get(), saveRequest = param.getOrNull()) }
                 }
             )
         }

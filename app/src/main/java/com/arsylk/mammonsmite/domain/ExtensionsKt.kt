@@ -122,3 +122,5 @@ inline fun<T, R>  use(value1: T?, value2: R?, block: (T, R) -> Unit) {
     if (value1 != null && value2 != null)
         block.invoke(value1, value2)
 }
+
+inline val isAndroid11 get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R

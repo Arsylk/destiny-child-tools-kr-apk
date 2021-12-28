@@ -1,4 +1,4 @@
-package com.arsylk.mammonsmite.model.common
+package com.arsylk.mammonsmite.domain.base
 
 import com.arsylk.mammonsmite.domain.safeListFiles
 import kotlinx.coroutines.CoroutineScope
