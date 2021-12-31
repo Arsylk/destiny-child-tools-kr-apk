@@ -16,7 +16,6 @@ import androidx.compose.ui.unit.sp
 import com.arsylk.mammonsmite.model.common.InputField
 
 
-@Preview()
 @Composable
 fun InputDialogContent(title: String = "Test", content: @Composable BoxScope.() -> Unit = {}) {
     Surface(

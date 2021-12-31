@@ -1,8 +1,10 @@
 package com.arsylk.mammonsmite.model.live2d
 
+import androidx.annotation.Keep
 import java.io.File
 import java.io.Serializable
 
+@Keep
 data class L2DFile(
     val folder: File,
     val header: L2DHeader,

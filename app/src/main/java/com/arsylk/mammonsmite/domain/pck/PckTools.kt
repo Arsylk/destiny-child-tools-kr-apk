@@ -1,7 +1,6 @@
 package com.arsylk.mammonsmite.domain.pck
 
 import com.arsylk.mammonsmite.domain.*
-import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.model.common.*
 import com.arsylk.mammonsmite.model.common.OperationStateResult.*
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
@@ -16,10 +15,11 @@ import com.arsylk.mammonsmite.model.pck.packed.PackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckHeader
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
 import com.arsylk.mammonsmite.model.live2d.L2DModelInfo
+import com.arsylk.mammonsmite.model.pck.PckEncryption
+import com.arsylk.mammonsmite.model.pck.PckEncryptionException
 import com.arsylk.mammonsmite.utils.Utils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -31,12 +31,10 @@ import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
 @ExperimentalSerializationApi
-class PckTools(
-    private val json: Json
-) {
+class PckTools(private val json: Json) {
 
     fun readPackedPckAsFlow(
-        file: IFile,
+        file: File,
         log: SendChannel<LogLine> = LogLineChannel.Default
     ): Flow<OperationStateResult<PackedPckFile>> =
         flow {
@@ -109,6 +107,33 @@ class PckTools(
     fun unpackAsFlow(
         packedPckFile: PackedPckFile,
         folder: File,
+        log: SendChannel<LogLine> = LogLineChannel.Default,
+    ) = flow { emit(Unit) }
+        .transform {
+            for (key in PckEncryption.values()) {
+                try {
+                    unpackAsFlow(packedPckFile, folder, key, log)
+                        .collect { state ->
+                            emit(state)
+                            if (state is Failure)
+                                throw state.t
+                        }
+                    break
+                }catch(t: Throwable) {
+                    if (t !is PckEncryptionException)
+                        throw t
+                }
+            }
+        }
+        .catch { t ->
+            emit(Failure(t))
+            log.error(t, "Unpack")
+        }
+
+    fun unpackAsFlow(
+        packedPckFile: PackedPckFile,
+        folder: File,
+        key: PckEncryption,
         log: SendChannel<LogLine> = LogLineChannel.Default
     ) =
         flow {
@@ -135,17 +160,20 @@ class PckTools(
                         val rawFileBytes = ByteArray(packedEntry.sizeCompressed)
                         mbb.get(rawFileBytes)
 
-                        // try-catch both encryption keys
-                        val decryptedBytes = if (packedEntry.flag and 2 != 0) try {
-                            Utils.aes_decrypt(rawFileBytes, 0)
-                        } catch (_: Throwable) {
-                            Utils.aes_decrypt(rawFileBytes, 1)
-                        } else rawFileBytes
+                        // try-catch encryption key
+                        val fileBytes = try {
+                            val decryptedBytes = if (packedEntry.flag and 2 != 0)
+                                Utils.aes_decrypt(rawFileBytes, key.key)
+                            else rawFileBytes
 
-                        // decompress with yappy
-                        val fileBytes = if (packedEntry.flag and 1 != 0)
-                            Utils.yappy_uncompress(decryptedBytes, packedEntry.sizeOriginal)
-                        else decryptedBytes
+                            // decompress with yappy
+                            if (packedEntry.flag and 1 != 0)
+                                Utils.yappy_uncompress(decryptedBytes, packedEntry.sizeOriginal)
+                            else decryptedBytes
+                        }catch (t: Throwable) {
+                            throw PckEncryptionException(key, t)
+                        }
+
 
                         val type = PckEntryFileType
                             .fromByte(fileBytes.getOrNull(0))

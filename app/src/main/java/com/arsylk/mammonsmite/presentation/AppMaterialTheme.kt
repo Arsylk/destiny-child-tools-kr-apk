@@ -13,13 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 
 object AppMaterialTheme {
     val DarkColors = darkColors(
-        primary = Color(0xffe65100),
-        primaryVariant = Color(0xffA13800),
-        onPrimary = Color(0xffffffff),
-        secondary = Color(0xffff9800),
-        secondaryVariant = Color(0xffB26A00),
-        onSecondary = Color(0xffffffff),
-        error = Color(0xffd32f2f),
+        primary = Color(0xffe65100L),
+        primaryVariant = Color(0xffA13800L),
+        onPrimary = Color(0xffffffffL),
+        secondary = Color(0xffff9800L),
+        secondaryVariant = Color(0xffB26A00L),
+        onSecondary = Color(0xffffffffL),
+        error = Color(0xffd32f2fL),
     )
 
     val OxygenFontFamily = FontFamily(

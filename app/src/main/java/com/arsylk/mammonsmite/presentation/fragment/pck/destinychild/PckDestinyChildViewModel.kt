@@ -17,6 +17,8 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.system.measureTimeMillis
+import kotlin.time.measureTime
 
 @ExperimentalCoroutinesApi
 class ModelsDestinyChildViewModel(
@@ -47,10 +49,10 @@ class ModelsDestinyChildViewModel(
 
     private fun listPackedModels() {
         val _id = AtomicInteger(0)
-        viewModelScope.launch(Dispatchers.IO) {
+        withLoading {
             val files = IFile(prefs.destinychildModelsPath)
                 .listFiles()
-                .filter { it.name.endsWith(".pck") && it.isFile }
+                .filter { it.name.endsWith(".pck") }
             val viewIdxFiles = buildMap<ViewIdx?, List<IFile>> {
                 files.forEach { file ->
                     val viewIdx = ViewIdx.parse(file.name)
@@ -62,64 +64,73 @@ class ModelsDestinyChildViewModel(
             val viewIdxNames = repo.viewIdxNames.value
 
             withLoading(tag = "destinychild") {
-                val destinychildModels = repo.charData.value
-                    .map { charData ->
-                        val viewIdxList = viewIdxChars
-                            .mapNotNull { (k, v) ->
-                                if (v.idx == charData.idx) k else null
-                            }
-                        val fileList = viewIdxList
-                            .flatMap { viewIdx -> viewIdxFiles[viewIdx].orEmpty() }
-                            .distinct()
-                        ModelPacked(
-                            _id = _id.getAndIncrement(),
-                            files = fileList,
-                            viewIdxList = viewIdxList,
-                            char = charData,
-                            resolvedName = viewIdxList.ordered()
-                                .map { viewIdxNames[it] }
-                                .firstOrNull()
-                        )
-                    }
-                _destinychildModels.value = destinychildModels
-            }
-            withLoading(tag = "all") {
-                val allModels = (viewIdxFiles.keys + viewIdxChars.keys)
-                    .flatMap { viewIdx ->
-                        if (viewIdx == null)
-                            return@flatMap viewIdxFiles[viewIdx].orEmpty().map { file ->
-                                ModelPacked(
-                                    _id = _id.getAndIncrement(),
-                                    files = listOf(file),
-                                    viewIdxList = emptyList(),
-                                    char = null,
-                                    resolvedName = null,
-                                )
-                            }
-                        listOf(
+                val x = measureTimeMillis {
+                    val destinychildModels = repo.charData.value
+                        .map { charData ->
+                            val viewIdxList = viewIdxChars
+                                .mapNotNull { (k, v) ->
+                                    if (v.idx == charData.idx) k else null
+                                }
+                            val fileList = viewIdxList
+                                .flatMap { viewIdx -> viewIdxFiles[viewIdx].orEmpty() }
+                                .distinct()
                             ModelPacked(
                                 _id = _id.getAndIncrement(),
-                                files = viewIdxFiles[viewIdx].orEmpty(),
-                                viewIdxList = listOf(viewIdx),
-                                char = viewIdxChars[viewIdx],
-                                resolvedName = viewIdxNames[viewIdx],
+                                files = fileList,
+                                viewIdxList = viewIdxList,
+                                char = charData,
+                                resolvedName = viewIdxList.ordered()
+                                    .map { viewIdxNames[it] }
+                                    .firstOrNull()
                             )
-                        )
-                    }
-                _allModels.value = allModels.sortedBy { it.primaryText }
+                        }
+                    _destinychildModels.value = destinychildModels
+                }
+                println("destinychild took: ${x}ms")
+            }
+            withLoading(tag = "all") {
+                val x = measureTimeMillis {
+                    val allModels = (viewIdxFiles.keys + viewIdxChars.keys)
+                        .flatMap { viewIdx ->
+                            if (viewIdx == null)
+                                return@flatMap viewIdxFiles[viewIdx].orEmpty().map { file ->
+                                    ModelPacked(
+                                        _id = _id.getAndIncrement(),
+                                        files = listOf(file),
+                                        viewIdxList = emptyList(),
+                                        char = null,
+                                        resolvedName = null,
+                                    )
+                                }
+                            listOf(
+                                ModelPacked(
+                                    _id = _id.getAndIncrement(),
+                                    files = viewIdxFiles[viewIdx].orEmpty(),
+                                    viewIdxList = listOf(viewIdx),
+                                    char = viewIdxChars[viewIdx],
+                                    resolvedName = viewIdxNames[viewIdx],
+                                )
+                            )
+                        }
+                    _allModels.value = allModels.sortedBy { it.primaryText }
+                }
+                println("all took: ${x}ms")
             }
             withLoading(tag = "files") {
-                val fileModels = files.map { file ->
-                    val viewIdx = ViewIdx.parse(file.name)
-                    ModelPacked(
-                        _id = _id.getAndIncrement(),
-                        files = listOf(file),
-                        viewIdxList = listOfNotNull(viewIdx),
-                        char = viewIdxChars[viewIdx],
-                        resolvedName = viewIdxNames[viewIdx],
-                    )
+                val x = measureTimeMillis {
+                    val fileModels = files.map { file ->
+                        val viewIdx = ViewIdx.parse(file.name)
+                        ModelPacked(
+                            _id = _id.getAndIncrement(),
+                            files = listOf(file),
+                            viewIdxList = listOfNotNull(viewIdx),
+                            char = viewIdxChars[viewIdx],
+                            resolvedName = viewIdxNames[viewIdx],
+                        )
+                    }
+                    _fileModels.value = fileModels
                 }
-                _fileModels.value = fileModels
+                println("files took: ${x}ms")
             }
         }
     }

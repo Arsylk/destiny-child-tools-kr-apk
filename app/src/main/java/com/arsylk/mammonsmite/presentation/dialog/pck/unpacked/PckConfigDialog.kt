@@ -7,9 +7,12 @@ import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.arsylk.mammonsmite.model.common.InputField
 import com.arsylk.mammonsmite.presentation.composable.InputDialogContent
 import com.arsylk.mammonsmite.presentation.composable.InputDialogField
@@ -30,6 +33,7 @@ data class PckUnpackedConfigState(
     enum class Type { SAVE, CONFIG }
 }
 
+@ExperimentalComposeUiApi
 @Composable
 fun PckUnpackedConfigDialog(
     state: PckUnpackedConfigState,
@@ -37,7 +41,10 @@ fun PckUnpackedConfigDialog(
     onStateChanged: (PckUnpackedConfigState) -> Unit,
     onConfirmClick: (PckUnpackedConfigState) -> Unit,
 ) {
-    Dialog(onDismissRequest = onDismissRequest) {
+    Dialog(
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+        onDismissRequest = onDismissRequest,
+    ) {
         InputDialogContent(
             title = when (state.type) {
                 Type.SAVE -> "Save Unpacked"

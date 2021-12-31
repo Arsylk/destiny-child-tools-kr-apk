@@ -6,13 +6,13 @@ import com.arsylk.mammonsmite.domain.asResult
 import com.arsylk.mammonsmite.domain.asSuccess
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
-import com.arsylk.mammonsmite.domain.files.CommonFiles
-import com.arsylk.mammonsmite.domain.files.IFile
+import com.arsylk.mammonsmite.domain.files.*
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.model.common.LogLineChannel
 import com.arsylk.mammonsmite.model.common.OperationProgress
+import com.arsylk.mammonsmite.model.common.error
 import com.arsylk.mammonsmite.model.common.stateIn
 import com.arsylk.mammonsmite.model.live2d.L2DFile
 import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
@@ -20,7 +20,6 @@ import com.arsylk.mammonsmite.model.pck.packed.PackedPckFile
 import com.arsylk.mammonsmite.model.pck.packed.PackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
-import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckHeader
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.*
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Tab.*
 import com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.PckUnpackedSaveRequest
@@ -55,13 +54,23 @@ class PckUnpackViewModel(
 
     // TODO fixme
     val folder = File(CommonFiles.External.appFilesFolder, "test/${file.nameWithoutExtension}")
+    private var tmpFile: File? = null
 
     init {
         withLoading {
+            _unpackProgress.value = OperationProgress(1.0f)
+            val actualFile = kotlin.runCatching{
+                prepareActualFile(IFile.parse(file))
+            }.getOrElse {
+                _unpackProgress.value = OperationProgress(0.0f)
+                return@withLoading _logChannel.error(it)
+            }
+            _unpackProgress.value = OperationProgress(10.0f)
+
             _actionSet.update { it + Action.OPEN_PACKED }
             val packedPckFile = pckTools
-                .readPackedPckAsFlow(IFile(file), _logChannel)
-                .onEach { _unpackProgress.value = it.asOperationProgress().endAt(50.0f) }
+                .readPackedPckAsFlow(actualFile, _logChannel)
+                .onEach { _unpackProgress.value = it.asOperationProgress().between(10.0f, 50.0f) }
                 .asSuccess()
             _packedPck.value = packedPckFile
 
@@ -72,7 +81,7 @@ class PckUnpackViewModel(
             unpackedPckFile = unpackedPckFile.run {
                 copy(
                     header = header.copy(
-                        gameRelativePath = packedPckFile.file
+                        gameRelativePath = file
                             .toRelativeString(File(prefs.destinychildFilesPath))
                     )
                 )
@@ -121,9 +130,25 @@ class PckUnpackViewModel(
         }
     }
 
+    private suspend fun prepareActualFile(iFile: IFile): File {
+        return when (iFile) {
+            is NormalFile -> iFile.file
+            is DocFile -> {
+                withContext(Dispatchers.IO) {
+                    CommonFiles.cache.run { if (!exists()) mkdirs() }
+                    val file = File(CommonFiles.cache, iFile.name)
+                    file.writeBytes(iFile.inputStream().use { it.readBytes() })
+                    tmpFile = file
+                    file
+                }
+            }
+        }
+    }
+
     private suspend fun cleanup() {
         withContext(Dispatchers.IO) {
             folder.delete()
+            tmpFile?.delete()
         }
     }
 

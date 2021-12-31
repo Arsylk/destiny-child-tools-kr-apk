@@ -9,6 +9,7 @@ import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.repo.CharacterRepository
 import com.arsylk.mammonsmite.domain.base.FileListFlow
+import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.model.common.InputField
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.live2d.L2DFile
@@ -177,7 +178,7 @@ class PckUnpackedViewModel(
 
 
     private fun FileListFlow.toLive2DItems(): StateFlow<List<UnpackedLive2DItem>> {
-        return shared
+        return flow
             .flatMapLatest { folders ->
                 val gameFolder = File(prefs.destinychildFilesPath)
                 val list = mutableListOf<UnpackedLive2DItem>()
@@ -187,11 +188,11 @@ class PckUnpackedViewModel(
                         flow {
                             val pck = pckTools.readUnpackedPckFile(it)
                             val l2d = l2dTools.readL2DFile(it)
-                            val isInGame = File(gameFolder, pck.header.gameRelativePath)
-                                .run { exists() && isFile }
+                            val isInGame = IFile(gameFolder, pck.header.gameRelativePath)
+                                .run { isFile }
                             emit(UnpackedLive2DItem(pck, l2d, isInGame, false))
                         }
-                            .catch {}
+                        .catch {}
                     }
                     .map { item ->
                         list += item

@@ -1,11 +1,11 @@
 package com.arsylk.mammonsmite.presentation.activity.main
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.contract.ActivityResultContracts.*
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -13,13 +13,13 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import com.arsylk.mammonsmite.BuildConfig
 import com.arsylk.mammonsmite.R
-import com.arsylk.mammonsmite.activities.L2DModelsActivity
 import com.arsylk.mammonsmite.databinding.ActivityMainBinding
 import com.arsylk.mammonsmite.domain.common.PermissionUtils
 import com.arsylk.mammonsmite.domain.files.SafProvider
 import com.arsylk.mammonsmite.domain.setFullscreenCompat
 import com.arsylk.mammonsmite.presentation.activity.BaseActivity
 import com.google.android.material.navigation.NavigationView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
@@ -33,13 +33,18 @@ class MainActivity : BaseActivity(),
     private val viewModel by viewModel<MainViewModel>()
     private var binding: ActivityMainBinding? = null
     private var basePermissions: Continuation<Boolean>? = null
+    private var managePermission: Continuation<Boolean>? = null
     private var safPermission: Continuation<Boolean>? = null
     private val requestPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
-            basePermissions?.resume(PermissionUtils.hasPermissions(this@MainActivity))
+        registerForActivityResult(RequestMultiplePermissions()) {
+            basePermissions?.resume(PermissionUtils.hasBasePermissions(this@MainActivity))
+        }
+    private val requestManageLauncher =
+        registerForActivityResult(StartActivityForResult()) {
+            managePermission?.resume(PermissionUtils.hasManagePermission())
         }
     private val requestSafLauncher =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        registerForActivityResult(StartActivityForResult()) {
             val uri = it?.data?.data
             if (uri != null) SafProvider.persistUriPermission(uri)
             safPermission?.resume(uri != null)
@@ -73,21 +78,25 @@ class MainActivity : BaseActivity(),
 
     private fun setupPermissions() {
         lifecycleScope.launchWhenCreated {
-            val granted = async { suspendCoroutine<Boolean> { basePermissions = it } }
-            if (PermissionUtils.hasPermissions(this@MainActivity)) basePermissions?.resume(true)
-            else requestPermissionLauncher.launch(PermissionUtils.permissions)
-            val isGranted = granted.await().also { basePermissions = null }
-            if (!isGranted) {
+            val baseGranted = async { suspendCoroutine<Boolean> { basePermissions = it } }
+            if (PermissionUtils.hasBasePermissions(this@MainActivity)) basePermissions?.resume(true)
+            else requestPermissionLauncher.launch(PermissionUtils.base)
+            val isBaseGranted = baseGranted.await().also { basePermissions = null }
+            if (!isBaseGranted) {
                 Toast.makeText(this@MainActivity, "Permissions are required", Toast.LENGTH_SHORT).show()
-                finish()
             }
 
+            val manageGranted = async { suspendCoroutine<Boolean> { managePermission = it } }
+            if (PermissionUtils.hasManagePermission()) managePermission?.resume(true)
+            else requestManageLauncher.launch(PermissionUtils.managePermissionIntent())
+            val isManageGranted = manageGranted.await().also { managePermission = null }
+            if (!isManageGranted) {
+                Toast.makeText(this@MainActivity, "Manage permission is required", Toast.LENGTH_SHORT).show()
+            }
 
             val safGranted = async { suspendCoroutine<Boolean> { safPermission = it } }
-            if (SafProvider.requiresPermission) {
-                val intent = SafProvider.permissionRequestIntent()
-                if (intent != null) requestSafLauncher.launch(intent)
-            } else safPermission?.resume(true)
+            if (!SafProvider.requiresPermission) safPermission?.resume(true)
+            else requestSafLauncher.launch(SafProvider.permissionRequestIntent())
             val isSafGranted = safGranted.await().also { safPermission = null }
             if (!isSafGranted) {
                 Toast.makeText(this@MainActivity, "Things will not work on Android 11+", Toast.LENGTH_SHORT).show()

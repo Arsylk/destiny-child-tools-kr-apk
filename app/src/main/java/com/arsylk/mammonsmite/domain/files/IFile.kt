@@ -8,8 +8,10 @@ import com.arsylk.mammonsmite.domain.files.SafProvider.Companion.context
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
+import java.io.Serializable
+import kotlin.system.measureTimeMillis
 
-sealed class IFile {
+sealed class IFile : Serializable {
     abstract val name: String
     abstract val isFile: Boolean
     abstract val isDirectory: Boolean
@@ -34,16 +36,17 @@ sealed class IFile {
             val doc = file.asDocumentInData()
             return if (doc != null) DocFile(doc) else NormalFile(file)
         }
+
     }
 }
 
 class NormalFile(val file: File) : IFile() {
-    override val name: String = file.name
-    override val isFile: Boolean = file.isFile
-    override val isDirectory: Boolean = file.isDirectory
-    override val parent: IFile? = file.parentFile?.let(::NormalFile)
-    override val absolutePath: String = file.absolutePath
-    override val size: Long = file.length()
+    override val name: String get() = file.name
+    override val isFile: Boolean get() = file.isFile
+    override val isDirectory: Boolean get() = file.isDirectory
+    override val parent: IFile? get() = file.parentFile?.let(::NormalFile)
+    override val absolutePath: String get() = file.absolutePath
+    override val size: Long get() = file.length()
 
     override fun listFiles(): List<IFile> {
         val list = kotlin.runCatching {
@@ -62,17 +65,17 @@ class NormalFile(val file: File) : IFile() {
 }
 
 class DocFile(val doc: DocumentFile) : IFile() {
-    override val name: String = doc.name ?: ""
-    override val isFile: Boolean = doc.isFile
-    override val isDirectory: Boolean = doc.isDirectory
-    override val parent: IFile = doc.parentFile?.let(::DocFile)
-        ?: SafProvider.baseFolder.let(::NormalFile)
-    override val absolutePath: String = absoluteFilePath()
-    override val size: Long = doc.length()
+    override val name: String by lazy { doc.name ?: "" }
+    override val isFile: Boolean by lazy { doc.isFile }
+    override val isDirectory: Boolean by lazy { doc.isDirectory }
+    override val parent: IFile by lazy { doc.parentFile?.let(::DocFile)
+        ?: SafProvider.baseFolder.let(::NormalFile) }
+    override val absolutePath: String by lazy { absoluteFilePath() }
+    override val size: Long get() = doc.length()
 
     override fun listFiles(): List<IFile> {
         return kotlin.runCatching {
-            doc.listFiles().toList().map(::DocFile)
+            doc.listFiles().map(::DocFile)
         }.getOrNull().orEmpty()
     }
 
@@ -89,3 +92,5 @@ fun IFile(file: File) = IFile.parse(file)
 fun IFile(path: String) = IFile.parse(File(path))
 fun IFile(parent: String?, child: String) = IFile.parse(File(parent, child))
 fun IFile(parent: File?, child: String) = IFile.parse(File(parent, child))
+val IFile.nameWithoutExtension: String
+    get() = name.substringBeforeLast(".")

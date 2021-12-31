@@ -26,7 +26,7 @@
 
         <activity
             android:exported="true"
-            android:name=".presentation.activity.main.MainActivity">
+            android:name=".presentation.activity.main.MainActivityCompose">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

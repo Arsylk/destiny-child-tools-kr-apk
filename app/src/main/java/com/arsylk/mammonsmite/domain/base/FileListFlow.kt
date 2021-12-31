@@ -14,7 +14,7 @@ class FileListFlow(
     filter: (File) -> Boolean = { true },
     ) {
     private val updateChannel = Channel<Unit>(Channel.CONFLATED)
-    private val flow = updateChannel.receiveAsFlow()
+    val flow = updateChannel.receiveAsFlow()
         .onStart { emit(Unit) }
         .mapLatest { folder.safeListFiles(filter) }
         .catch { }

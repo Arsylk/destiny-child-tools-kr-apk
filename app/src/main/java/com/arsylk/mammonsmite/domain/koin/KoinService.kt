@@ -34,6 +34,7 @@ import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
 import org.koin.dsl.module
+import org.koin.java.KoinJavaComponent
 import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
@@ -125,3 +126,6 @@ object KoinService {
     private fun provideL2DTools(json: Json) =
         L2DTools(json)
 }
+
+inline val KoinAndroidContext : Context
+    get() = KoinJavaComponent.get<Context>(clazz = Context::class.java)
