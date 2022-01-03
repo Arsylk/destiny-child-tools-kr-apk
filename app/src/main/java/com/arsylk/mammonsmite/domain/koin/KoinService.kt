@@ -3,6 +3,7 @@ package com.arsylk.mammonsmite.domain.koin
 import android.app.Application
 import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import com.arsylk.mammonsmite.Cfg
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
@@ -15,11 +16,11 @@ import com.arsylk.mammonsmite.domain.sync.SyncService
 import com.arsylk.mammonsmite.presentation.activity.main.MainViewModel
 import com.arsylk.mammonsmite.presentation.dialog.file.picker.FilePickerViewModel
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackViewModel
-import com.arsylk.mammonsmite.presentation.fragment.home.HomeViewModel
-import com.arsylk.mammonsmite.presentation.fragment.l2dpreview.L2DPreviewViewModel
-import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.ModelsDestinyChildViewModel
-import com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.PckUnpackedViewModel
+import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewViewModel
+import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildViewModel
+import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedViewModel
 import com.arsylk.mammonsmite.presentation.fragment.settings.SettingsViewModel
+import com.arsylk.mammonsmite.presentation.screen.home.HomeViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,6 +43,7 @@ import java.util.concurrent.TimeUnit
 @ExperimentalCoroutinesApi
 @ExperimentalFoundationApi
 @ExperimentalSerializationApi
+@ExperimentalComposeUiApi
 object KoinService {
 
     fun start(app: Application) {
@@ -63,13 +65,13 @@ object KoinService {
                 },
                 module {
                     viewModel { MainViewModel(get()) }
-                    viewModel { HomeViewModel(get(), get()) }
-                    viewModel { ModelsDestinyChildViewModel(get(), get()) }
+                    viewModel { HomeViewModel(get()) }
+                    viewModel { PckDestinyChildViewModel(get(), get()) }
                     viewModel { SettingsViewModel(get()) }
                     viewModel { param -> FilePickerViewModel(type = param.get()) }
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
-                    viewModel { param -> L2DPreviewViewModel(get(), l2dFile = param.get(), get()) }
-                    viewModel { param -> PckUnpackedViewModel(get(), get(), get(), get(), saveRequest = param.getOrNull()) }
+                    viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
+                    viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
                 }
             )
         }

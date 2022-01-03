@@ -1,15 +1,15 @@
-package com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.items
+package com.arsylk.mammonsmite.presentation.screen.pck.unpacked
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arsylk.mammonsmite.model.live2d.L2DFile
@@ -20,8 +20,9 @@ import coil.compose.*
 data class UnpackedLive2DItem(
     val pck: UnpackedPckFile,
     val l2dFile: L2DFile,
-    val isInGame: Boolean,
+    val inGame: InGame,
     val isBackedUp: Boolean,
+    val updated: Int = 0,
 ) {
     val key: String = pck.folder.name
     val preview: File = l2dFile.previewFile
@@ -30,11 +31,20 @@ data class UnpackedLive2DItem(
 }
 
 @Composable
-fun UnpackedLive2DItem(item: UnpackedLive2DItem, onClick: (item: UnpackedLive2DItem) -> Unit) {
+fun UnpackedLive2DItem(
+    item: UnpackedLive2DItem,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
+) {
     Card(
         border = BorderStroke(2.dp, MaterialTheme.colors.primary),
         modifier = Modifier.fillMaxWidth()
-            .clickable { onClick.invoke(item) }
+            .pointerInput(item) {
+                detectTapGestures(
+                    onTap = { onClick.invoke() },
+                    onLongPress = { onLongClick.invoke() }
+                )
+            }
     ) {
         Row(
             Modifier
@@ -54,10 +64,12 @@ fun UnpackedLive2DItem(item: UnpackedLive2DItem, onClick: (item: UnpackedLive2DI
                     fontSize = 14.sp,
                 )
                 Text(
-                    text = "is in game: ${item.isInGame}",
+                    text = "is in game: ${item.inGame}",
                     fontSize = 14.sp,
                 )
             }
         }
     }
 }
+
+enum class InGame { PRESENT, MISSING, UNDETERMINED }

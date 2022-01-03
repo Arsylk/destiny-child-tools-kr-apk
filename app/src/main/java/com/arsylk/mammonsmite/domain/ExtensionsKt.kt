@@ -1,5 +1,7 @@
 package com.arsylk.mammonsmite.domain
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.res.TypedArray
 import android.graphics.Paint
 import android.os.Build
@@ -7,11 +9,21 @@ import android.view.WindowInsets
 import android.view.WindowManager
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.arsylk.mammonsmite.domain.base.EffectViewModel
+import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.model.common.OperationStateResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.last
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
@@ -106,7 +118,7 @@ fun String.capitalizeFirstOnly(): String =
     this.lowercase().replaceFirstChar { it.uppercase() }
 
 @Suppress("DEPRECATION")
-fun AppCompatActivity.setFullscreenCompat(fullscreen: Boolean) {
+fun Activity.setFullscreenCompat(fullscreen: Boolean) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val types = WindowInsets.Type.statusBars()
         if (fullscreen) window.insetsController?.hide(types)
@@ -124,3 +136,20 @@ inline fun<T, R>  use(value1: T?, value2: R?, block: (T, R) -> Unit) {
 }
 
 inline val isAndroid11 get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
+
+inline fun Modifier.noRippleClickable(crossinline onClick: ()->Unit): Modifier = composed {
+    clickable(indication = null,
+        interactionSource = remember { MutableInteractionSource() }) {
+        onClick()
+    }
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun <T: UiEffect> EffectViewModel<T>.onEffect(key: Any? = Unit, action: suspend (effect: T) -> Unit) {
+    LaunchedEffect(key) {
+        effect.collectLatest(action)
+    }
+}
+
+fun Throwable.toSnackbarMessage(): String = "${javaClass.simpleName}: $cause"

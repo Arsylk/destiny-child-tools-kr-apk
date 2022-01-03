@@ -49,15 +49,13 @@
 
     <fragment
         android:id="@+id/fragment_home"
-        android:name="com.arsylk.mammonsmite.presentation.fragment.home.HomeFragment"
-        android:label="Home"
-        tools:layout="@layout/fragment_home"/>
+        android:name="com.arsylk.mammonsmite.presentation.fragment.Placeholder"
+        android:label="Home"/>
 
     <fragment
         android:id="@+id/fragment_pck_destinychild"
-        android:name="com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.PckDestinyChildFragment"
-        android:label="Destiny Child Models"
-        tools:layout="@layout/fragment_pck_destinychild" />
+        android:name="com.arsylk.mammonsmite.presentation.fragment.Placeholder"
+        android:label="Destiny Child Models" />
 
     <fragment
         android:id="@+id/fragment_settings"
@@ -67,29 +65,14 @@
 
     <dialog
         android:id="@+id/dialog_pck_unpack"
-        android:name="com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog"
+        android:name="com.arsylk.mammonsmite.presentation.fragment.Placeholder"
         android:label="Unpack Pck">
-
-        <argument
-            android:name="file"
-            app:argType="java.io.File"/>
-
-        <action
-            android:id="@+id/action_save_pck_unpacked"
-            app:launchSingleTop="true"
-            app:destination="@id/fragment_pck_unpacked">
-
-            <argument
-                android:name="saveRequest"
-                app:argType="com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.PckUnpackedSaveRequest" />
-
-        </action>
 
     </dialog>
 
     <fragment
         android:id="@+id/fragment_l2dpreview"
-        android:name="com.arsylk.mammonsmite.presentation.fragment.l2dpreview.L2DPreviewFragment"
+        android:name="com.arsylk.mammonsmite.presentation.fragment.Placeholder"
         android:label="Live 2D Preview">
 
         <argument app:argType="boolean" android:name="fullscreen" android:defaultValue="true"/>
@@ -102,15 +85,8 @@
 
     <fragment
         android:id="@+id/fragment_pck_unpacked"
-        android:name="com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.PckUnpackedFragment"
+        android:name="com.arsylk.mammonsmite.presentation.fragment.Placeholder"
         android:label="Unpacked">
-
-        <argument
-            android:name="saveRequest"
-            app:argType="com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.PckUnpackedSaveRequest"
-            android:defaultValue="@null"
-            app:nullable="true"/>
-
     </fragment>
 
 

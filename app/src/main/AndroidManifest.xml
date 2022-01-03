@@ -21,7 +21,7 @@
         android:supportsRtl="true"
         android:testOnly="false"
         android:theme="@style/AppTheme"
-        android:name=".presentation.App"
+        android:name=".App"
         tools:targetApi="n">
 
         <activity

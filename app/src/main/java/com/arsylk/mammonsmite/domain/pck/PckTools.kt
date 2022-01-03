@@ -3,10 +3,6 @@ package com.arsylk.mammonsmite.domain.pck
 import com.arsylk.mammonsmite.domain.*
 import com.arsylk.mammonsmite.model.common.*
 import com.arsylk.mammonsmite.model.common.OperationStateResult.*
-import com.arsylk.mammonsmite.model.destinychild.ViewIdx
-import com.arsylk.mammonsmite.model.live2d.L2DExpression
-import com.arsylk.mammonsmite.model.live2d.L2DFile
-import com.arsylk.mammonsmite.model.live2d.L2DHeader
 import com.arsylk.mammonsmite.model.pck.PckEntryFileType
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
 import com.arsylk.mammonsmite.model.pck.packed.PackedPckFile
@@ -14,7 +10,6 @@ import com.arsylk.mammonsmite.model.pck.packed.PackedPckHeader
 import com.arsylk.mammonsmite.model.pck.packed.PackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckHeader
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
-import com.arsylk.mammonsmite.model.live2d.L2DModelInfo
 import com.arsylk.mammonsmite.model.pck.PckEncryption
 import com.arsylk.mammonsmite.model.pck.PckEncryptionException
 import com.arsylk.mammonsmite.utils.Utils
@@ -25,13 +20,72 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import okio.ByteString.Companion.decodeHex
 import java.io.*
+import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
 
 @ExperimentalSerializationApi
-class PckTools(private val json: Json) {
+class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
+    override val pckTools = this
+
+    fun packAsFlow(
+        pck: UnpackedPckFile,
+        file: File,
+        log: SendChannel<LogLine> = LogLineChannel.Default,
+    ): Flow<OperationStateResult<Unit>> =
+        flow {
+            emit(Initial())
+            RandomAccessFile(file, "rw").use { fs ->
+                val count = pck.header.entries.size
+                emit(InProgress(0, count + 1))
+                log.info("File count: $count", "Pack")
+
+                // calculate initial offset
+                var offset = 8 + 4 + count * (8 + 1 + 4 + 4 + 8)
+
+                // write pck header
+                fs.write(PCK_IDENTIFIER)
+                fs.pckWriteInt(count)
+                pck.header.entries.forEach { entry ->
+                    fs.pckWriteString(entry.hashString)
+                    fs.pckWriteByte(0x00.toByte())
+                    fs.pckWriteInt(offset)
+                    val size = pck.getEntryFile(entry).length()
+                    fs.pckWriteInt(size.toInt())
+                    fs.pckWriteLong(size)
+
+                    offset += size.toInt()
+                }
+                emit(InProgress(1, count + 1))
+
+                // write pck entry files
+                pck.header.entries.forEachIndexed { i, entry ->
+                    val entryFile = pck.getEntryFile(entry)
+                    fs.write(entryFile.readBytes())
+                    emit(InProgress(i + 1, count + 1))
+                    val logLine = String.format(
+                        "File %2d/%d %s",
+                        i + 1,
+                        count,
+                        entry.hashString,
+                    )
+                    log.info(logLine, "Pack")
+                }
+
+                log.info("Packed successfully:", "Pack")
+                log.info(file.absolutePath, "Pack")
+                emit(Success(Unit))
+            }
+        }
+        .onStart { file.runCatching(File::delete) }
+        .catch { t ->
+            emit(Failure(t))
+            log.error(t, "Pack")
+        }
+        .flowOn(Dispatchers.IO)
 
     fun readPackedPckAsFlow(
         file: File,
@@ -218,7 +272,7 @@ class PckTools(private val json: Json) {
                     entries = entries,
                 ),
             )
-            writeUnpackedPckFileHeader(pck)
+            writeUnpackedPckHeader(pck)
             emit(Success(pck))
         }
         .onStart {
@@ -231,187 +285,49 @@ class PckTools(private val json: Json) {
         }
         .flowOn(Dispatchers.IO)
 
-    fun unpackedPckFileToModel(
+    suspend fun updateEntry(
         unpackedPck: UnpackedPckFile,
-        log: SendChannel<LogLine> = LogLineChannel.Default
-    ) =
-        flow {
-            emit(Initial())
-            val (modelInfoEntry, modelInfo) = findModelJson(unpackedPck)
-                ?: throw IllegalArgumentException("Could not find or parse model.json")
-            emit(InProgress(10.0f))
-
-            val entryLogger: suspend (UnpackedPckEntry, UnpackedPckEntry) -> Unit = { old, new ->
-                log.info("Renamed '${old.filename}' to '${new.filename}'", tag = "Model")
-            }
-
-            var pck = unpackedPck.updateEntry(modelInfoEntry, entryLogger)
-            val textureEntries = findModelTextures(pck, modelInfo)
-            textureEntries.forEach { pck = pck.updateEntry(it, entryLogger) }
-            emit(InProgress(20.0f))
-
-
-            val characterDatEntry = findCharacterDat(pck, modelInfo)
-            pck = pck.updateEntry(characterDatEntry, entryLogger)
-            emit(InProgress(30.0f))
-
-
-            val motionEntries = findMotions(pck, modelInfo)
-            val viewIdx = motionEntries.firstNotNullOfOrNull { ViewIdx.parse(it.filename) }
-            log.info("View Idx: ${viewIdx?.string}", tag = "Model")
-
-            motionEntries.forEach { pck = pck.updateEntry(it, entryLogger) }
-            emit(InProgress(60.0f))
-
-
-            val expressionEntries = findExpressions(pck, modelInfoEntry, modelInfo)
-            expressionEntries.forEach { pck = pck.updateEntry(it, entryLogger) }
-            emit(InProgress(90.0f))
-
-            val l2dFile = L2DFile(
-                folder = pck.folder,
-                header = L2DHeader(
-                    modelInfoFilename = modelInfoEntry.filename,
-                    viewIdx = viewIdx,
-                )
-            )
-
-            writeL2DFileHeader(l2dFile)
-            emit(InProgress(100.0f))
-
-            emit(Success(pck to l2dFile))
-        }
-        .catch { t ->
-            emit(Failure(t))
-            log.error(t, "Model")
-        }
-        .flowOn(Dispatchers.IO)
-
-
-    private suspend fun findModelJson(pck: UnpackedPckFile): Pair<UnpackedPckEntry, L2DModelInfo>? {
-        return withContext(Dispatchers.IO) {
-            pck.getEntries(PckEntryFileType.JSON, HASH_MODEL_OR_TEXTURE)
-                .firstNotNullOfOrNull { entry ->
-                    kotlin.runCatching {
-                        val modelInfo = json.decodeFromFile<L2DModelInfo>(pck.getEntryFile(entry))
-                        val newEntry = entry.copy(filename = MODEL_INFO_NAME)
-
-                        newEntry to modelInfo
-                    }.getOrNull()
-                }
-        }
-    }
-
-    private suspend fun findModelTextures(
-        pck: UnpackedPckFile,
-        modelInfo: L2DModelInfo
-    ): List<UnpackedPckEntry> {
-        return withContext(Dispatchers.IO) {
-            var list = pck.getEntries(PckEntryFileType.PNG, HASH_MODEL_OR_TEXTURE)
-            if (modelInfo.textures.size > list.size)
-                list = pck.getEntries(PckEntryFileType.PNG)
-            modelInfo.textures.mapIndexedNotNull { i, texture ->
-                list.getOrNull(i)?.copy(filename = texture)
-            }
-        }
-    }
-
-    @Throws(IllegalStateException::class)
-    private suspend fun findCharacterDat(
-        pck: UnpackedPckFile,
-        modelInfo: L2DModelInfo
-    ): UnpackedPckEntry {
-        return withContext(Dispatchers.IO) {
-            val entry = pck
-                .getEntries(PckEntryFileType.DAT, HASH_CHARACTER_DAT)
-                .firstOrNull()
-                ?: pck.getEntries(PckEntryFileType.DAT).firstOrNull()
-                ?: throw IllegalStateException("Character dat file not found")
-            entry.copy(filename = modelInfo.model)
-        }
-    }
-
-    private suspend fun findMotions(
-        pck: UnpackedPckFile,
-        modelInfo: L2DModelInfo
-    ): List<UnpackedPckEntry> {
-        return withContext(Dispatchers.IO) {
-            val list = modelInfo.getSortedMotions()
-            pck.getEntries(PckEntryFileType.MTN)
-                .mapIndexedNotNull { i, entry ->
-                    list.getOrNull(i)?.let { (_, v) ->
-                        entry.copy(filename = v.filename)
-                    }
-                }
-        }
-    }
-
-    private suspend fun findExpressions(
-        pck: UnpackedPckFile,
-        modelInfoEntry: UnpackedPckEntry,
-        modelInfo: L2DModelInfo
-    ): List<UnpackedPckEntry> {
-        return withContext(Dispatchers.IO) {
-            pck.getEntries(PckEntryFileType.JSON)
-                .filter { it.hashString != modelInfoEntry.hashString }
-                .mapIndexedNotNull { i, entry ->
-                    kotlin.runCatching {
-                        val expression = json.decodeFromFile<L2DExpression>(pck.getEntryFile(entry))
-                        entry.copy(filename = modelInfo.expressions[i].filename)
-                    }.getOrElse {
-                        it.printStackTrace()
-                        return@mapIndexedNotNull null
-                    }
-                }
-        }
-    }
-
-    private suspend fun UnpackedPckFile.updateEntry(
         newEntry: UnpackedPckEntry,
         onUpdate: suspend (oldEntry: UnpackedPckEntry, newEntry: UnpackedPckEntry) -> Unit = { _, _ -> }
     ): UnpackedPckFile {
-        var updated = false
-        val newPckFile = UnpackedPckFile(
-            folder = folder,
-            header = header.copy(
-                entries = header.entries.map { entry ->
-                    if (entry.hashString == newEntry.hashString) {
-                        val oldFile = getEntryFile(entry)
-                        val newFile = getEntryFile(newEntry)
-                        if (oldFile != newFile) {
-                            if (newFile.exists())
-                                throw IllegalStateException("Trying to rename to existing file")
-                            oldFile.renameTo(newFile)
-                            updated = true
-                            onUpdate.invoke(entry, newEntry)
-                        }
-                        newEntry
-                    } else entry
-                }
+        return with(unpackedPck) {
+            var updated = false
+            val newPckFile = UnpackedPckFile(
+                folder = folder,
+                header = header.copy(
+                    entries = header.entries.map { entry ->
+                        if (entry.hashString == newEntry.hashString) {
+                            val oldFile = getEntryFile(entry)
+                            val newFile = getEntryFile(newEntry)
+                            if (oldFile != newFile) {
+                                if (newFile.exists())
+                                    throw IllegalStateException("Trying to rename to existing file")
+                                oldFile.renameTo(newFile)
+                                updated = true
+                                onUpdate.invoke(entry, newEntry)
+                            }
+                            newEntry
+                        } else entry
+                    }
+                )
             )
-        )
 
-        if (updated) writeUnpackedPckFileHeader(newPckFile)
-        return newPckFile
+
+            if (updated) writeUnpackedPckHeader(newPckFile)
+            newPckFile
+        }
     }
 
 
     @Throws(IOException::class)
-    suspend fun writeUnpackedPckFileHeader(pck: UnpackedPckFile) {
+    suspend fun writeUnpackedPckHeader(pck: UnpackedPckFile) {
         withContext(Dispatchers.IO) {
             json.encodeToFile(pck.header, pck.headerFile)
         }
     }
 
     @Throws(IOException::class)
-    suspend fun writeL2DFileHeader(l2dFile: L2DFile) {
-        withContext(Dispatchers.IO) {
-            json.encodeToFile(l2dFile.header, l2dFile.modelFile)
-        }
-    }
-
-    @Throws(IOException::class)
-    suspend fun saveUnpackedPckFile(pck: UnpackedPckFile, folder: File): UnpackedPckFile {
+    suspend fun saveUnpackedPck(pck: UnpackedPckFile, folder: File): UnpackedPckFile {
         return withContext(Dispatchers.IO) {
             pck.folder.safeListFiles().forEach {
                 it.copyTo(File(folder, it.name))
@@ -421,7 +337,7 @@ class PckTools(private val json: Json) {
     }
 
     @Throws(IOException::class, SerializationException::class)
-    suspend fun readUnpackedPckFile(folder: File): UnpackedPckFile {
+    suspend fun readUnpackedPck(folder: File): UnpackedPckFile {
         return withContext(Dispatchers.IO) {
             val file = File(folder, UnpackedPckFile.HEADER_FILENAME)
             val header = json.decodeFromFile<UnpackedPckHeader>(file)
@@ -429,8 +345,16 @@ class PckTools(private val json: Json) {
         }
     }
 
+    @Throws(IOException::class)
+    suspend fun deleteUnpackedPck(pck: UnpackedPckFile) {
+        return withContext(Dispatchers.IO) {
+            pck.folder.safeListFiles().onEach(File::delete)
+            pck.folder.delete()
+        }
+    }
+
     companion object {
-        private val PCK_IDENTIFIER = byteArrayOf(
+        val PCK_IDENTIFIER = byteArrayOf(
             0x50.toByte(),
             0x43.toByte(),
             0x4B.toByte(),
@@ -440,9 +364,17 @@ class PckTools(private val json: Json) {
             0xCC.toByte(),
             0x3E.toByte()
         )
-        private val HASH_MODEL_OR_TEXTURE = "660E0026"
-        private val HASH_CHARACTER_DAT = "050E0025"
-
-        const val MODEL_INFO_NAME = "model.json"
     }
 }
+
+private fun RandomAccessFile.pckWriteByte(byte: Byte) =
+    write(ByteBuffer.allocate(1).order(ByteOrder.LITTLE_ENDIAN).put(byte).array())
+
+private fun RandomAccessFile.pckWriteInt(int: Int) =
+    write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(int).array())
+
+private fun RandomAccessFile.pckWriteLong(long: Long) =
+    write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(long).array())
+
+private fun RandomAccessFile.pckWriteString(string: String) =
+    write(string.decodeHex().toByteArray())

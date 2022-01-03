@@ -1,5 +1,5 @@
 package com.arsylk.mammonsmite.presentation.activity
 
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
 
-abstract class BaseActivity : AppCompatActivity()
+abstract class BaseActivity : ComponentActivity()

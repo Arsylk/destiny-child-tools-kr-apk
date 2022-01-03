@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 object LogLineChannel {
-    val Default: SendChannel<LogLine> = Channel(capacity = Channel.CONFLATED, onBufferOverflow = BufferOverflow.DROP_LATEST)
+    val Default: SendChannel<LogLine> = Channel(Channel.CONFLATED)
 }
 
 fun LogLineChannel() = Channel<LogLine>(

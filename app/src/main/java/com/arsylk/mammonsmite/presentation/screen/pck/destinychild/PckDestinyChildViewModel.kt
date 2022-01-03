@@ -1,39 +1,32 @@
-package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild
+package com.arsylk.mammonsmite.presentation.screen.pck.destinychild
 
-import androidx.lifecycle.viewModelScope
-import com.arsylk.mammonsmite.domain.base.EffectViewModel
+import com.arsylk.mammonsmite.domain.base.BaseViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.repo.CharacterRepository
-import com.arsylk.mammonsmite.domain.safeListFiles
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.ordered
-import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.PckDestinyChildFragment.Tab
-import com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter.ModelPacked
-import kotlinx.coroutines.Dispatchers
+import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen.Tab
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.system.measureTimeMillis
-import kotlin.time.measureTime
 
 @ExperimentalCoroutinesApi
-class ModelsDestinyChildViewModel(
+class PckDestinyChildViewModel(
     private val prefs: AppPreferences,
     private val repo: CharacterRepository,
-) : EffectViewModel<Effect>() {
+) : BaseViewModel() {
     private val _destinychildModels = MutableStateFlow(emptyList<ModelPacked>())
     private val _allModels = MutableStateFlow(emptyList<ModelPacked>())
     private val _fileModels = MutableStateFlow(emptyList<ModelPacked>())
     private val _searchQuery = MutableStateFlow("")
-    private val _searchTab = MutableStateFlow(Tab.ALl)
+    private val _selectedTab = MutableStateFlow(Tab.ALl)
 
-    val filteredModels = _searchTab.toFilteredModels()
+    val filteredModels = _selectedTab.toFilteredModels()
     val searchQuery by lazy(_searchQuery::asStateFlow)
-    val searchTab by lazy(_searchTab::asStateFlow)
+    val selectedTab by lazy(_selectedTab::asStateFlow)
 
     init {
         listPackedModels()
@@ -43,8 +36,8 @@ class ModelsDestinyChildViewModel(
         _searchQuery.value = query
     }
 
-    fun setSearchTab(tab: Tab) {
-        _searchTab.value = tab
+    fun selectTab(tab: Tab) {
+        _selectedTab.value = tab
     }
 
     private fun listPackedModels() {

@@ -7,17 +7,36 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.arsylk.mammonsmite.model.common.InputField
 
 
+@ExperimentalComposeUiApi
 @Composable
-fun InputDialogContent(title: String = "Test", content: @Composable BoxScope.() -> Unit = {}) {
+fun InputDialog(
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    onDismissRequest: () -> Unit,
+    title: String,
+    content: @Composable BoxScope.() -> Unit = {}
+) {
+    Dialog(
+        properties = properties,
+        onDismissRequest = onDismissRequest,
+    ) {
+        InputDialogContent(title = title, content = content)
+    }
+}
+
+@Composable
+fun InputDialogContent(title: String, content: @Composable BoxScope.() -> Unit = {}) {
     Surface(
         shape = RoundedCornerShape(16.dp),
         modifier = Modifier

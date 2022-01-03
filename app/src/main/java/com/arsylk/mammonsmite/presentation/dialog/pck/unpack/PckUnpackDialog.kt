@@ -1,7 +1,6 @@
 package com.arsylk.mammonsmite.presentation.dialog.pck.unpack
 
-import android.os.Bundle
-import android.view.View
+import android.net.Uri
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -16,201 +15,72 @@ import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Preview
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import com.arsylk.mammonsmite.NavGraphDirections
-import com.arsylk.mammonsmite.domain.capitalizeFirstOnly
+import androidx.navigation.*
 import com.arsylk.mammonsmite.domain.common.IntentUtils
-import com.arsylk.mammonsmite.domain.launchWhenResumed
+import com.arsylk.mammonsmite.domain.onEffect
+import com.arsylk.mammonsmite.model.common.LogLine
+import com.arsylk.mammonsmite.model.common.NavTab
+import com.arsylk.mammonsmite.model.common.OperationProgress
+import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
+import com.arsylk.mammonsmite.presentation.Navigable.Companion.putArg
+import com.arsylk.mammonsmite.presentation.Navigator
+import com.arsylk.mammonsmite.presentation.composable.BottomTabNavigation
 import com.arsylk.mammonsmite.presentation.composable.Live2DSurface
 import com.arsylk.mammonsmite.presentation.composable.LogLines
-import com.arsylk.mammonsmite.presentation.dialog.BaseComposeDialog
+import com.arsylk.mammonsmite.presentation.dialog.NavigableDialog
+import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Action
+import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Tab
+import com.arsylk.mammonsmite.presentation.nav
+import com.arsylk.mammonsmite.presentation.screen.home.HomeScreen
+import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
 import com.arsylk.mammonsmite.presentation.view.live2d.Live2DSurfaceConfig
-import kotlinx.coroutines.flow.collect
 import kotlinx.serialization.ExperimentalSerializationApi
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.compose.viewModel
 import org.koin.core.parameter.parametersOf
+import java.io.File
 
-@ExperimentalFoundationApi
+
+@ExperimentalMaterialApi
 @ExperimentalSerializationApi
-class PckUnpackDialog : BaseComposeDialog() {
-    private val args by navArgs<PckUnpackDialogArgs>()
-    private val viewModel by viewModel<PckUnpackViewModel> { parametersOf(args.file) }
+@ExperimentalComposeUiApi
+@ExperimentalFoundationApi
+object PckUnpackDialog : NavigableDialog {
+    override val route = "/pck/unpack/{path}"
+    override val label = "Unpack Pck"
+    override val args = listOf(
+        navArgument("path") { type = NavType.StringType }
+    )
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        launchWhenResumed {
-            viewModel.effect.collect { effect ->
-                when (effect) {
-                    Effect.Dismiss -> dismiss()
-                    is Effect.OpenFile -> IntentUtils.openFile(context, effect.file)
-                    is Effect.SaveUnpacked -> {
-                        val direction = PckUnpackDialogDirections
-                            .actionSavePckUnpacked(effect.request)
-                        findNavController().navigate(direction)
-                    }
-                }
-            }
+    fun navigate(nav: Navigator, path: String, builder: NavOptionsBuilder.() -> Unit = {}) {
+        val route = route.putArg("path", path)
+        nav.controller.navigate(route) {
+            launchSingleTop = true
+            apply(builder)
         }
     }
 
     @Composable
-    override fun ComposeContent() {
-        val tab by viewModel.tab.collectAsState()
-        var expanded by remember(tab) { mutableStateOf(false) }
-        Scaffold(
-            topBar = { TopBar() },
-            bottomBar = { BottomBar() },
-            floatingActionButton = {
-                if (tab == Tab.PREVIEW) return@Scaffold
-                ActionButton(expanded) { expanded = !expanded }
-            },
-        ) {
-            Box(modifier = Modifier.padding(it)) {
-                when (tab) {
-                    Tab.FILES -> FilesTabContent()
-                    Tab.PREVIEW -> PreviewTabContent()
-                    Tab.LOG -> LogTabContent()
-                }
-            }
-        }
-    }
+    override fun Compose(entry: NavBackStackEntry) {
+        val file = remember { File(entry.arguments?.getString("path")!!) }
+        val viewModel by viewModel<PckUnpackViewModel> { parametersOf(file) }
 
-    @Composable
-    fun TopBar() {
-        Column {
-            val progress by viewModel.unpackProgress.collectAsState()
-            TopAppBar(
-                title = { Text(progress.toString()) },
-                backgroundColor = MaterialTheme.colors.primaryVariant,
-            )
-            LinearProgressIndicator(
-                progress = progress.percentage,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-    }
-
-    @Composable
-    fun BottomBar() {
-        BottomNavigation {
-            val selectedTab by viewModel.tab.collectAsState()
-            for (tab in Tab.values()) {
-                BottomNavigationItem(
-                    selected = tab == selectedTab,
-                    onClick = { viewModel.selectTab(tab) },
-                    icon = { Icon(tab.icon, contentDescription = null) },
-                    label = { Text(tab.name.capitalizeFirstOnly()) }
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun ActionButton(expanded: Boolean, onClick: () -> Unit) {
-        val rotation by animateFloatAsState(targetValue = if (expanded) 90.0f else 0.0f)
-        val alpha by animateFloatAsState(targetValue = if (expanded) 1.0f else 0.0f)
-        val actionSet by viewModel.actionSet.collectAsState()
-
-        Column {
-            Action.values().filter { it in actionSet }.forEachIndexed { i ,action ->
-                Card(
-                    modifier = Modifier
-                        .size(width = 140.dp, height = 36.dp)
-                        .alpha(alpha)
-                        .clickable { viewModel.onActionClick(action) }
-                ) {
-                    Box {
-                        Text(
-                            text = action.text,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-            FloatingActionButton(
-                onClick = onClick,
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.rotate(rotation)
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun FilesTabContent() {
-        val itemList by viewModel.items.collectAsState(initial = emptyList())
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(itemList) {
-                PckHeaderItem(it)
-            }
-        }
-    }
-
-    @Composable
-    fun PreviewTabContent() {
-        val loadedL2dFile by viewModel.loadedL2dFile.collectAsState()
-        var surfaceConfig by remember { mutableStateOf(Live2DSurfaceConfig.Default) }
-        Box(Modifier.fillMaxSize()) {
-            if (loadedL2dFile != null) {
-                Live2DSurface(
-                    loadedL2dFile = loadedL2dFile,
-                    surfaceConfig = surfaceConfig,
-                    playMotion = false,
-                ) { offset, scale ->
-                    surfaceConfig = surfaceConfig.copy(
-                        scale = surfaceConfig.scale * scale,
-                        offsetX = surfaceConfig.offsetX + offset.x,
-                        offsetY = surfaceConfig.offsetY + offset.y,
-                    )
-                }
-            }else {
-                Text("Can't preview", modifier=Modifier.align(Alignment.Center))
-            }
-        }
-    }
-
-    @Composable
-    fun LogTabContent() {
-        val logList by viewModel.log.collectAsState()
-        LogLines(logList)
-    }
-
-    @Composable
-    fun PckHeaderItem(item: PckHeaderItem) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            when (item) {
-                is PckHeaderItem.Packed -> {
-                    Text(item.entry.hashString)
-                }
-                is PckHeaderItem.Unpacked -> {
-                    Text(item.entry.filename)
-                    Text(item.entry.hashString,
-                        color = Color.LightGray,
-                        fontSize = 12.sp
-                    )
-                }
-            }
-        }
+        PckUnpackDialog(viewModel)
     }
 
 
-    enum class Tab(val icon: ImageVector) {
-        FILES(Icons.Default.Description),
-        PREVIEW(Icons.Default.Preview),
-        LOG(Icons.Default.Article),
+    enum class Tab(override val label: String, override val icon: ImageVector) : NavTab {
+        FILES("Files", Icons.Default.Description),
+        PREVIEW("Preview", Icons.Default.Preview),
+        LOG("Log", Icons.Default.Article),
     }
 
     enum class Action(val text: String) {
@@ -218,5 +88,177 @@ class PckUnpackDialog : BaseComposeDialog() {
         OPEN_PACKED("Open Packed"),
         OPEN_UNPACKED("Open Unpacked"),
         SAVE_MODEL("Save"),
+    }
+}
+
+
+@ExperimentalMaterialApi
+@ExperimentalComposeUiApi
+@ExperimentalSerializationApi
+@ExperimentalFoundationApi
+@Composable
+fun PckUnpackDialog(viewModel: PckUnpackViewModel) {
+    val tab by viewModel.selectedTab.collectAsState()
+    var expanded by remember(tab) { mutableStateOf(false) }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(0.9f),
+        topBar = {
+            val progress by viewModel.unpackProgress.collectAsState()
+            TopBar(progress)
+        },
+        bottomBar = {
+            BottomTabNavigation(
+                tabs = Tab.values(),
+                selected = tab,
+                onTabClick = viewModel::selectTab
+            )
+        },
+        floatingActionButton = {
+            if (tab == Tab.PREVIEW) return@Scaffold
+            val actionSet by viewModel.actionSet.collectAsState()
+            ActionButton(
+                expanded = expanded,
+                onClick = { expanded = !expanded },
+                actionSet = actionSet,
+                onActionClick = viewModel::onActionClick
+            )
+        },
+    ) { padding ->
+        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+            when (tab) {
+                Tab.FILES -> {
+                    val isLoading by viewModel.isLoading.collectAsState()
+                    val itemList by viewModel.items.collectAsState(initial = emptyList())
+                    if (isLoading && itemList.isEmpty()) CircularProgressIndicator(Modifier.align(Alignment.Center))
+                    else FilesTabContent(itemList)
+                }
+                Tab.PREVIEW -> {
+                    val loadedL2dFile by viewModel.loadedL2dFile.collectAsState()
+                    PreviewTabContent(loadedL2dFile)
+                }
+                Tab.LOG -> {
+                    val logList by viewModel.log.collectAsState()
+                    LogTabContent(logList)
+                }
+            }
+        }
+    }
+
+    val context = LocalContext.current
+    val nav = nav
+    viewModel.onEffect(nav) { effect ->
+        when (effect) {
+            Effect.Dismiss -> nav.controller.popBackStack()
+            is Effect.OpenFile -> IntentUtils.openFile(context, effect.file)
+            is Effect.SaveUnpacked -> PckUnpackedScreen.navigate(nav, effect.folder) {
+                popUpTo(HomeScreen.route)
+            }
+        }
+    }
+}
+
+@Composable
+fun TopBar(progress: OperationProgress) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        TopAppBar(
+            title = { Text(progress.toString()) },
+            backgroundColor = MaterialTheme.colors.primaryVariant,
+        )
+        LinearProgressIndicator(
+            progress = progress.percentage,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+@Composable
+fun ActionButton(expanded: Boolean, actionSet: Set<Action>, onClick: () -> Unit, onActionClick: (Action) -> Unit) {
+    val rotation by animateFloatAsState(targetValue = if (expanded) 90.0f else 0.0f)
+    val alpha by animateFloatAsState(targetValue = if (expanded) 1.0f else 0.0f)
+
+    Column {
+        Action.values().filter { it in actionSet }.forEachIndexed { i, action ->
+            Card(
+                modifier = Modifier
+                    .size(width = 140.dp, height = 36.dp)
+                    .alpha(alpha)
+                    .clickable { onActionClick.invoke(action) }
+            ) {
+                Box {
+                    Text(
+                        text = action.text,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+        FloatingActionButton(
+            onClick = onClick,
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = null,
+                modifier = Modifier.rotate(rotation)
+            )
+        }
+    }
+}
+
+@Composable
+fun FilesTabContent(items: List<PckHeaderItem>) {
+    LazyColumn(modifier = Modifier.fillMaxSize()) {
+        items(items) { item ->
+            PckHeaderItem(item)
+        }
+    }
+}
+
+@Composable
+fun PreviewTabContent(loadedL2dFile: L2DFileLoaded?) {
+    var surfaceConfig by remember { mutableStateOf(Live2DSurfaceConfig.Default) }
+    Box(Modifier.fillMaxSize()) {
+        if (loadedL2dFile != null) {
+            Live2DSurface(
+                loadedL2dFile = loadedL2dFile,
+                surfaceConfig = surfaceConfig,
+                playMotion = false,
+                onMotionPlayed = {}
+            ) { offset, scale ->
+                surfaceConfig = surfaceConfig.copy(
+                    scale = surfaceConfig.scale * scale,
+                    offsetX = surfaceConfig.offsetX + offset.x,
+                    offsetY = surfaceConfig.offsetY + offset.y,
+                )
+            }
+        } else {
+            Text("Can't preview", modifier = Modifier.align(Alignment.Center))
+        }
+    }
+}
+
+@ExperimentalFoundationApi
+@Composable
+fun LogTabContent(logList: List<LogLine>) {
+    LogLines(logList)
+}
+
+@Composable
+fun PckHeaderItem(item: PckHeaderItem) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        when (item) {
+            is PckHeaderItem.Packed -> {
+                Text(item.entry.hashString)
+            }
+            is PckHeaderItem.Unpacked -> {
+                Text(item.entry.filename)
+                Text(
+                    item.entry.hashString,
+                    color = Color.LightGray,
+                    fontSize = 12.sp
+                )
+            }
+        }
     }
 }

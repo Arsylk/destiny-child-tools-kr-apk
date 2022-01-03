@@ -1,4 +1,4 @@
-package com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.items
+package com.arsylk.mammonsmite.presentation.screen.pck.unpacked
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*

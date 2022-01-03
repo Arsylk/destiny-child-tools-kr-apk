@@ -1,6 +1,7 @@
 package com.arsylk.mammonsmite.presentation.dialog.pck.unpack
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.viewModelScope
 import com.arsylk.mammonsmite.domain.asResult
 import com.arsylk.mammonsmite.domain.asSuccess
@@ -20,9 +21,8 @@ import com.arsylk.mammonsmite.model.pck.packed.PackedPckFile
 import com.arsylk.mammonsmite.model.pck.packed.PackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
-import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.*
-import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Tab.*
-import com.arsylk.mammonsmite.presentation.fragment.pck.unpacked.PckUnpackedSaveRequest
+import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Action
+import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Tab
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
@@ -31,6 +31,7 @@ import java.io.File
 
 @ExperimentalFoundationApi
 @ExperimentalSerializationApi
+@ExperimentalComposeUiApi
 class PckUnpackViewModel(
     private val pckTools: PckTools,
     private val l2dTools: L2DTools,
@@ -43,11 +44,11 @@ class PckUnpackViewModel(
     private val _l2dFile = MutableStateFlow<L2DFile?>(null)
     private val _loadedL2dFile = MutableStateFlow<L2DFileLoaded?>(null)
     private val _logChannel = LogLineChannel()
-    private val _tab = MutableStateFlow(FILES)
+    private val _selectedTab = MutableStateFlow(Tab.FILES)
     private val _actionSet = MutableStateFlow(emptySet<Action>())
     val items by lazy(::itemListFlow)
     val unpackProgress by lazy(_unpackProgress::asStateFlow)
-    val tab by lazy(_tab::asStateFlow)
+    val selectedTab by lazy(_selectedTab::asStateFlow)
     val log = _logChannel.stateIn(viewModelScope)
     val actionSet by lazy(_actionSet::asStateFlow)
     val loadedL2dFile by lazy(_loadedL2dFile::asStateFlow)
@@ -86,13 +87,13 @@ class PckUnpackViewModel(
                     )
                 )
             }
-            pckTools.writeUnpackedPckFileHeader(unpackedPckFile)
+            pckTools.writeUnpackedPckHeader(unpackedPckFile)
 
             _unpackedPck.value = unpackedPckFile
             _actionSet.update { it + Action.OPEN_UNPACKED + Action.CLEAN_UP + Action.SAVE_MODEL }
 
             val (modelPckFile, l2dFile) = pckTools
-                .unpackedPckFileToModel(unpackedPckFile, _logChannel)
+                .unpackedPckToModel(unpackedPckFile, _logChannel)
                 .asResult()
                 .getOrNull()
                 ?: return@withLoading
@@ -108,7 +109,7 @@ class PckUnpackViewModel(
     }
 
     fun selectTab(tab: Tab) {
-        _tab.value = tab
+        _selectedTab.value = tab
     }
 
     fun onActionClick(action: Action) {
@@ -123,8 +124,8 @@ class PckUnpackViewModel(
                 Action.OPEN_UNPACKED ->
                     setEffect(Effect.OpenFile(folder))
                 Action.SAVE_MODEL -> {
-                    val request = prepareSaveRequest() ?: return@withLoading
-                    setEffect(Effect.SaveUnpacked(request))
+                    val pck = _unpackedPck.value ?: return@withLoading
+                    setEffect(Effect.SaveUnpacked(pck.folder))
                 }
             }
         }
@@ -152,13 +153,6 @@ class PckUnpackViewModel(
         }
     }
 
-    private fun prepareSaveRequest(): PckUnpackedSaveRequest? {
-        val pck = _unpackedPck.value ?: return null
-        val l2dFile = _l2dFile.value
-        val viewIdx = _loadedL2dFile.value?.inferredViewIdx
-        return PckUnpackedSaveRequest(pck, l2dFile, viewIdx)
-    }
-
     private fun itemListFlow() =
         combineTransform(_packedPck, _unpackedPck) { packed, unpacked ->
             val list = when {
@@ -172,7 +166,7 @@ class PckUnpackViewModel(
 
 sealed class Effect : UiEffect {
     data class OpenFile(val file: File) : Effect()
-    data class SaveUnpacked(val request: PckUnpackedSaveRequest) : Effect()
+    data class SaveUnpacked(val folder: File) : Effect()
     object Dismiss : Effect()
 }
 

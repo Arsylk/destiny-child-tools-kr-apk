@@ -9,6 +9,7 @@ data class UnpackedPckFile(
     val header: UnpackedPckHeader,
 ): Serializable {
     val headerFile = File(folder, HEADER_FILENAME)
+    val backupFile = prepareBackupFile()
 
     fun getEntries(type: PckEntryFileType) =
         header.entries.filter { it.type == type }
@@ -20,6 +21,16 @@ data class UnpackedPckFile(
         header.entries.filter { it.type == type && it.hashString.startsWith(hashStringStart) }
 
     fun getEntryFile(entry: UnpackedPckEntry) = File(folder, entry.filename)
+
+    private fun prepareBackupFile(): File {
+        val path = header.gameRelativePath.substringAfterLast("/")
+        val nameRaw = when {
+            path.isNotBlank() -> path
+            else -> folder.name
+        }.replace("\\.pck$".toRegex(), "")
+        val name = "_${nameRaw}.pck"
+        return File(folder, name)
+    }
 
     companion object {
         const val HEADER_FILENAME = "_header"

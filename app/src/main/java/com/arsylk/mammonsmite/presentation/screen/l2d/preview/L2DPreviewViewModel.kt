@@ -1,13 +1,11 @@
-package com.arsylk.mammonsmite.presentation.fragment.l2dpreview
+package com.arsylk.mammonsmite.presentation.screen.l2d.preview
 
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.files.DestinyChildFiles
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
-import com.arsylk.mammonsmite.model.live2d.L2DFile
 import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
-import com.arsylk.mammonsmite.presentation.view.live2d.BackgroundScale
 import com.arsylk.mammonsmite.presentation.view.live2d.Live2DSurfaceConfig
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,8 +16,8 @@ import java.io.File
 @ExperimentalSerializationApi
 class L2DPreviewViewModel(
     private val l2dTools: L2DTools,
-    private val l2dFile: L2DFile,
     private val prefs: AppPreferences,
+    private val file: File,
 ) : EffectViewModel<Effect>() {
     private val _loadedL2dFile = MutableStateFlow<L2DFileLoaded?>(null)
     private val _surfaceConfig = MutableStateFlow(Live2DSurfaceConfig.Default)
@@ -28,6 +26,8 @@ class L2DPreviewViewModel(
 
     init {
         withLoading {
+            val l2dFile = l2dTools.runCatching { readL2DFile(file) }
+                .getOrElse { return@withLoading setEffect(Effect.FatalError(it)) }
             val modelInfo = l2dTools.runCatching { readModelInfo(l2dFile) }
                 .getOrElse { return@withLoading setEffect(Effect.FatalError(it)) }
             _loadedL2dFile.value = L2DFileLoaded(l2dFile, modelInfo)

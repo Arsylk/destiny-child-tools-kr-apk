@@ -9,12 +9,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.zIndex
 import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
 import com.arsylk.mammonsmite.presentation.view.live2d.Live2DRenderer
 import com.arsylk.mammonsmite.presentation.view.live2d.Live2DSurfaceConfig
 import com.arsylk.mammonsmite.presentation.view.live2d.Live2DSurfaceView
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.FileOutputStream
 
 
@@ -22,15 +23,15 @@ import java.io.FileOutputStream
 fun Live2DSurface(
     loadedL2dFile: L2DFileLoaded?,
     surfaceConfig: Live2DSurfaceConfig,
-    playMotion: Boolean = false,
+    playMotion: Boolean,
+    onMotionPlayed: () -> Unit,
     onGestureTransform: (offset: Offset, scale: Float) -> Unit = { _, _ -> }
 ) {
     val scope = rememberCoroutineScope()
-    var _playMotion by remember { mutableStateOf(playMotion) }
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val (mWidth, mHeight) = constraints.maxWidth to constraints.maxHeight
         if (loadedL2dFile != null) {
-            var _requestPreview by remember(loadedL2dFile) {
+            var requestPreview by remember(loadedL2dFile) {
                 mutableStateOf(!loadedL2dFile.l2dFile.previewFile.exists())
             }
             AndroidView(
@@ -47,13 +48,13 @@ fun Live2DSurface(
                 update = { surface ->
                     surface.loadedL2dFile = loadedL2dFile
                     surface.config = surfaceConfig
-                    if (_playMotion) {
-                        _playMotion = false
+                    if (playMotion) {
                         surface.totsugeki()
+                        onMotionPlayed.invoke()
                     }
-                    if (_requestPreview) {
-                        _requestPreview = false
-                        scope.launch {
+                    if (requestPreview) {
+                        requestPreview = false
+                        scope.launch(NonCancellable) {
                             kotlin.runCatching {
                                 val b = surface.getPreviewFrame()
                                 FileOutputStream(loadedL2dFile.l2dFile.previewFile).use {

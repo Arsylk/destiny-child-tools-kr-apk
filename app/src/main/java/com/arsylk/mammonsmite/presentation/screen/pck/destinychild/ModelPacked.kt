@@ -1,10 +1,9 @@
-package com.arsylk.mammonsmite.presentation.fragment.pck.destinychild.adapter
+package com.arsylk.mammonsmite.presentation.screen.pck.destinychild
 
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.model.destinychild.CharData
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.preferred
-import java.io.File
 
 
 data class ModelPacked(
