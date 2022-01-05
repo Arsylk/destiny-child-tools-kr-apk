@@ -13,6 +13,7 @@ import com.arsylk.mammonsmite.domain.base.FileListFlow
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.toSnackbarMessage
 import com.arsylk.mammonsmite.model.common.*
+import com.arsylk.mammonsmite.model.destinychild.InGame
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpacked.PckUnpackedConfigState

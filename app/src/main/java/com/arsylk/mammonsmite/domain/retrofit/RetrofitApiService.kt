@@ -24,7 +24,7 @@ interface RetrofitApiService {
     suspend fun getEnglishPatch(@Path("md5") md5: String = ""): LocalePatch
 
     @GET("/api/get_russian_patch/{md5}")
-    suspend fun getRussianPatch(@Path("md5") md5: String = "")
+    suspend fun getRussianPatch(@Path("md5") md5: String = ""):  LocalePatch
 
     @GET("/api/get_file/{name}/{md5}")
     suspend fun getDumpFile(@Path("name") name: String, @Path("md5") md5: String)

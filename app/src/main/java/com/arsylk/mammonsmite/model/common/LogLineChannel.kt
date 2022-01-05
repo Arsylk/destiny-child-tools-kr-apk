@@ -36,3 +36,7 @@ suspend fun SendChannel<LogLine>.info(msg: String, tag: String? = null) {
 suspend fun SendChannel<LogLine>.error(throwable: Throwable, tag: String? = null) {
     send(LogLine(throwable.javaClass.simpleName, tag, throwable, LogLine.Type.ERROR))
 }
+
+suspend fun SendChannel<LogLine>.warn(throwable: Throwable, tag: String? = null) {
+    send(LogLine(throwable.javaClass.simpleName, tag, throwable, LogLine.Type.WARN))
+}

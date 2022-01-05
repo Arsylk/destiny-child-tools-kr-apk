@@ -12,10 +12,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberImagePainter
+import com.arsylk.mammonsmite.model.destinychild.InGame
 import com.arsylk.mammonsmite.model.live2d.L2DFile
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
 import java.io.File
-import coil.compose.*
 
 data class UnpackedLive2DItem(
     val pck: UnpackedPckFile,
@@ -72,4 +73,3 @@ fun UnpackedLive2DItem(
     }
 }
 
-enum class InGame { PRESENT, MISSING, UNDETERMINED }

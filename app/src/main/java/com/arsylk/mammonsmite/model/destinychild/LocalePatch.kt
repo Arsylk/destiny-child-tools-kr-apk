@@ -17,6 +17,14 @@ data class LocalePatch(
 ) {
 
     val characterNamesFile get() = files["c40e0023a077cb28"]
+
+    operator fun plus(patch: LocalePatch): LocalePatch {
+        val base = files.toMutableMap()
+        patch.files.forEach { (key, file) ->
+            base[key] = base[key]?.run { plus(file) } ?: file
+        }
+        return copy(files = base.toMap())
+    }
 }
 
 @Serializable
@@ -28,6 +36,10 @@ data class LocalePatchFile(
     @SerialName("dict")
     val dict: Map<String, String>,
 ) {
+
+    operator fun plus(patch: LocalePatchFile): LocalePatchFile {
+        return copy(dict = dict + patch.dict)
+    }
 
     @Serializable(with = LocalePatchFileTypeSerializer::class)
     enum class Type(val serialInt: Int) {

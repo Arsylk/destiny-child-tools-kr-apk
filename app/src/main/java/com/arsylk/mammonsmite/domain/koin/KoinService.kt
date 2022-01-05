@@ -21,6 +21,7 @@ import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChi
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedViewModel
 import com.arsylk.mammonsmite.presentation.fragment.settings.SettingsViewModel
 import com.arsylk.mammonsmite.presentation.screen.home.HomeViewModel
+import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -72,6 +73,7 @@ object KoinService {
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
                     viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
+                    viewModel { LocalePatchViewModel(get(), get(), get()) }
                 }
             )
         }

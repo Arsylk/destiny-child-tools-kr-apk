@@ -35,6 +35,8 @@ import com.arsylk.mammonsmite.domain.files.*
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.setFullscreenCompat
+import com.arsylk.mammonsmite.model.common.LogLineChannel
+import com.arsylk.mammonsmite.model.destinychild.LocalePatch
 import com.arsylk.mammonsmite.presentation.*
 import com.arsylk.mammonsmite.presentation.activity.BaseActivity
 import com.arsylk.mammonsmite.presentation.composable.MenuDivider
@@ -42,15 +44,16 @@ import com.arsylk.mammonsmite.presentation.composable.MenuItem
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
 import com.arsylk.mammonsmite.presentation.screen.home.HomeScreen
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewScreen
+import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.android.ext.android.get
-import org.koin.androidx.compose.get
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.File
 
@@ -210,33 +213,12 @@ class MainActivityCompose : BaseActivity() {
             }
             MenuDivider("Locale")
             Column(Modifier.padding(8.dp)) {
-                val scope = rememberCoroutineScope()
                 MenuItem(
-                    text = "Test",
-                    selected = false,
+                    text = LocalePatchScreen.label,
+                    selected = LocalePatchScreen describes entry,
                 ) {
-                    scope.launch {
-                        val t = get<PckTools>()
-
-                        val iFile = IFile(get<AppPreferences>().destinychildLocalePath)
-                        val file = when (iFile) {
-                            is NormalFile -> iFile.file
-                            is DocFile -> {
-                                withContext(Dispatchers.IO) {
-                                    CommonFiles.cache.run { if (!exists()) mkdirs() }
-                                    val file = File(CommonFiles.cache, iFile.name)
-                                    file.writeBytes(iFile.inputStream().use { it.readBytes() })
-                                    file
-                                }
-                            }
-                        }
-                        val folder = File(CommonFiles.External.appFilesFolder, "test/${file.nameWithoutExtension}")
-
-                        val packed = t.readPackedPckAsFlow(file).asSuccess()
-                        val unpacked = t.unpackAsFlow(packed, File(folder, "locale")).asSuccess()
-                        val locale = t.unpackedPckToLocale(unpacked)
-
-                    }
+                    LocalePatchScreen.navigate(nav, File("/storage/emulated/0/Android/data/com.NextFloor.DestinyChild/files/locale.pck"))
+                    scope.launch { drawerState.close() }
                 }
             }
 
@@ -250,8 +232,10 @@ class MainActivityCompose : BaseActivity() {
             PckDestinyChildScreen prepare this
             PckUnpackedScreen prepare this
             L2DPreviewScreen prepare this
+            LocalePatchScreen prepare this
 
             PckUnpackDialog prepare this
+
         }
     }
 

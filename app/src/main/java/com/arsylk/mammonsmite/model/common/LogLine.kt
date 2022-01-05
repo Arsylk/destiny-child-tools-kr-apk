@@ -8,10 +8,17 @@ data class LogLine(
     val throwable: Throwable? = null,
     val type: Type = Type.INFO
 ) {
+    constructor(throwable: Throwable, tag: String? = null, type: Type = Type.ERROR) : this(
+        msg = throwable.javaClass.simpleName,
+        tag = tag,
+        throwable = throwable,
+        type = type,
+    )
 
     enum class Type(val color: Color) {
         INFO(Color.White),
         ERROR(Color.Red),
+        WARN(Color.Yellow),
         SUCCESS(Color.Green),
     }
 }

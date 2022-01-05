@@ -70,7 +70,7 @@ class PckUnpackViewModel(
 
             _actionSet.update { it + Action.OPEN_PACKED }
             val packedPckFile = pckTools
-                .readPackedPckAsFlow(actualFile, _logChannel)
+                .readPackedPck(actualFile, _logChannel)
                 .onEach { _unpackProgress.value = it.asOperationProgress().between(10.0f, 50.0f) }
                 .asSuccess()
             _packedPck.value = packedPckFile

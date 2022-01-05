@@ -87,7 +87,7 @@ class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
         }
         .flowOn(Dispatchers.IO)
 
-    fun readPackedPckAsFlow(
+    fun readPackedPck(
         file: File,
         log: SendChannel<LogLine> = LogLineChannel.Default
     ): Flow<OperationStateResult<PackedPckFile>> =
@@ -235,7 +235,7 @@ class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
 
                         //log progress
                         val logLine = String.format(
-                            "File %2d/%d %s [%016X | %6d] %02d %s",
+                            "File %2d/%d %s [%016X | %8d] %02d %s",
                             i + 1,
                             packedPckFile.header.entries.size,
                             packedEntry.hashString,

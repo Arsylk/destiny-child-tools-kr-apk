@@ -76,11 +76,11 @@ interface PckL2DTools {
 
             emit(Success(pck to l2dFile))
         }
-            .catch { t ->
-                emit(Failure(t))
-                log.error(t, "Model")
-            }
-            .flowOn(Dispatchers.IO)
+        .catch { t ->
+            emit(Failure(t))
+            log.error(t, "Model")
+        }
+        .flowOn(Dispatchers.IO)
 
 
     private suspend fun findModelJson(pck: UnpackedPckFile): Pair<UnpackedPckEntry, L2DModelInfo>? {
