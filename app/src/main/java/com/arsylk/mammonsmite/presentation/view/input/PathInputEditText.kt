@@ -2,16 +2,13 @@ package com.arsylk.mammonsmite.presentation.view.input
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.KeyEvent
 import android.view.LayoutInflater
-import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import androidx.core.widget.doAfterTextChanged
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.databinding.ViewPathInputEditTextBinding
-import com.arsylk.mammonsmite.domain.files.CommonFiles
 import com.arsylk.mammonsmite.domain.tryUse
-import com.arsylk.mammonsmite.model.common.FileType
+import com.arsylk.mammonsmite.model.common.FileTypeOld
 import java.io.File
 
 class PathInputEditText @JvmOverloads constructor(
@@ -22,7 +19,7 @@ class PathInputEditText @JvmOverloads constructor(
     private val binding = ViewPathInputEditTextBinding.inflate(
         LayoutInflater.from(context), this, true,
     )
-    var type: FileType = FileType.FILE
+    var type: FileTypeOld = FileTypeOld.FILE
         set(value) { field = value; update() }
     var text: String
         get() = binding.editText.text?.toString() ?: ""
@@ -31,9 +28,9 @@ class PathInputEditText @JvmOverloads constructor(
         get() {
             val file = File(text).takeIf { it.exists() } ?: return false
             return when (type) {
-                FileType.FILE -> file.isFile
-                FileType.FOLDER -> file.isDirectory
-                FileType.ANY -> true
+                FileTypeOld.FILE -> file.isFile
+                FileTypeOld.FOLDER -> file.isDirectory
+                FileTypeOld.ANY -> true
             }
         }
     private var onIconClick: PathInputEditText.() -> Unit = {}
@@ -47,9 +44,9 @@ class PathInputEditText @JvmOverloads constructor(
 
                 val typeInt = getInt(R.styleable.PathInputEditText_piFileType, -1)
                 type = when (typeInt) {
-                    0 -> FileType.FILE
-                    1 -> FileType.FOLDER
-                    else -> FileType.ANY
+                    0 -> FileTypeOld.FILE
+                    1 -> FileTypeOld.FOLDER
+                    else -> FileTypeOld.ANY
                 }
             }
 

@@ -10,5 +10,5 @@ data class PackedPckEntry(
     val sizeOriginal: Int,
     val sizeCompressed: Int,
 ) {
-    val hashString: String = Utils.bytesToHex(hash)
+    val hashString: String = Utils.bytesToHex(hash).lowercase()
 }

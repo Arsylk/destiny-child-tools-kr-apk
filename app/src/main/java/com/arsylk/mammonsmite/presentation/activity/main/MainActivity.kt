@@ -1,170 +1,259 @@
 package com.arsylk.mammonsmite.presentation.activity.main
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts.*
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import androidx.navigation.fragment.NavHostFragment
-import com.arsylk.mammonsmite.BuildConfig
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.dialog
 import com.arsylk.mammonsmite.R
-import com.arsylk.mammonsmite.databinding.ActivityMainBinding
 import com.arsylk.mammonsmite.domain.common.PermissionUtils
-import com.arsylk.mammonsmite.domain.files.SafProvider
+import com.arsylk.mammonsmite.domain.files.*
 import com.arsylk.mammonsmite.domain.setFullscreenCompat
+import com.arsylk.mammonsmite.presentation.*
 import com.arsylk.mammonsmite.presentation.activity.BaseActivity
-import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.collectLatest
+import com.arsylk.mammonsmite.presentation.composable.MenuDivider
+import com.arsylk.mammonsmite.presentation.composable.MenuItem
+import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
+import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogHost
+import com.arsylk.mammonsmite.presentation.screen.home.HomeScreen
+import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewScreen
+import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchScreen
+import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen
+import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import java.io.File
 
-class MainActivity : AppCompatActivity(),
-    NavigationView.OnNavigationItemSelectedListener,
-    NavController.OnDestinationChangedListener {
+@ExperimentalSerializationApi
+@ExperimentalCoroutinesApi
+@ExperimentalFoundationApi
+@ExperimentalMaterialApi
+@ExperimentalAnimationApi
+@ExperimentalComposeUiApi
+class MainActivity : BaseActivity() {
     private val viewModel by viewModel<MainViewModel>()
-    private var binding: ActivityMainBinding? = null
-    private var basePermissions: Continuation<Boolean>? = null
-    private var managePermission: Continuation<Boolean>? = null
-    private var safPermission: Continuation<Boolean>? = null
-    private val requestPermissionLauncher =
-        registerForActivityResult(RequestMultiplePermissions()) {
-            basePermissions?.resume(PermissionUtils.hasBasePermissions(this@MainActivity))
-        }
-    private val requestManageLauncher =
-        registerForActivityResult(StartActivityForResult()) {
-            managePermission?.resume(PermissionUtils.hasManagePermission())
-        }
-    private val requestSafLauncher =
-        registerForActivityResult(StartActivityForResult()) {
-            val uri = it?.data?.data
-            if (uri != null) SafProvider.persistUriPermission(uri)
-            safPermission?.resume(uri != null)
-        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityMainBinding.inflate(layoutInflater)
-        this.binding = binding
-        setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
-
-        supportActionBar?.apply {
-            setDisplayHomeAsUpEnabled(true)
-            setDisplayShowHomeEnabled(true)
-            setHomeAsUpIndicator(R.drawable.ic_menu_white)
+        setContent {
+            AppMaterialTheme {
+                val nav = rememberNavigator()
+                CompositionLocalProvider(LocalNavigator provides nav) {
+                    MainContent()
+                    UpdateFullscreen()
+                    RequestPermissions()
+                }
+            }
         }
-
-
-        binding.navView.setNavigationItemSelectedListener(this)
-        binding.navView.menu.findItem(R.id.menu_version).title =
-            "${BuildConfig.BUILD_TYPE} ${BuildConfig.VERSION_NAME}"
-
-        findMainNavController().addOnDestinationChangedListener(this)
-
         viewModel.load()
-
-        setupObservers()
-        setupPermissions()
     }
 
-    private fun setupPermissions() {
-        lifecycleScope.launchWhenCreated {
-            val baseGranted = async { suspendCoroutine<Boolean> { basePermissions = it } }
-            if (PermissionUtils.hasBasePermissions(this@MainActivity)) basePermissions?.resume(true)
-            else requestPermissionLauncher.launch(PermissionUtils.base)
-            val isBaseGranted = baseGranted.await().also { basePermissions = null }
-            if (!isBaseGranted) {
-                Toast.makeText(this@MainActivity, "Permissions are required", Toast.LENGTH_SHORT).show()
+    @Composable
+    fun MainContent() {
+        val scope = rememberCoroutineScope()
+        val drawerState = rememberDrawerState(DrawerValue.Closed)
+        val entry by nav.controller.currentBackStackEntryAsState()
+
+        if (entry.isFullscreen) {
+            Box(Modifier.fillMaxSize()) {
+                MainNavHost(nav)
             }
+        } else {
+            Column {
+                TopAppBar(
+                    backgroundColor = MaterialTheme.colors.primary,
+                    elevation = 16.dp,
+                    modifier = Modifier.shadow(8.dp)
+                ) {
+                    CompositionLocalProvider(
+                        LocalContentAlpha provides ContentAlpha.high,
+                    ) {
+                        val icon = when (drawerState.targetValue) {
+                            DrawerValue.Closed -> Icons.Default.Menu
+                            DrawerValue.Open -> Icons.Default.ArrowBack
+                        }
+                        AnimatedContent(targetState = icon) { targetIcon ->
+                            Box(
+                                modifier = Modifier
+                                    .align(Alignment.CenterVertically)
+                                    .clip(CircleShape)
+                                    .size(48.dp, 48.dp)
+                                    .clickable {
+                                        scope.launch {
+                                            drawerState.run {
+                                                if (isAnimationRunning) return@run
+                                                if (isClosed) open() else close()
+                                            }
+                                        }
+                                    }
+                            ) {
+                                Icon(
+                                    imageVector = targetIcon,
+                                    contentDescription = null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+                        }
 
-            val manageGranted = async { suspendCoroutine<Boolean> { managePermission = it } }
-            if (PermissionUtils.hasManagePermission()) managePermission?.resume(true)
-            else requestManageLauncher.launch(PermissionUtils.managePermissionIntent())
-            val isManageGranted = manageGranted.await().also { managePermission = null }
-            if (!isManageGranted) {
-                Toast.makeText(this@MainActivity, "Manage permission is required", Toast.LENGTH_SHORT).show()
-            }
-
-            val safGranted = async { suspendCoroutine<Boolean> { safPermission = it } }
-            if (!SafProvider.requiresPermission) safPermission?.resume(true)
-            else requestSafLauncher.launch(SafProvider.permissionRequestIntent())
-            val isSafGranted = safGranted.await().also { safPermission = null }
-            if (!isSafGranted) {
-                Toast.makeText(this@MainActivity, "Things will not work on Android 11+", Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
-            android.R.id.home -> binding?.drawerLayout?.open()
-        }
-        return true
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.main_menu, menu)
-        if (BuildConfig.DEBUG)
-            menuInflater.inflate(R.menu.developer_menu, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
-    override fun onBackPressed() {
-        val drawer = binding?.drawerLayout
-        if (drawer?.isOpen == true) drawer.close()
-        else super.onBackPressed()
-    }
-
-    override fun onNavigationItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.dcmodels_open ->
-                findMainNavController().navigate(R.id.action_pck_destinychild)
-            R.id.menu_settings ->
-                findMainNavController().navigate(R.id.action_settings)
-            R.id.l2dmodels_open ->
-                findMainNavController().navigate(R.id.action_pck_unpacked)
-        }
-        binding?.drawerLayout?.close()
-
-        return true
-    }
-
-    override fun onDestinationChanged(
-        controller: NavController,
-        destination: NavDestination,
-        arguments: Bundle?
-    ) {
-        val fullscreen = arguments?.getBoolean("fullscreen", false) == true
-        setFullscreenCompat(fullscreen)
-
-        supportActionBar?.apply {
-            title = destination.label
-            if (fullscreen) hide() else show()
-        }
-    }
-
-    private fun setupObservers() {
-        lifecycleScope.launchWhenCreated {
-            viewModel.isLoading.collectLatest { isLoading ->
-                //TODO disable for testing
-                binding?.loaderView?.isVisible = isLoading && false
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(horizontal = 8.dp)
+                                .weight(1.0f),
+                        ) {
+                            Text(
+                                text = entry.label ?: stringResource(R.string.app_name),
+                                style = MaterialTheme.typography.h6,
+                            )
+                        }
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = null,
+                            modifier = Modifier.align(Alignment.CenterVertically)
+                        )
+                    }
+                }
+                Box {
+                    ModalDrawer(
+                        drawerState = drawerState,
+                        scrimColor = MaterialTheme.colors.surface.copy(alpha = 0.5f),
+                        drawerContent = { DrawerContents(drawerState, entry) },
+                    ) {
+                        Box(Modifier.fillMaxSize()) {
+                            MainNavHost(nav)
+                        }
+                    }
+                }
             }
         }
+        ResultDialogHost(nav.resultDialogHost)
+
+        BackHandler(!drawerState.isClosed) {
+            scope.launch {
+                drawerState.close()
+            }
+        }
     }
 
-    private fun findMainNavController(): NavController {
-        val navHostFragment = supportFragmentManager
-            .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        return navHostFragment.navController
+    @Composable
+    fun DrawerContents(drawerState: DrawerState, entry: NavBackStackEntry?) {
+        val nav = nav
+        val scope = rememberCoroutineScope()
+
+        Column {
+            MenuDivider("Models")
+            Column(Modifier.padding(8.dp)) {
+                MenuItem(
+                    text = PckDestinyChildScreen.label,
+                    selected = PckDestinyChildScreen describes entry,
+                ) {
+                    PckDestinyChildScreen.navigate(nav)
+                    scope.launch { drawerState.close() }
+                }
+                Spacer(Modifier.height(4.dp))
+                MenuItem(
+                    text = PckUnpackedScreen.label,
+                    selected = PckUnpackedScreen describes entry,
+                ) {
+                    PckUnpackedScreen.navigate(nav)
+                    scope.launch { drawerState.close() }
+                }
+                Spacer(Modifier.height(4.dp))
+                MenuItem(
+                    text = "Menu 3",
+                    selected = false,
+                ) {
+
+                }
+            }
+            MenuDivider("Locale")
+            Column(Modifier.padding(8.dp)) {
+                MenuItem(
+                    text = LocalePatchScreen.label,
+                    selected = LocalePatchScreen describes entry,
+                ) {
+                    LocalePatchScreen.navigate(nav)
+                    scope.launch { drawerState.close() }
+                }
+            }
+
+        }
+    }
+
+    @Composable
+    fun MainNavHost(nav: Navigator) {
+        NavHost(navController = nav.controller, startDestination = HomeScreen.route) {
+            HomeScreen prepare this
+            PckDestinyChildScreen prepare this
+            PckUnpackedScreen prepare this
+            L2DPreviewScreen prepare this
+            LocalePatchScreen prepare this
+
+            PckUnpackDialog prepare this
+        }
+    }
+
+    @Composable
+    fun UpdateFullscreen() {
+        val entry by nav.controller.currentBackStackEntryAsState()
+        val fullscreen = entry.isFullscreen
+        LaunchedEffect(fullscreen) {
+            setFullscreenCompat(fullscreen)
+        }
+    }
+    
+    @Composable
+    fun RequestPermissions() {
+        var requestBase by remember { mutableStateOf(!PermissionUtils.hasBasePermissions(this)) }
+        var requestManage by remember { mutableStateOf(!PermissionUtils.hasManagePermission()) }
+        var requestSaf by remember { mutableStateOf(SafProvider.requiresPermission) }
+        
+        val base = rememberLauncherForActivityResult(RequestMultiplePermissions()) {
+            requestBase = !PermissionUtils.hasBasePermissions(this)
+        }
+        val manage = rememberLauncherForActivityResult(StartActivityForResult()) {
+            requestManage = !PermissionUtils.hasManagePermission()
+        }
+        val saf = rememberLauncherForActivityResult(StartActivityForResult()) {
+            val uri = it.data?.data
+            if (uri != null) SafProvider.persistUriPermission(uri)
+            requestSaf = SafProvider.requiresPermission
+        }
+        
+        LaunchedEffect(requestBase, requestManage, requestSaf) {
+            when {
+                requestBase -> base.launch(PermissionUtils.base)
+                requestManage -> manage.launch(PermissionUtils.managePermissionIntent())
+                requestSaf -> saf.launch(SafProvider.permissionRequestIntent())
+            }
+        }
     }
 }

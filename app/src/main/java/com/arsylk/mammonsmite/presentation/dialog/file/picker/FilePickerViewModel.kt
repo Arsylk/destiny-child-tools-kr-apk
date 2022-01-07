@@ -5,7 +5,7 @@ import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.files.CommonFiles
 import com.arsylk.mammonsmite.domain.safeListFiles
-import com.arsylk.mammonsmite.model.common.FileType
+import com.arsylk.mammonsmite.model.common.FileTypeOld
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 
-class FilePickerViewModel(private val type: FileType) : EffectViewModel<Effect>() {
+class FilePickerViewModel(private val type: FileTypeOld) : EffectViewModel<Effect>() {
     private var _directory = MutableStateFlow(CommonFiles.storage)
     val _selectedItem = MutableStateFlow<FilePickerItem?>(null)
     val directory by lazy(_directory::asStateFlow)
@@ -31,9 +31,9 @@ class FilePickerViewModel(private val type: FileType) : EffectViewModel<Effect>(
     fun selectCurrent() {
         viewModelScope.launch {
             val file = when (type) {
-                FileType.FILE -> _selectedItem.value?.file ?: return@launch
-                FileType.FOLDER -> _directory.value
-                FileType.ANY -> _selectedItem.value?.file ?: _directory.value
+                FileTypeOld.FILE -> _selectedItem.value?.file ?: return@launch
+                FileTypeOld.FOLDER -> _directory.value
+                FileTypeOld.ANY -> _selectedItem.value?.file ?: _directory.value
             }
             setEffect(Effect.FileSelected(file))
             setEffect(Effect.Dismiss)

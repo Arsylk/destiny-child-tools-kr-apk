@@ -2,7 +2,7 @@ package com.arsylk.mammonsmite.model.common
 
 import java.io.File
 
-enum class FileType {
+enum class FileTypeOld {
     FILE { override fun validate(file: File) = super.validate(file) && file.isFile },
     FOLDER { override fun validate(file: File) = super.validate(file) && file.isDirectory },
     ANY;

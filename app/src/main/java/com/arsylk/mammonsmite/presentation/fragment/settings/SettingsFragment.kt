@@ -9,7 +9,7 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.databinding.FragmentSettingsBinding
-import com.arsylk.mammonsmite.model.common.FileType
+import com.arsylk.mammonsmite.model.common.FileTypeOld
 import com.arsylk.mammonsmite.model.destinychild.DestinyChildPackage
 import com.arsylk.mammonsmite.presentation.dialog.file.picker.FilePickerDialog
 import com.arsylk.mammonsmite.presentation.fragment.BaseBindingFragment
@@ -98,7 +98,7 @@ class SettingsFragment : BaseBindingFragment<FragmentSettingsBinding>() {
         }
     }
 
-    private fun openFilePicker(file: File, type: FileType, onFileSelected: (File) -> Unit) {
+    private fun openFilePicker(file: File, type: FileTypeOld, onFileSelected: (File) -> Unit) {
         FilePickerDialog.newInstance(file, type, onFileSelected)
             .show(parentFragmentManager, FilePickerDialog.TAG)
     }

@@ -10,7 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Dangerous
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Umbrella
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
@@ -23,6 +28,8 @@ import coil.ImageLoader
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.arsylk.mammonsmite.domain.common.IntentUtils
+import com.arsylk.mammonsmite.presentation.composable.ActionButton
+import com.arsylk.mammonsmite.presentation.composable.ActionButtonItem
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
 import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
@@ -44,7 +51,30 @@ object HomeScreen : NavigableScreen {
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = getViewModel()) {
     val context = LocalContext.current
-    Surface {
+    Scaffold(
+        floatingActionButton = {
+            var expanded by remember { mutableStateOf(false) }
+            ActionButton(
+                expanded = expanded,
+                actions = listOf(
+                    object : ActionButtonItem {
+                        override val label = "Action 1"
+                        override val icon = Icons.Default.Face
+                    },
+                    object : ActionButtonItem {
+                        override val label = "Action 2"
+                        override val icon = Icons.Default.Umbrella
+                    },
+                    object : ActionButtonItem {
+                        override val label = "Action 3"
+                        override val icon = Icons.Default.Dangerous
+                    },
+                ),
+                onClick = { expanded = !expanded },
+                onActionClick = {},
+            )
+        }
+    ) {
         Column(Modifier.fillMaxSize()) {
             val banners by viewModel.banners.collectAsState()
             CompositionLocalProvider(

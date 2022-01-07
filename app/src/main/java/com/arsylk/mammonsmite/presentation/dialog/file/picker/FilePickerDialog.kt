@@ -1,6 +1,5 @@
 package com.arsylk.mammonsmite.presentation.dialog.file.picker
 
-import android.graphics.Paint
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,18 +9,17 @@ import com.arsylk.mammonsmite.databinding.ItemFilePickerBinding
 import com.arsylk.mammonsmite.domain.base.InlineRecyclerAdapter
 import com.arsylk.mammonsmite.domain.files.CommonFiles
 import com.arsylk.mammonsmite.domain.underline
-import com.arsylk.mammonsmite.model.common.FileType
+import com.arsylk.mammonsmite.model.common.FileTypeOld
 import com.arsylk.mammonsmite.presentation.dialog.BaseBindingDialog
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import org.koin.core.parameter.ParametersHolder
 import org.koin.core.parameter.parametersOf
 import java.io.File
 
 class FilePickerDialog(
     private val file: File,
-    private val type: FileType,
+    private val type: FileTypeOld,
     private val onFileSelected: (file: File) -> Unit,
 ) : BaseBindingDialog<DialogFilePickerBinding>() {
     private val viewModel
@@ -80,7 +78,7 @@ class FilePickerDialog(
             inflate = ItemFilePickerBinding::inflate,
             bind = {
                 binding.labelText.text = item.label
-                binding.labelText.isEnabled = !item.file.isFile || type != FileType.FOLDER
+                binding.labelText.isEnabled = !item.file.isFile || type != FileTypeOld.FOLDER
                 binding.labelText.underline = isSelected
                 binding.root.setOnClickListener {
                     if (item.file.isDirectory) viewModel.prepareItems(item.file)
@@ -94,7 +92,7 @@ class FilePickerDialog(
 
         fun newInstance(
             file: File = CommonFiles.storage,
-            type: FileType = FileType.ANY,
+            type: FileTypeOld = FileTypeOld.ANY,
             onFileSelected: (file: File) -> Unit = {},
         ): FilePickerDialog = FilePickerDialog(file, type, onFileSelected)
     }

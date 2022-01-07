@@ -23,6 +23,7 @@ import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.model.common.OperationStateResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.last
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -130,7 +131,19 @@ fun Activity.setFullscreenCompat(fullscreen: Boolean) {
     }
 }
 
+@OptIn(ExperimentalContracts::class)
+inline fun<T>  use(value1: T?, block: (T) -> Unit) {
+    contract {
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    }
+    if (value1 != null) block.invoke(value1)
+}
+
+@OptIn(ExperimentalContracts::class)
 inline fun<T, R>  use(value1: T?, value2: R?, block: (T, R) -> Unit) {
+    contract {
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    }
     if (value1 != null && value2 != null)
         block.invoke(value1, value2)
 }
@@ -148,7 +161,7 @@ inline fun Modifier.noRippleClickable(crossinline onClick: ()->Unit): Modifier =
 @Composable
 fun <T: UiEffect> EffectViewModel<T>.onEffect(key: Any? = Unit, action: suspend (effect: T) -> Unit) {
     LaunchedEffect(key) {
-        effect.collectLatest(action)
+        effect.collect(action)
     }
 }
 

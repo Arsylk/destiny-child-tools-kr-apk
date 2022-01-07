@@ -11,7 +11,11 @@ object CommonFiles {
     val data by lazy(Environment::getDataDirectory)
 
     val appDataFolder by lazy { KoinAndroidContext.filesDir }
-    val cache by lazy { File(KoinAndroidContext.cacheDir, "cache") }
+    val cache by lazy {
+        val file = File(KoinAndroidContext.cacheDir, "cache")
+        file.runCatching { if (!exists()) mkdirs() }
+        file
+    }
 
     object External {
         val appFilesFolder by lazy { File(storage, "DCUnpacker") }

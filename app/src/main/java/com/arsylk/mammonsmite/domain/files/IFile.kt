@@ -15,6 +15,7 @@ sealed class IFile : Serializable {
     abstract val name: String
     abstract val isFile: Boolean
     abstract val isDirectory: Boolean
+    abstract val exists: Boolean
     abstract val parent: IFile?
     abstract val absolutePath: String
     abstract val size: Long
@@ -25,8 +26,20 @@ sealed class IFile : Serializable {
 
     abstract fun outputStream(): OutputStream
 
+    abstract fun mkdir(name: String): IFile?
+
     override fun toString(): String {
         return "${this.javaClass.simpleName}(name=$name, path=$absolutePath)"
+    }
+
+    override fun hashCode(): Int {
+        return absolutePath.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        other ?: return false
+        val cast = other as? IFile ?: return false
+        return hashCode() == cast.hashCode()
     }
 
     companion object {
@@ -44,6 +57,7 @@ class NormalFile(val file: File) : IFile() {
     override val name: String get() = file.name
     override val isFile: Boolean get() = file.isFile
     override val isDirectory: Boolean get() = file.isDirectory
+    override val exists: Boolean get() = file.exists()
     override val parent: IFile? get() = file.parentFile?.let(::NormalFile)
     override val absolutePath: String get() = file.absolutePath
     override val size: Long get() = file.length()
@@ -62,12 +76,19 @@ class NormalFile(val file: File) : IFile() {
     override fun outputStream(): OutputStream {
         return file.outputStream()
     }
+
+    override fun mkdir(name: String): IFile {
+        val new = File(file, name)
+        if (!new.isDirectory && !new.exists()) new.mkdirs()
+        return NormalFile(new)
+    }
 }
 
 class DocFile(val doc: DocumentFile) : IFile() {
     override val name: String by lazy { doc.name ?: "" }
     override val isFile: Boolean by lazy { doc.isFile }
     override val isDirectory: Boolean by lazy { doc.isDirectory }
+    override val exists: Boolean by lazy { doc.exists() }
     override val parent: IFile by lazy { doc.parentFile?.let(::DocFile)
         ?: SafProvider.baseFolder.let(::NormalFile) }
     override val absolutePath: String by lazy { absoluteFilePath() }
@@ -86,11 +107,17 @@ class DocFile(val doc: DocumentFile) : IFile() {
     override fun outputStream(): OutputStream {
         return context.contentResolver.openOutputStream(doc.uri) ?: throw IllegalStateException()
     }
+
+    override fun mkdir(name: String): IFile? {
+        val new = doc.createDirectory(name)
+        return new?.let(::DocFile)
+    }
 }
 
 fun IFile(file: File) = IFile.parse(file)
 fun IFile(path: String) = IFile.parse(File(path))
-fun IFile(parent: String?, child: String) = IFile.parse(File(parent, child))
-fun IFile(parent: File?, child: String) = IFile.parse(File(parent, child))
+fun IFile(parent: String, child: String) = IFile.parse(File(parent, child))
+fun IFile(parent: File, child: String) = IFile.parse(File(parent, child))
+fun IFile(parent: IFile, child: String) = IFile.parse(File(parent.absolutePath, child))
 val IFile.nameWithoutExtension: String
     get() = name.substringBeforeLast(".")

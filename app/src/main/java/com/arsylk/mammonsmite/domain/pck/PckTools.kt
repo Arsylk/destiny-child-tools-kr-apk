@@ -26,6 +26,7 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+import kotlin.contracts.ExperimentalContracts
 
 @ExperimentalSerializationApi
 class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
@@ -367,14 +368,14 @@ class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
     }
 }
 
-private fun RandomAccessFile.pckWriteByte(byte: Byte) =
+internal fun RandomAccessFile.pckWriteByte(byte: Byte) =
     write(ByteBuffer.allocate(1).order(ByteOrder.LITTLE_ENDIAN).put(byte).array())
 
-private fun RandomAccessFile.pckWriteInt(int: Int) =
+internal fun RandomAccessFile.pckWriteInt(int: Int) =
     write(ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(int).array())
 
-private fun RandomAccessFile.pckWriteLong(long: Long) =
+internal fun RandomAccessFile.pckWriteLong(long: Long) =
     write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(long).array())
 
-private fun RandomAccessFile.pckWriteString(string: String) =
+internal fun RandomAccessFile.pckWriteString(string: String) =
     write(string.decodeHex().toByteArray())

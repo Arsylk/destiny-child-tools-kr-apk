@@ -1,6 +1,7 @@
 package com.arsylk.mammonsmite.domain.pck
 
 import com.arsylk.mammonsmite.domain.decodeFromFile
+import com.arsylk.mammonsmite.domain.encodeToFile
 import com.arsylk.mammonsmite.domain.use
 import com.arsylk.mammonsmite.model.common.*
 import com.arsylk.mammonsmite.model.common.OperationStateResult.*
@@ -8,6 +9,7 @@ import com.arsylk.mammonsmite.model.destinychild.LocalePatch
 import com.arsylk.mammonsmite.model.destinychild.LocalePatchFile
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
+import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckHeader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.flow.Flow
@@ -18,8 +20,13 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
+import java.io.RandomAccessFile
+import java.nio.ByteBuffer
+import java.nio.charset.Charset
+import kotlin.contracts.ExperimentalContracts
 
 @ExperimentalSerializationApi
 interface PckLocaleTools {
@@ -119,9 +126,84 @@ interface PckLocaleTools {
         }
     }
 
+    @Throws(IOException::class, SerializationException::class)
+    suspend fun localePatchToJsonFile(patch: LocalePatch, dst: File) {
+        withContext(Dispatchers.IO) {
+            json.encodeToFile(patch, dst)
+        }
+    }
+
+    @Throws(IOException::class)
+    suspend fun localePatchToPck(patch: LocalePatch, dst: File) {
+        RandomAccessFile(dst, "rw").use { fs ->
+            val entries = patch.files.entries.toList()
+            val count = entries.size
+            //emit(InProgress(0, count + 1))
+            //log.info("File count: $count", "Pack")
+
+            // calculate initial offset
+            var offset = 8 + 4 + count * (8 + 1 + 4 + 4 + 8)
+
+            // write pck header
+            fs.write(PckTools.PCK_IDENTIFIER)
+            fs.pckWriteInt(count)
+            entries.forEach { entry ->
+                fs.pckWriteString(entry.key)
+                fs.pckWriteByte(0x00.toByte())
+                fs.pckWriteInt(offset)
+                val size = prepareLocaleFileBytes(entry.value).size.toLong()
+                fs.pckWriteInt(size.toInt())
+                fs.pckWriteLong(size)
+
+                offset += size.toInt()
+            }
+
+            // write pck entry files
+            entries.forEachIndexed { i, entry ->
+                val bytes = prepareLocaleFileBytes(entry.value)
+                fs.write(bytes)
+            }
+        }
+    }
+
+    private suspend fun prepareLocaleFileBytes(file: LocalePatchFile): ByteArray {
+        return withContext(Dispatchers.Default) {
+            ByteArrayOutputStream().use { bs ->
+                bs.write(BOM_PREFIX)
+                file.dict.entries.forEach { (k, v) ->
+                    when (file.type) {
+                        LocalePatchFile.Type.DICT -> {
+                            bs.write("$k = \"$v\"".toByteArray(Charsets.UTF_8))
+                        }
+                        LocalePatchFile.Type.TABLE -> {
+                            bs.write(k.toByteArray(Charsets.UTF_8))
+                            bs.write(TAB_BYTES)
+                            bs.write(v.toByteArray(Charsets.UTF_8))
+                        }
+                        LocalePatchFile.Type.UNKNOWN -> {
+                        }
+                    }
+                    bs.write(NEWLINE_BYTES)
+                }
+                bs.toByteArray()
+            }
+        }
+    }
+
 
     companion object {
         val LOCALE_DEF_REGEX = "^(?!/)(\\S+)\\s*?=\\s*?\"(.*?)\"\\s*?$".toRegex()
         val LOCALE_TAB_REGEX = "^(?!/)(\\S+)\\s(.*?)$".toRegex()
+
+        val BOM_PREFIX = byteArrayOf(
+            0xEF.toByte(),
+            0xBB.toByte(),
+            0xBF.toByte(),
+            0x0D.toByte(),
+            0x0A.toByte(),
+        )
+
+        val TAB_BYTES = byteArrayOf(0x09.toByte())
+        val NEWLINE_BYTES = byteArrayOf(0x0D.toByte(), 0x0A.toByte())
     }
 }

@@ -11,9 +11,9 @@ import com.arsylk.mammonsmite.domain.files.NormalFile
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
-import com.arsylk.mammonsmite.model.common.LogLineChannel
-import com.arsylk.mammonsmite.model.common.stateIn
+import com.arsylk.mammonsmite.model.common.*
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -25,103 +25,75 @@ class LocalePatchViewModel(
     private val service: RetrofitApiService,
     private val prefs: AppPreferences,
 ) : EffectViewModel<Effect>() {
+    private val gameSource = PatchSource.Local(IFile(prefs.destinychildLocalePath), LocalLocalePatch.PCK)
     private val log = LogLineChannel()
-    private val _itemSource = MutableStateFlow<PatchItem?>(null)
-    private val _itemPatch = MutableStateFlow<PatchItem?>(null)
+    private val updateSrc = Channel<Unit>(Channel.CONFLATED)
+    private val _sourceSrc = MutableStateFlow<PatchSource>(PatchSource.Game)
+    private val _patchSrc = MutableStateFlow<PatchSource>(PatchSource.Remote(RemoteLocalePatch.ENGLISH))
+    private val _destination = MutableStateFlow<PatchDestination>(PatchDestination.Game)
     val logLines = log.stateIn(viewModelScope)
-    val itemSource by lazy(_itemSource::asStateFlow)
-    val itemPatch by lazy(_itemPatch::asStateFlow)
+    val sourceSrc by lazy(_sourceSrc::asStateFlow)
+    val sourcePatch = _sourceSrc.preparePatchSource(updateSrc)
+    val patchSrc by lazy(_patchSrc::asStateFlow)
+    val patchPatch = _patchSrc.preparePatchSource()
+    val itemApplied = prepareItemApplied()
+    val destination by lazy(_destination::asStateFlow)
 
-    init {
-        val localeFile = File(prefs.destinychildLocalePath)
-        loadLocalePatchSource(PatchSource.Local(localeFile, LocalLocalePatch.PCK))
+
+    fun setSourceSrc(source: PatchSource) {
+        _sourceSrc.value = source
     }
 
-
-    fun loadLocalePatchSource(source: PatchSource) {
-        loadLocalePatch(source).onEach { _itemSource.value = it }
-            .launchIn(viewModelScope)
+    fun setPatchSrc(source: PatchSource) {
+        _patchSrc.value = source
     }
 
-    fun loadLocalePatchPatch(source: PatchSource) {
-        loadLocalePatch(source).onEach { _itemPatch.value = it }
-            .launchIn(viewModelScope)
+    fun setDestination(destination: PatchDestination) {
+        _destination.value = destination
     }
 
-    private fun loadLocalePatch(source: PatchSource): Flow<PatchItem> {
-        return when (source) {
-            is PatchSource.Local -> loadLocalePatch(source.file, source.type)
-            is PatchSource.Remote -> loadLocalePatch(source.type)
-        }
-    }
-
-    private fun loadLocalePatch(file: File, type: LocalLocalePatch): Flow<PatchItem> {
-        val item = PatchItem(
-            source = PatchSource.Local(file, type),
-            isLoading = true,
-            patch = null,
-            throwable = null,
-        )
-        return flow {
-            emit(item)
-            val actualFile = prepareActualFile(IFile.parse(file))
-            val patch = when (type) {
-                LocalLocalePatch.JSON -> pckTools.jsonFileToLocalePatch(actualFile)
-                LocalLocalePatch.PCK -> {
-                    val packed = pckTools
-                        .readPackedPck(actualFile, log)
-                        .asSuccess()
-                    val unpacked = pckTools
-                        .unpackAsFlow(packed, unpackTo(file), log)
-                        .asSuccess()
-                    val patch = pckTools
-                        .unpackedPckToLocalePatch(unpacked, log)
-                        .asSuccess()
-                    patch
+    fun savePatchTo(applied: PatchAppliedItem, destination: PatchDestination) {
+        withLoading(tag = "save") {
+            val iFile = when(destination) {
+                PatchDestination.Game -> gameSource.file
+                is PatchDestination.Pck -> destination.file
+                is PatchDestination.Json -> destination.file
+            }
+            val result = kotlin.runCatching {
+                when (destination) {
+                    PatchDestination.Game, is PatchDestination.Pck -> {
+                        val temp = File(CommonFiles.cache, "temp_locale.pck")
+                        pckTools.localePatchToPck(applied.applied, temp)
+                        iFile.outputStream().use { it.write(temp.readBytes()) }
+                        temp.delete()
+                    }
+                    is PatchDestination.Json -> {
+                        val temp = File(CommonFiles.cache, "temp_locale.json")
+                        pckTools.localePatchToJsonFile(applied.applied, temp)
+                        iFile.outputStream().use { it.write(temp.readBytes()) }
+                        temp.delete()
+                    }
                 }
             }
-            emit(
-                item.copy(
-                    isLoading = false,
-                    patch = patch,
-                    throwable = null,
-                )
-            )
-        }
-        .catch { t -> emit(item.copy(isLoading = false, throwable = t)) }
-        .flowOn(Dispatchers.IO)
-    }
 
-    private fun loadLocalePatch(type: RemoteLocalePatch): Flow<PatchItem> {
-        val item = PatchItem(
-            source = PatchSource.Remote(type),
-            isLoading = true,
-            patch = null,
-            throwable = null,
-        )
-        return flow {
-            emit(item)
-            val patch = when (type) {
-                RemoteLocalePatch.ENGLISH -> service.getEnglishPatch()
-                RemoteLocalePatch.RUSSIAN -> service.getRussianPatch()
+            // update source if same as destination
+            val update = when (val src = _sourceSrc.value) {
+                PatchSource.Game -> gameSource.file == iFile
+                is PatchSource.Local -> src.file == iFile
+                is PatchSource.Remote -> false
             }
+            if (update) updateSrc.send(Unit)
 
-            emit(
-                item.copy(
-                    isLoading = false,
-                    patch = patch,
-                    throwable = null,
-                )
-            )
+            result.onSuccess { setEffect(Effect.Success(iFile.absolutePath)) }
+            result.onFailure { setEffect(Effect.Failure(it)) }
         }
-        .catch { t -> emit(item.copy(isLoading = false, throwable = t)) }
-        .flowOn(Dispatchers.IO)
     }
 
-    private fun unpackTo(file: File): File {
+
+    private fun unpackTo(name: String): File {
         val tempFolder = CommonFiles.cache
             .apply { kotlin.runCatching { if (!exists()) mkdirs() } }
-        return File(tempFolder, file.nameWithoutExtension)
+        return File(tempFolder, name.substringBeforeLast("."))
     }
 
     private suspend fun prepareActualFile(iFile: IFile): File {
@@ -137,6 +109,68 @@ class LocalePatchViewModel(
             }
         }
     }
+
+    private fun Flow<PatchSource>.preparePatchSource(channel: Channel<Unit> = Channel(Channel.CONFLATED)) =
+        flatMapLatest { src ->
+            channel.receiveAsFlow()
+                .onStart { emit(Unit) }
+                .mapAsUiResult {
+                    when (src) {
+                        PatchSource.Game, is PatchSource.Local -> {
+                            val file =
+                                if (src is PatchSource.Local) src.file else gameSource.file
+                            val type =
+                                if (src is PatchSource.Local) src.type else gameSource.type
+
+                            val actualFile = prepareActualFile(file)
+                            when (type) {
+                                LocalLocalePatch.JSON -> pckTools.jsonFileToLocalePatch(
+                                    actualFile
+                                )
+                                LocalLocalePatch.PCK -> {
+                                    val packed = pckTools
+                                        .readPackedPck(actualFile, log)
+                                        .asSuccess()
+                                    val unpacked = pckTools
+                                        .unpackAsFlow(packed, unpackTo(file.name), log)
+                                        .asSuccess()
+                                    val patch = pckTools
+                                        .unpackedPckToLocalePatch(unpacked, log)
+                                        .asSuccess()
+                                    patch
+                                }
+                            }
+                        }
+                        is PatchSource.Remote -> {
+                            when (src.type) {
+                                RemoteLocalePatch.ENGLISH -> service.getEnglishPatch()
+                                RemoteLocalePatch.RUSSIAN -> service.getRussianPatch()
+                            }
+                        }
+                    }
+                }
+        }
+        .flowOn(Dispatchers.IO)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), UiResult.Loading())
+
+    private fun prepareItemApplied(): Flow<UiResult<PatchAppliedItem>> =
+        combineTransform(sourcePatch, patchPatch) { s, p ->
+            when {
+                s is UiResult.Failure -> emit(flowOf(UiResult(s.throwable)))
+                p is UiResult.Failure -> emit(flowOf(UiResult(p.throwable)))
+                s is UiResult.Loading || p is UiResult.Loading -> emit(flowOf(UiResult.Loading()))
+                s is UiResult.Success && p is UiResult.Success -> emit(
+                    uiResultOf {
+                        PatchAppliedItem(s.value, p.value)
+                    }
+                )
+            }
+        }
+        .flatMapLatest { it }
+        .flowOn(Dispatchers.IO)
 }
 
-sealed class Effect : UiEffect
+sealed class Effect : UiEffect {
+    data class Success(val path: String) : Effect()
+    data class Failure(val throwable: Throwable) : Effect()
+}

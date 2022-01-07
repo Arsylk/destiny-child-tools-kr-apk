@@ -16,6 +16,7 @@ import com.arsylk.mammonsmite.domain.sync.SyncService
 import com.arsylk.mammonsmite.presentation.activity.main.MainViewModel
 import com.arsylk.mammonsmite.presentation.dialog.file.picker.FilePickerViewModel
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackViewModel
+import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileViewModel
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewViewModel
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildViewModel
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedViewModel
@@ -74,6 +75,7 @@ object KoinService {
                     viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
                     viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
                     viewModel { LocalePatchViewModel(get(), get(), get()) }
+                    viewModel { param -> ResultFileViewModel(type = param.get(), startIn = param.getOrNull()) }
                 }
             )
         }

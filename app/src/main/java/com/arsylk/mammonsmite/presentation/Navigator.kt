@@ -3,12 +3,20 @@ package com.arsylk.mammonsmite.presentation
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.navigation.*
-import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogHostState
 
 
-class Navigator(private val provideController: () -> NavHostController) {
-    val controller: NavHostController get() = provideController.invoke()
+class Navigator(
+    val controller: NavHostController,
+    val resultDialogHost: ResultDialogHostState
+) {
+
+    companion object {
+        const val DialogHostRoute = "/dialog-host"
+    }
 }
 
 interface Navigable {
@@ -41,6 +49,13 @@ interface Navigable {
         fun String.putArg(key: String, value: Boolean): String =
             replaceArg(key, "$value")
     }
+}
+
+@Composable
+fun rememberNavigator(): Navigator {
+    val controller = rememberNavController()
+    val resultDialogHost = remember { ResultDialogHostState() }
+    return remember(controller) { Navigator(controller, resultDialogHost) }
 }
 
 val LocalNavigator = compositionLocalOf<Navigator> {
