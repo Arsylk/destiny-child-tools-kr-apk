@@ -29,7 +29,7 @@ import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 import kotlin.contracts.ExperimentalContracts
 
-@ExperimentalContracts
+@OptIn(ExperimentalContracts::class)
 class Live2DRenderer(private val scopeProvider: () -> CoroutineScope?) : GLSurfaceView.Renderer {
     val surfaceSize = MutableStateFlow(0.0f to 0.0f)
     val surfaceAspect: Float get() {

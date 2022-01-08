@@ -59,7 +59,7 @@ fun MenuDivider(text: String? = null) {
     Column(Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
         if (text != null) Text(
             text = text,
-            style = MaterialTheme.typography.caption,
+            style = MaterialTheme.typography.subtitle2,
             color = MaterialTheme.colors.onSurface.copy(alpha = 0.48f),
             modifier = Modifier.padding(start = 4.dp, bottom = 2.dp)
         )

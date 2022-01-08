@@ -15,9 +15,8 @@ import kotlinx.coroutines.launch
 
 class ResultFileViewModel(
     private val type: FileSelect,
-    startIn: IFile?,
 ) : EffectViewModel<Effect>() {
-    private val current = MutableStateFlow(startIn ?: IFile(CommonFiles.storage))
+    private val current = MutableStateFlow(IFile(CommonFiles.storage))
     private val _selectedItem = MutableStateFlow<ResultFileItem?>(null)
     private val updateItems = Channel<Unit>(Channel.CONFLATED)
     val title = current.prepareTitle()
@@ -57,6 +56,15 @@ class ResultFileViewModel(
                 current.value = parent
             }
             else setEffect(Effect.Dismiss)
+        }
+    }
+
+    fun tryNavigateTo(file: IFile) {
+        withLoading(tag = "navigate") {
+            when {
+                file.isDirectory -> current.value = file
+                file.isFile -> file.parent?.also { current.value = it }
+            }
         }
     }
 

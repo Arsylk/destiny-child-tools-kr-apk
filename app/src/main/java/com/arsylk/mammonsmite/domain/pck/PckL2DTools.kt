@@ -174,8 +174,8 @@ interface PckL2DTools {
     ): UnpackedPckFile = pckTools.updateEntry(this, newEntry, onUpdate)
 
     companion object {
-        const val HASH_MODEL_OR_TEXTURE = "660E0026"
-        const val HASH_CHARACTER_DAT = "050E0025"
+        const val HASH_MODEL_OR_TEXTURE = "660e0026"
+        const val HASH_CHARACTER_DAT = "050e0025"
 
         const val MODEL_INFO_NAME = "model.json"
     }

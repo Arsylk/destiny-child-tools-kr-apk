@@ -249,11 +249,8 @@ internal fun SourceSelector(
                         onClick = {
                             expanded = false
                             scope.launch {
-                                val file = dialogHost.showResultDialog<IFile> {
-                                    SelectFileDialog(
-                                        type = FileSelect.FILE,
-                                        actions = it,
-                                    )
+                                val file = dialogHost.showResultDialog {
+                                    SelectFileDialog(FileSelect.FILE)
                                 }
                                 if (file != null) {
                                     onSourceSelected.invoke(PatchSource.Local(file, type))
@@ -330,11 +327,10 @@ internal fun DestinationSelector(
                         onClick = {
                             expanded = false
                             scope.launch {
-                                val file = dialogHost.showResultDialog<IFile> {
+                                val file = dialogHost.showResultDialog {
                                     SelectFileDialog(
                                         type = FileSelect.FILE,
                                         allowed = setOf(Action.NewFile),
-                                        actions = it,
                                     )
                                 }
                                 if (file != null) when (type) {
@@ -408,7 +404,9 @@ internal fun PatchAppliedDescription(modifier: Modifier = Modifier, uiResult: Ui
         )
     ) {
         UiResultBox(uiResult, onEmpty = { Text("Nothing selected") }) { applied ->
-            Column {
+            Column(
+                modifier = Modifier.padding(8.dp)
+            ) {
                 Text("Files: ${applied.patch.files.size}")
                 Text("Entries: ${applied.patch.files.values.sumOf { it.dict.size }}")
                 Text("New Files: ${applied.newFiles}")

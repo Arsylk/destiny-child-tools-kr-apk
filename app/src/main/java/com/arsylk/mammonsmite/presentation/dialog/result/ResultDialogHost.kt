@@ -21,14 +21,16 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlin.coroutines.resume
+import kotlin.experimental.ExperimentalTypeInference
 
 class ResultDialogHostState {
     private val mutex = Mutex()
     var current by mutableStateOf<ResultDialog<*>?>(null)
         private set
 
+    @OptIn(ExperimentalTypeInference::class)
     suspend fun <T: Any> showResultDialog(
-        content: @Composable (dialog: ResultDialogAction<T>) -> Unit,
+        @BuilderInference content: @Composable ResultDialogAction<T>.() -> Unit,
     ): T? = mutex.withLock {
         return try {
             suspendCancellableCoroutine<T?> { continuation ->

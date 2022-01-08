@@ -30,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
+import com.arsylk.mammonsmite.BuildConfig
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.domain.common.PermissionUtils
 import com.arsylk.mammonsmite.domain.files.*
@@ -45,6 +46,7 @@ import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewScreen
 import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
+import com.arsylk.mammonsmite.presentation.screen.settings.SettingsScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -204,7 +206,21 @@ class MainActivity : BaseActivity() {
                     scope.launch { drawerState.close() }
                 }
             }
-
+            MenuDivider("Settings")
+            Column(Modifier.padding(8.dp)) {
+                MenuItem(
+                    text = SettingsScreen.label,
+                    selected = SettingsScreen describes entry,
+                ) {
+                    SettingsScreen.navigate(nav)
+                    scope.launch { drawerState.close() }
+                }
+            }
+            MenuDivider()
+            ListItem(
+                modifier = Modifier.clickable(false) {},
+                text = { Text(BuildConfig.VERSION_NAME, fontFamily = AppMaterialTheme.ConsoleFontFamily) }
+            )
         }
     }
 
@@ -216,6 +232,7 @@ class MainActivity : BaseActivity() {
             PckUnpackedScreen prepare this
             L2DPreviewScreen prepare this
             LocalePatchScreen prepare this
+            SettingsScreen prepare this
 
             PckUnpackDialog prepare this
         }

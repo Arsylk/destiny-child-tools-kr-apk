@@ -15,10 +15,10 @@ data class UnpackedPckFile(
         header.entries.filter { it.type == type }
 
     fun getEntries(hashStringStart: String) =
-        header.entries.filter { it.hashString.startsWith(hashStringStart) }
+        header.entries.filter { it.hashString.lowercase().startsWith(hashStringStart.lowercase()) }
 
     fun getEntries(type: PckEntryFileType, hashStringStart: String) =
-        header.entries.filter { it.type == type && it.hashString.startsWith(hashStringStart) }
+        header.entries.filter { it.type == type && it.hashString.lowercase().startsWith(hashStringStart.lowercase()) }
 
     fun getEntryFile(entry: UnpackedPckEntry) = File(folder, entry.filename)
 

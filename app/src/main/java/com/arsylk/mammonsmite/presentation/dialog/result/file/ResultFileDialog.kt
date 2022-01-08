@@ -33,16 +33,35 @@ import org.koin.androidx.compose.viewModel
 import org.koin.core.parameter.parametersOf
 
 
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@Composable
+fun ResultDialogAction<IFile>.SelectFileDialog(
+    type: FileType,
+    startIn: IFile? = null,
+    allowed: Collection<Action> = emptySet(),
+) {
+    SelectFileDialog(
+        type = when (type) {
+            is FileType.File -> FileSelect.FILE
+            is FileType.Folder -> FileSelect.FOLDER
+        },
+        startIn = startIn,
+        allowed = allowed
+    )
+}
+
 @ExperimentalMaterialApi
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
-fun SelectFileDialog(
+fun ResultDialogAction<IFile>.SelectFileDialog(
     type: FileSelect,
+    startIn: IFile? = null,
     allowed: Collection<Action> = emptySet(),
-    actions: ResultDialogAction<IFile>
 ) {
     val viewModel by viewModel<ResultFileViewModel> { parametersOf(type) }
+    LaunchedEffect(startIn) { startIn?.also(viewModel::tryNavigateTo) }
+
     val title by viewModel.title.collectAsState()
     val items by viewModel.items.collectAsState()
     val selectedItem by viewModel.selectedItem.collectAsState()
@@ -94,7 +113,7 @@ fun SelectFileDialog(
                     }
                 }
                 Divider()
-                BottomBar(selectedItem = selectedItem, onCancel = actions::dismiss) { item ->
+                BottomBar(selectedItem = selectedItem, onCancel = ::dismiss) { item ->
                     viewModel.onItemClick(item)
                 }
             }
@@ -105,8 +124,8 @@ fun SelectFileDialog(
     var requestedAction by remember { mutableStateOf<Action?>(null) }
     viewModel.onEffect { effect ->
         when (effect) {
-            is Effect.FileSelected -> actions.select(effect.file)
-            Effect.Dismiss -> actions.dismiss()
+            is Effect.FileSelected -> select(effect.file)
+            Effect.Dismiss -> dismiss()
             is Effect.ActionRequested -> requestedAction = effect.action
         }
     }
