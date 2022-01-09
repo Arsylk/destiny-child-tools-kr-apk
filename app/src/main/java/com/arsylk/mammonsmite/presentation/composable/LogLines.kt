@@ -81,7 +81,7 @@ fun LogLinesDialog(
     }
 }
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LogLines(list: List<LogLine>) {
     Box(modifier = Modifier.fillMaxWidth()) {

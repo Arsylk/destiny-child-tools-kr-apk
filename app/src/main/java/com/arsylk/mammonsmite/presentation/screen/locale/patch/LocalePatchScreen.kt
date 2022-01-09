@@ -33,7 +33,7 @@ import com.arsylk.mammonsmite.presentation.composable.NonBlockingProgressIndicat
 import com.arsylk.mammonsmite.presentation.composable.SurfaceColumn
 import com.arsylk.mammonsmite.presentation.composable.UiResultBox
 import com.arsylk.mammonsmite.presentation.dialog.result.file.Action
-import com.arsylk.mammonsmite.presentation.dialog.result.file.SelectFileDialog
+import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileDialog
 import com.arsylk.mammonsmite.presentation.nav
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
 import kotlinx.coroutines.launch
@@ -250,7 +250,7 @@ internal fun SourceSelector(
                             expanded = false
                             scope.launch {
                                 val file = dialogHost.showResultDialog {
-                                    SelectFileDialog(FileSelect.FILE)
+                                    ResultFileDialog(FileSelect.FILE)
                                 }
                                 if (file != null) {
                                     onSourceSelected.invoke(PatchSource.Local(file, type))
@@ -328,7 +328,7 @@ internal fun DestinationSelector(
                             expanded = false
                             scope.launch {
                                 val file = dialogHost.showResultDialog {
-                                    SelectFileDialog(
+                                    ResultFileDialog(
                                         type = FileSelect.FILE,
                                         allowed = setOf(Action.NewFile),
                                     )

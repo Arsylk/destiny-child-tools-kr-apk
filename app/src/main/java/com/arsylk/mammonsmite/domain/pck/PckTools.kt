@@ -26,7 +26,6 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
-import kotlin.contracts.ExperimentalContracts
 
 @ExperimentalSerializationApi
 class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
@@ -35,7 +34,7 @@ class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
     fun packAsFlow(
         pck: UnpackedPckFile,
         file: File,
-        log: SendChannel<LogLine> = LogLineChannel.Default,
+        log: LogLineChannel = EmptyLogLineChannel,
     ): Flow<OperationStateResult<Unit>> =
         flow {
             emit(Initial())
@@ -90,7 +89,7 @@ class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
 
     fun readPackedPck(
         file: File,
-        log: SendChannel<LogLine> = LogLineChannel.Default
+        log: LogLineChannel = EmptyLogLineChannel,
     ): Flow<OperationStateResult<PackedPckFile>> =
         flow {
             val entries = mutableListOf<PackedPckEntry>()
@@ -162,7 +161,7 @@ class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
     fun unpackAsFlow(
         packedPckFile: PackedPckFile,
         folder: File,
-        log: SendChannel<LogLine> = LogLineChannel.Default,
+        log: LogLineChannel = EmptyLogLineChannel,
     ) = flow { emit(Unit) }
         .transform {
             for (key in PckEncryption.values()) {
@@ -189,7 +188,7 @@ class PckTools(override val json: Json): PckL2DTools, PckLocaleTools {
         packedPckFile: PackedPckFile,
         folder: File,
         key: PckEncryption,
-        log: SendChannel<LogLine> = LogLineChannel.Default
+        log: LogLineChannel = EmptyLogLineChannel,
     ) =
         flow {
             val entries = mutableListOf<UnpackedPckEntry>()

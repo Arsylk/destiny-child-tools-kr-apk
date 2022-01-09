@@ -59,8 +59,9 @@ class ResultFileViewModel(
         }
     }
 
-    fun tryNavigateTo(file: IFile) {
+    fun tryNavigateTo(path: String) {
         withLoading(tag = "navigate") {
+            val file = IFile(path)
             when {
                 file.isDirectory -> current.value = file
                 file.isFile -> file.parent?.also { current.value = it }

@@ -101,7 +101,7 @@ fun ResultDialogHost(hostState: ResultDialogHostState) {
                     .background(scrim)
                     .noRippleClickable { current.dismiss() },
             ) {
-                with (current) { DialogContent() }
+                with (current) { Box(Modifier.noRippleClickable {  }) { DialogContent() } }
                 SideEffect {
                     systemUi.setStatusBarColor( scrim.compositeOver(statusBar))
                 }

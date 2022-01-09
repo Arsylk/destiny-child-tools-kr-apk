@@ -1,42 +1,107 @@
 package com.arsylk.mammonsmite.model.common
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.channels.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
+import java.util.concurrent.ConcurrentHashMap
 
-object LogLineChannel {
-    val Default: SendChannel<LogLine> = Channel(Channel.CONFLATED)
+interface LogLineChannel {
+
+    fun success(msg: String) { success(msg, null) }
+    fun success(msg: String, tag: String?)
+
+    fun info(msg: String) { info(msg, null) }
+    fun info(msg: String, tag: String?)
+
+    fun warn(msg: String) { warn(msg, null) }
+    fun warn(msg: String, tag: String?)
+
+    fun warn(throwable: Throwable) { warn(throwable, null) }
+    fun warn(throwable: Throwable, tag: String?)
+
+    fun error(throwable: Throwable) { error(throwable, null) }
+    fun error(throwable: Throwable, tag: String?)
+
+    fun put(line: LogLine)
+
+    fun clear()
+
+    fun stateIn(coroutineScope: CoroutineScope): StateFlow<List<LogLine>>
 }
 
-fun LogLineChannel() = Channel<LogLine>(
-    capacity = 5,
-    onBufferOverflow = BufferOverflow.SUSPEND,
-    onUndeliveredElement = {},
-)
+private class LogLineChannelImpl : LogLineChannel {
+    private val lines = MutableStateFlow(0 to ConcurrentHashMap<Int, LogLine>())
 
-fun ReceiveChannel<LogLine>.stateIn(coroutineScope: CoroutineScope): StateFlow<List<LogLine>> {
-    return channelFlow {
-        val mutableList = mutableListOf<LogLine>()
-        val job = launch {
-            this@stateIn.receiveAsFlow().collect {
-                mutableList += it
-                send(mutableList.toList())
-            }
+    override fun success(msg: String, tag: String?) {
+        put(LogLine(msg, tag, null, LogLine.Type.SUCCESS))
+    }
+
+    override fun info(msg: String, tag: String?) {
+        put(LogLine(msg, tag, null, LogLine.Type.INFO))
+    }
+
+    override fun warn(msg: String, tag: String?) {
+        put(LogLine(msg, tag, null, LogLine.Type.WARN))
+    }
+
+    override fun warn(throwable: Throwable, tag: String?) {
+        put(LogLine(throwable.javaClass.simpleName, tag, throwable, LogLine.Type.WARN))
+    }
+
+    override fun error(throwable: Throwable, tag: String?) {
+        put(LogLine(throwable.javaClass.simpleName, tag, throwable, LogLine.Type.ERROR))
+    }
+
+    override fun put(line: LogLine) {
+        lines.update { (id, map) ->
+            map[id] = line
+            (id + 1) to map
         }
-        awaitClose { job.cancel() }
-    }.stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    }
+
+    override fun clear() {
+        lines.update { (id, _) ->
+            (id + 1) to ConcurrentHashMap<Int, LogLine>()
+        }
+    }
+
+    override fun stateIn(coroutineScope: CoroutineScope): StateFlow<List<LogLine>> {
+        return lines
+            .mapLatest { (_, map) ->
+                map.map { it.value }
+            }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
+    }
 }
 
-suspend fun SendChannel<LogLine>.info(msg: String, tag: String? = null) {
-    send(LogLine(msg, tag, null, LogLine.Type.INFO))
+private object EmptyLogLineChannelImpl : LogLineChannel {
+
+    override fun success(msg: String, tag: String?) {
+    }
+
+    override fun info(msg: String, tag: String?) {
+    }
+
+    override fun warn(msg: String, tag: String?) {
+    }
+
+    override fun warn(throwable: Throwable, tag: String?) {
+    }
+
+    override fun error(throwable: Throwable, tag: String?) {
+    }
+
+    override fun put(line: LogLine) {
+    }
+
+    override fun clear() {
+    }
+
+    override fun stateIn(coroutineScope: CoroutineScope): StateFlow<List<LogLine>> {
+        return MutableStateFlow(emptyList<LogLine>()).asStateFlow()
+    }
+
 }
 
-suspend fun SendChannel<LogLine>.error(throwable: Throwable, tag: String? = null) {
-    send(LogLine(throwable.javaClass.simpleName, tag, throwable, LogLine.Type.ERROR))
-}
+fun LogLineChannel(): LogLineChannel = LogLineChannelImpl()
 
-suspend fun SendChannel<LogLine>.warn(throwable: Throwable, tag: String? = null) {
-    send(LogLine(throwable.javaClass.simpleName, tag, throwable, LogLine.Type.WARN))
-}
+val EmptyLogLineChannel: LogLineChannel get() = EmptyLogLineChannelImpl

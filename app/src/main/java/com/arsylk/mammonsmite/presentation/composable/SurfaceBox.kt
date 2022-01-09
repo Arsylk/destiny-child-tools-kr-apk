@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun SurfaceBox(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
-    val m = Modifier.fillMaxSize().then(modifier)
+    val m = modifier.then(Modifier.fillMaxSize())
     Surface(m) { Box(m, content = content) }
 }
 

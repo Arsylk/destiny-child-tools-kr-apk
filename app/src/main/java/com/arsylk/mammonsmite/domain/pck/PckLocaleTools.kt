@@ -9,10 +9,8 @@ import com.arsylk.mammonsmite.model.destinychild.LocalePatch
 import com.arsylk.mammonsmite.model.destinychild.LocalePatchFile
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
-import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckHeader
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -24,9 +22,6 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.io.RandomAccessFile
-import java.nio.ByteBuffer
-import java.nio.charset.Charset
-import kotlin.contracts.ExperimentalContracts
 
 @ExperimentalSerializationApi
 interface PckLocaleTools {
@@ -35,7 +30,7 @@ interface PckLocaleTools {
 
     fun unpackedPckToLocalePatch(
         pck: UnpackedPckFile,
-        log: SendChannel<LogLine> = LogLineChannel.Default
+        log: LogLineChannel = EmptyLogLineChannel
     ) = flow {
         emit(Initial())
 

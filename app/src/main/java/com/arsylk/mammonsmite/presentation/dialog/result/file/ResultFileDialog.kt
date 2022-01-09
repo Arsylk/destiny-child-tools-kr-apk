@@ -29,18 +29,21 @@ import com.arsylk.mammonsmite.presentation.composable.ActionButton
 import com.arsylk.mammonsmite.presentation.composable.ActionButtonItem
 import com.arsylk.mammonsmite.presentation.composable.UiResultBox
 import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogAction
+import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogBottomBar
+import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogScaffold
+import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogTopBar
 import org.koin.androidx.compose.viewModel
 import org.koin.core.parameter.parametersOf
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun ResultDialogAction<IFile>.SelectFileDialog(
+fun ResultDialogAction<IFile>.ResultFileDialog(
     type: FileType,
-    startIn: IFile? = null,
+    startIn: String? = null,
     allowed: Collection<Action> = emptySet(),
 ) {
-    SelectFileDialog(
+    ResultFileDialog(
         type = when (type) {
             is FileType.File -> FileSelect.FILE
             is FileType.Folder -> FileSelect.FOLDER
@@ -54,9 +57,9 @@ fun ResultDialogAction<IFile>.SelectFileDialog(
 @ExperimentalFoundationApi
 @ExperimentalComposeUiApi
 @Composable
-fun ResultDialogAction<IFile>.SelectFileDialog(
+fun ResultDialogAction<IFile>.ResultFileDialog(
     type: FileSelect,
-    startIn: IFile? = null,
+    startIn: String? = null,
     allowed: Collection<Action> = emptySet(),
 ) {
     val viewModel by viewModel<ResultFileViewModel> { parametersOf(type) }
@@ -66,60 +69,40 @@ fun ResultDialogAction<IFile>.SelectFileDialog(
     val items by viewModel.items.collectAsState()
     val selectedItem by viewModel.selectedItem.collectAsState()
 
-    Box(
-        modifier = Modifier
-            .fillMaxWidth(0.9f)
-            .fillMaxHeight(0.9f)
+    ResultDialogScaffold(
+        title = title,
+        bottomBar = {
+            BottomBar(selectedItem = selectedItem, onCancel = ::dismiss) { item ->
+                viewModel.onItemClick(item)
+            }
+        }
     ) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier
-                .background(
-                    color = MaterialTheme.colors.surface,
-                    shape = RoundedCornerShape(16.dp)
-                )
-                .border(2.dp, MaterialTheme.colors.primaryVariant, RoundedCornerShape(16.dp))
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                TopBar(title = title)
-                Divider()
-                Box(Modifier.weight(1.0f)) {
-                    Content(
-                        uiResult = items,
-                        selectedItem = selectedItem,
-                        onItemClick = viewModel::onItemClick,
-                    )
+        Content(
+            uiResult = items,
+            selectedItem = selectedItem,
+            onItemClick = viewModel::onItemClick,
+        )
 
-                    val list = Action.values().filter { it in allowed }
-                    if (list.isNotEmpty()) {
-                        Box(
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(16.dp)
-                        ) {
-                            var expanded by remember(title, selectedItem) { mutableStateOf(false) }
-                            ActionButton(
-                                expanded = expanded,
-                                actions = list,
-                                onClick = { expanded = !expanded },
-                                onActionClick = { action ->
-                                    expanded = false
-                                    viewModel.requestAction(action)
-                                },
-                            )
-                        }
-                    }
-                }
-                Divider()
-                BottomBar(selectedItem = selectedItem, onCancel = ::dismiss) { item ->
-                    viewModel.onItemClick(item)
-                }
+        val list = Action.values().filter { it in allowed }
+        if (list.isNotEmpty()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                var expanded by remember(title, selectedItem) { mutableStateOf(false) }
+                ActionButton(
+                    expanded = expanded,
+                    actions = list,
+                    onClick = { expanded = !expanded },
+                    onActionClick = { action ->
+                        expanded = false
+                        viewModel.requestAction(action)
+                    },
+                )
             }
         }
     }
-
 
     var requestedAction by remember { mutableStateOf<Action?>(null) }
     viewModel.onEffect { effect ->
@@ -149,26 +132,6 @@ fun ResultDialogAction<IFile>.SelectFileDialog(
     }
 
     BackHandler { viewModel.navigateUp() }
-}
-
-@Composable
-internal fun TopBar(title: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clipToBounds()
-            .background(MaterialTheme.colors.primary)
-            .horizontalScroll(rememberScrollState())
-    ) {
-        Text(
-            text = title,
-            maxLines = 1,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            style = MaterialTheme.typography.h6,
-        )
-    }
 }
 
 @ExperimentalMaterialApi
@@ -214,23 +177,15 @@ internal fun BottomBar(
     onCancel: () -> Unit,
     onSelect: (ResultFileItem) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp)
-            .padding(16.dp),
-        horizontalArrangement = Arrangement.End,
-    ) {
-        OutlinedButton(onClick = onCancel) {
-            Text("Cancel")
-        }
-        Spacer(Modifier.width(16.dp))
-        OutlinedButton(
-            enabled = selectedItem != null,
-            onClick = { selectedItem?.also(onSelect) },
-            content = { Text("Select") },
-        )
+    OutlinedButton(onClick = onCancel) {
+        Text("Cancel")
     }
+    Spacer(Modifier.width(16.dp))
+    OutlinedButton(
+        enabled = selectedItem != null,
+        onClick = { selectedItem?.also(onSelect) },
+        content = { Text("Select") },
+    )
 }
 
 @Composable

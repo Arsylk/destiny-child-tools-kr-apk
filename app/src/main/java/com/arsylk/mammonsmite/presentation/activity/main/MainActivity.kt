@@ -45,6 +45,7 @@ import com.arsylk.mammonsmite.presentation.screen.home.HomeScreen
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewScreen
 import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen
+import com.arsylk.mammonsmite.presentation.screen.pck.swap.PckSwapScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
 import com.arsylk.mammonsmite.presentation.screen.settings.SettingsScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -206,6 +207,16 @@ class MainActivity : BaseActivity() {
                     scope.launch { drawerState.close() }
                 }
             }
+            MenuDivider("Magic")
+            Column(Modifier.padding(8.dp)) {
+                MenuItem(
+                    text = PckSwapScreen.label,
+                    selected = PckSwapScreen describes entry,
+                ) {
+                    PckSwapScreen.navigate(nav)
+                    scope.launch { drawerState.close() }
+                }
+            }
             MenuDivider("Settings")
             Column(Modifier.padding(8.dp)) {
                 MenuItem(
@@ -232,6 +243,7 @@ class MainActivity : BaseActivity() {
             PckUnpackedScreen prepare this
             L2DPreviewScreen prepare this
             LocalePatchScreen prepare this
+            PckSwapScreen prepare this
             SettingsScreen prepare this
 
             PckUnpackDialog prepare this

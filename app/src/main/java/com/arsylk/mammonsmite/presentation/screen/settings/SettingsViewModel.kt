@@ -8,8 +8,6 @@ import com.arsylk.mammonsmite.domain.files.DestinyChildFiles
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.model.destinychild.DestinyChildPackage
-import com.arsylk.mammonsmite.presentation.fragment.settings.SettingsFormInput
-import com.arsylk.mammonsmite.presentation.fragment.settings.SettingsFragment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose

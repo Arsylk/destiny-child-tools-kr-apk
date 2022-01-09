@@ -14,15 +14,15 @@ import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitBannerService
 import com.arsylk.mammonsmite.domain.sync.SyncService
 import com.arsylk.mammonsmite.presentation.activity.main.MainViewModel
-import com.arsylk.mammonsmite.presentation.dialog.file.picker.FilePickerViewModel
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackViewModel
 import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileViewModel
+import com.arsylk.mammonsmite.presentation.dialog.result.unpacked.ResultUnpackedViewModel
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewViewModel
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildViewModel
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedViewModel
-import com.arsylk.mammonsmite.presentation.fragment.settings._SettingsViewModel
 import com.arsylk.mammonsmite.presentation.screen.home.HomeViewModel
 import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchViewModel
+import com.arsylk.mammonsmite.presentation.screen.pck.swap.PckSwapViewModel
 import com.arsylk.mammonsmite.presentation.screen.settings.SettingsViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
@@ -70,14 +70,14 @@ object KoinService {
                     viewModel { MainViewModel(get()) }
                     viewModel { HomeViewModel(get()) }
                     viewModel { PckDestinyChildViewModel(get(), get()) }
-                    viewModel { _SettingsViewModel(get()) }
-                    viewModel { param -> FilePickerViewModel(type = param.get()) }
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
                     viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
                     viewModel { LocalePatchViewModel(get(), get(), get()) }
                     viewModel { param -> ResultFileViewModel(type = param.get()) }
                     viewModel { SettingsViewModel(get()) }
+                    viewModel { PckSwapViewModel(get(), get(), get()) }
+                    viewModel { ResultUnpackedViewModel(get(), get()) }
                 }
             )
         }

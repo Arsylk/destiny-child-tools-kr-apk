@@ -29,7 +29,7 @@ interface PckL2DTools {
 
     fun unpackedPckToModel(
         unpackedPck: UnpackedPckFile,
-        log: SendChannel<LogLine> = LogLineChannel.Default
+        log: LogLineChannel = EmptyLogLineChannel,
     ) = flow {
             emit(Initial())
             val (modelInfoEntry, modelInfo) = findModelJson(unpackedPck)

@@ -11,6 +11,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.SnackbarDuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -166,3 +168,14 @@ fun <T: UiEffect> EffectViewModel<T>.onEffect(key: Any? = Unit, action: suspend 
 }
 
 fun Throwable.toSnackbarMessage(): String = "${javaClass.simpleName}: $cause"
+
+suspend fun ScaffoldState.dismissAndShow(
+    message: String,
+    actionLabel: String? = null,
+    duration: SnackbarDuration = SnackbarDuration.Short
+) {
+    snackbarHostState.run {
+        currentSnackbarData?.dismiss()
+        showSnackbar(message, actionLabel, duration)
+    }
+}

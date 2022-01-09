@@ -13,8 +13,6 @@ import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.model.common.LogLineChannel
 import com.arsylk.mammonsmite.model.common.OperationProgress
-import com.arsylk.mammonsmite.model.common.error
-import com.arsylk.mammonsmite.model.common.stateIn
 import com.arsylk.mammonsmite.model.live2d.L2DFile
 import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
 import com.arsylk.mammonsmite.model.pck.packed.PackedPckFile
