@@ -64,10 +64,8 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 
-@ExperimentalMaterialApi
-@ExperimentalComposeUiApi
-@ExperimentalSerializationApi
-@ExperimentalFoundationApi
+
+@OptIn(ExperimentalFoundationApi::class, ExperimentalSerializationApi::class, ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
 object PckUnpackedScreen : NavigableScreen {
     override val route = "/pck/unpacked?save={save}"
     override val label = "Unpacked"

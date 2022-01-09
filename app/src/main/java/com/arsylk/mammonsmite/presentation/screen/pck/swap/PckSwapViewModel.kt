@@ -1,6 +1,7 @@
 package com.arsylk.mammonsmite.presentation.screen.pck.swap
 
 import androidx.lifecycle.viewModelScope
+import com.arsylk.mammonsmite.DestinyChild.Pck
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.encodeToFile
@@ -31,12 +32,14 @@ class PckSwapViewModel(
     private val l2dTools: L2DTools,
     private val json: Json,
 ) : EffectViewModel<Effect>() {
-    private val folder = CommonFiles.External.appUnpackedFolder
+    private val folder = CommonFiles.External.appWorkspaceFolder
     private val _fromItem = MutableStateFlow<PckSwapItem?>(null)
     private val _toItem = MutableStateFlow<PckSwapItem?>(null)
+    private val _resultItem = MutableStateFlow<PckSwapItem?>(null)
     private val log = LogLineChannel()
     val fromItem by lazy(_fromItem::asStateFlow)
     val toItem by lazy(_toItem::asStateFlow)
+    val resultItem by lazy(_resultItem::asStateFlow)
     val logLines = log.stateIn(viewModelScope)
 
     fun setFromItem(item: UnpackedPckLive2D) {
@@ -205,7 +208,11 @@ class PckSwapViewModel(
 
             // perform swap proper
             val result = kotlin.runCatching { performSwap(fromItem, toItem, matches, actions) }
-            result.onSuccess { log.success("Successfully swapped to: ${it.pck.folder.name}") }
+            result.onSuccess {
+                log.success("Successfully swapped to: ${it.pck.folder.name}")
+                _resultItem.value = it
+                setEffect(Effect.SaveResult(it))
+            }
             result.onFailure { log.error(it) }
         }
     }
@@ -220,12 +227,12 @@ class PckSwapViewModel(
         val output = prepareOutput(fromItem, toItem)
 
         // copy header file
-        toItem.pck.headerFile.copyTo(File(output, UnpackedPckFile.HEADER_FILENAME))
+        toItem.pck.headerFile.copyTo(File(output, UnpackedPckFile.HEADER_FILENAME), overwrite = true)
 
         // copy matched files
         for ((key, value) in matches) {
             val keyFile = key.getFile()
-            keyFile.copyTo(File(output, value.entry.filename))
+            keyFile.copyTo(File(output, value.entry.filename), overwrite = true)
         }
 
         // update model info
@@ -380,4 +387,5 @@ class PckSwapViewModel(
 }
 sealed class Effect : UiEffect {
     data class ParsingError(val throwable: Throwable) : Effect()
+    data class SaveResult(val item: PckSwapItem) : Effect()
 }

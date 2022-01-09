@@ -36,6 +36,7 @@ class PckUnpackViewModel(
     private val prefs: AppPreferences,
     private val file: File,
 ) : EffectViewModel<Effect>() {
+    private val folder = File(CommonFiles.External.appWorkspaceFolder, file.nameWithoutExtension)
     private val _packedPck = MutableStateFlow<PackedPckFile?>(null)
     private val _unpackedPck = MutableStateFlow<UnpackedPckFile?>(null)
     private val _unpackProgress = MutableStateFlow(OperationProgress.Initial)
@@ -51,8 +52,6 @@ class PckUnpackViewModel(
     val actionSet by lazy(_actionSet::asStateFlow)
     val loadedL2dFile by lazy(_loadedL2dFile::asStateFlow)
 
-    // TODO fixme
-    val folder = File(CommonFiles.External.appFilesFolder, "test/${file.nameWithoutExtension}")
     private var tmpFile: File? = null
 
     init {

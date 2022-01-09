@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -150,6 +151,15 @@ inline fun<T, R>  use(value1: T?, value2: R?, block: (T, R) -> Unit) {
         block.invoke(value1, value2)
 }
 
+@OptIn(ExperimentalContracts::class)
+inline fun<reified T> useAll(vararg values: T?, block: (Array<T>) -> Unit) {
+    contract {
+        callsInPlace(block, InvocationKind.AT_MOST_ONCE)
+    }
+    if (values.all { it != null })
+        block.invoke(values.map { it!! }.toTypedArray())
+}
+
 inline val isAndroid11 get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R
 
 inline fun Modifier.noRippleClickable(crossinline onClick: ()->Unit): Modifier = composed {
@@ -173,8 +183,8 @@ suspend fun ScaffoldState.dismissAndShow(
     message: String,
     actionLabel: String? = null,
     duration: SnackbarDuration = SnackbarDuration.Short
-) {
-    snackbarHostState.run {
+): SnackbarResult {
+    return snackbarHostState.run {
         currentSnackbarData?.dismiss()
         showSnackbar(message, actionLabel, duration)
     }

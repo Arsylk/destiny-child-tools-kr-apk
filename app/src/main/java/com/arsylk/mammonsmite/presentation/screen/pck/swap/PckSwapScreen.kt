@@ -25,6 +25,7 @@ import com.arsylk.mammonsmite.presentation.composable.LogLines
 import com.arsylk.mammonsmite.presentation.dialog.result.unpacked.ResultUnpackedPckLive2DDialog
 import com.arsylk.mammonsmite.presentation.nav
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
+import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -53,8 +54,10 @@ fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
     val scope = rememberCoroutineScope()
     val fromItem by viewModel.fromItem.collectAsState()
     val toItem by viewModel.toItem.collectAsState()
+    val resultItem by viewModel.resultItem.collectAsState()
     val log by viewModel.logLines.collectAsState()
 
+    val nav = nav
     val scaffoldState = rememberScaffoldState()
     var expanded by remember { mutableStateOf(true) }
     Scaffold(
@@ -99,7 +102,7 @@ fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
 
             Box(Modifier.fillMaxSize()) {
                 if (expanded) use(fromItem, toItem) { f, t ->
-                    MultiSwapList(f, t)
+                    MultiSwapList(f, t, resultItem)
                 } else LogLines(list = log)
             }
         }
@@ -110,6 +113,16 @@ fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
             is Effect.ParsingError -> {
                 scope.launch {
                     scaffoldState.dismissAndShow(effect.throwable.toSnackbarMessage())
+                }
+            }
+            is Effect.SaveResult -> {
+                val result = scaffoldState.dismissAndShow(
+                    message = "Swap Successful",
+                    actionLabel = "Save",
+                    duration = SnackbarDuration.Indefinite,
+                )
+                if (result == SnackbarResult.ActionPerformed) {
+                    PckUnpackedScreen.navigate(nav, effect.item.pck.folder)
                 }
             }
         }
@@ -140,7 +153,11 @@ internal fun PckSwapSelect(
 }
 
 @Composable
-internal fun MultiSwapList(fromItem: PckSwapItem, toItem: PckSwapItem) {
+internal fun MultiSwapList(
+    fromItem: PckSwapItem,
+    toItem: PckSwapItem,
+    resultItem: PckSwapItem?,
+) {
     val scroll = rememberScrollState()
     val size = max(fromItem.pck.header.entries.size, toItem.pck.header.entries.size)
 
@@ -154,10 +171,18 @@ internal fun MultiSwapList(fromItem: PckSwapItem, toItem: PckSwapItem) {
             }
         }
         Column(Modifier.weight(1.0f)) {
-            Text("[${fromItem.viewIdx.string}] ${fromItem.name}", fontSize = 12.sp)
+            Text("[${toItem.viewIdx.string}] ${toItem.name}", fontSize = 12.sp)
             Column(Modifier.verticalScroll(scroll)) {
                 repeat(size) {
                     SwapEntryItem(entry = toItem.pck.header.entries.getOrNull(it))
+                }
+            }
+        }
+        if (resultItem != null) Column(Modifier.weight(1.0f)) {
+            Text("[${resultItem.viewIdx.string}] ${resultItem.name}", fontSize = 12.sp)
+            Column(Modifier.verticalScroll(scroll)) {
+                repeat(size) {
+                    SwapEntryItem(entry = resultItem.pck.header.entries.getOrNull(it))
                 }
             }
         }

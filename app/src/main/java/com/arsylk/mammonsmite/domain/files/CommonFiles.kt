@@ -23,6 +23,10 @@ object CommonFiles {
             File(appFilesFolder, "Unpacked")
                 .apply { runCatching { if (!exists()) mkdirs() } }
         }
+        val appWorkspaceFolder by lazy {
+            File(appFilesFolder, "Workspace")
+                .apply { runCatching { if (!exists()) mkdirs() } }
+        }
     }
 
     object Internal {
