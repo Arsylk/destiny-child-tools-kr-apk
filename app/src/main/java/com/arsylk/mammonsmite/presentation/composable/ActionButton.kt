@@ -144,7 +144,7 @@ internal fun <T : ActionButtonItem> ColumnScope.ActionButtonItem(
                                 vertical = 4.dp, horizontal = 8.dp
                             ),
                         style = MaterialTheme.typography.subtitle1,
-                        fontSize = 12.sp,
+                        fontSize = 13.sp,
                     )
                 }
             }
@@ -164,57 +164,13 @@ internal fun <T : ActionButtonItem> ColumnScope.ActionButtonItem(
                     if (icon != null) Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        modifier = Modifier.padding(4.dp)
+                        modifier = Modifier.padding(8.dp)
                     )
                 }
             }
         }
         Spacer(Modifier.height(rowOffsetSize))
     }
-
-    return
-    Row(
-        modifier = Modifier
-            .alpha(alpha),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Surface(
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .clip(RoundedCornerShape(4.dp))
-                .clickable { onActionClick.invoke(action) },
-            shape = RoundedCornerShape(4.dp),
-            color = MaterialTheme.colors.surface.copy(alpha = 0.5f),
-        ) {
-            Box {
-                Text(
-                    text = action.label,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(4.dp)
-                )
-            }
-        }
-        Spacer(modifier = Modifier.width(10.dp))
-        Surface(
-            modifier = Modifier
-                .size(fabSize - 20.dp)
-                .clickable { onActionClick.invoke(action) },
-            shape = CircleShape,
-            color = Color.Red,
-            contentColor = Color.White,
-        ) {
-            Box(
-                contentAlignment = Alignment.Center,
-            ) {
-                val icon = action.icon
-                if (icon != null) Image(icon, contentDescription = null)
-            }
-        }
-        Spacer(modifier = Modifier.width(10.dp))
-    }
-    Spacer(modifier = Modifier.height(12.dp))
 }
 
 internal inline val fabSize get() = 56.dp

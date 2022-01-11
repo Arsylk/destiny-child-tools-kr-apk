@@ -177,7 +177,7 @@ fun <T: UiEffect> EffectViewModel<T>.onEffect(key: Any? = Unit, action: suspend 
     }
 }
 
-fun Throwable.toSnackbarMessage(): String = "${javaClass.simpleName}: $cause"
+fun Throwable.toSnackbarMessage(): String = "${javaClass.simpleName}: ${cause ?: message}"
 
 suspend fun ScaffoldState.dismissAndShow(
     message: String,

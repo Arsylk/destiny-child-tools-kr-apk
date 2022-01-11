@@ -1,36 +1,33 @@
 package com.arsylk.mammonsmite.presentation.screen.pck.swap
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptionsBuilder
+import coil.compose.rememberImagePainter
 import com.arsylk.mammonsmite.domain.dismissAndShow
 import com.arsylk.mammonsmite.domain.onEffect
 import com.arsylk.mammonsmite.domain.toSnackbarMessage
 import com.arsylk.mammonsmite.domain.use
-import com.arsylk.mammonsmite.model.common.LogLine
 import com.arsylk.mammonsmite.model.pck.UnpackedPckLive2D
-import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
 import com.arsylk.mammonsmite.presentation.Navigator
 import com.arsylk.mammonsmite.presentation.composable.LogLines
+import com.arsylk.mammonsmite.presentation.composable.SurfaceBox
 import com.arsylk.mammonsmite.presentation.dialog.result.unpacked.ResultUnpackedPckLive2DDialog
 import com.arsylk.mammonsmite.presentation.nav
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.getViewModel
-import kotlin.math.max
 
 object PckSwapScreen : NavigableScreen {
     override val route = "/pck/swap"
@@ -59,51 +56,35 @@ fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
 
     val nav = nav
     val scaffoldState = rememberScaffoldState()
-    var expanded by remember { mutableStateOf(true) }
     Scaffold(
         scaffoldState = scaffoldState,
     ) {
-        Column {
-            Row {
-                Row(
-                    modifier = Modifier.weight(1.0f),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    PckSwapSelect(
-                        label = "From",
-                        onSelected = viewModel::setFromItem,
-                    )
-                    Text(fromItem?.pck?.header?.name ?: "Nothing selected")
-                }
-                Row(
-                    modifier = Modifier.weight(1.0f),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    PckSwapSelect(
-                        label = "To",
-                        onSelected = viewModel::setToItem,
-                    )
-                    Text(toItem?.pck?.header?.name ?: "Nothing selected")
-                }
+        Column(Modifier.fillMaxSize()) {
+            Column(Modifier.padding(8.dp)) {
+                PckSwapSelect(
+                    label = "From",
+                    item = fromItem,
+                    onSelected = viewModel::setFromItem,
+                )
+                Spacer(Modifier.height(8.dp))
+                PckSwapSelect(
+                    label = "To",
+                    item = toItem,
+                    onSelected = viewModel::setToItem,
+                )
             }
             Row {
                 Button(
+                    modifier = Modifier.align(Alignment.CenterVertically),
                     enabled = fromItem != null && toItem != null,
-                    onClick = {
-                        use(fromItem, toItem, viewModel::swap)
-                    },
+                    onClick = { use(fromItem, toItem, viewModel::swap) },
                 ) {
                     Text("Swap")
-                }
-                Button(onClick = { expanded = !expanded }) {
-                    Text(if (expanded) "Collapse" else "Expand")
                 }
             }
 
             Box(Modifier.fillMaxSize()) {
-                if (expanded) use(fromItem, toItem) { f, t ->
-                    MultiSwapList(f, t, resultItem)
-                } else LogLines(list = log)
+                LogLines(list = log)
             }
         }
     }
@@ -132,75 +113,73 @@ fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
 @Composable
 internal fun PckSwapSelect(
     label: String,
-    onSelected: (UnpackedPckLive2D) -> Unit
+    item: PckSwapItem?,
+    onSelected: (UnpackedPckLive2D) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     val dialogHost = nav.resultDialogHost
-
-    OutlinedButton(
-        onClick = {
-            scope.launch {
-                dialogHost.showResultDialog {
-                    ResultUnpackedPckLive2DDialog()
-                }?.also {
-                    onSelected.invoke(it)
-                }
+    fun select() {
+        scope.launch {
+            dialogHost.showResultDialog {
+                ResultUnpackedPckLive2DDialog()
+            }?.also {
+                onSelected.invoke(it)
             }
-        },
-    ) {
+        }
+    }
+
+    Column {
         Text(label)
+        SurfaceBox(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(112.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .border(BorderStroke(1.dp, MaterialTheme.colors.primary))
+                .clickable { select() }
+        ) {
+            if (item != null) {
+                var hidePreview by remember(item.preview.absolutePath) { mutableStateOf(false) }
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                ) {
+                    Box(Modifier.size(96.dp)) {
+                        if (!hidePreview) {
+                            Image(
+                                painter = rememberImagePainter(data = item.preview) {
+                                    listener(
+                                        onError = { _, _ ->
+                                            hidePreview = true
+                                        }
+                                    )
+                                },
+                                modifier = Modifier.fillMaxSize(),
+                                contentDescription = null,
+                            )
+                        } else {
+                            Text(
+                                text = "No preview",
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.subtitle2,
+                                modifier = Modifier.align(Alignment.Center),
+                            )
+                        }
+                    }
+                    Spacer(Modifier.width(8.dp))
+                    Column {
+                        Text(text = item.name)
+                        Text(
+                            text = "View Idx: ${item.viewIdx.string}",
+                            fontSize = 14.sp,
+                        )
+                    }
+                }
+            } else {
+                Text("Press to select", Modifier.align(Alignment.Center))
+            }
+        }
     }
-}
 
-@Composable
-internal fun MultiSwapList(
-    fromItem: PckSwapItem,
-    toItem: PckSwapItem,
-    resultItem: PckSwapItem?,
-) {
-    val scroll = rememberScrollState()
-    val size = max(fromItem.pck.header.entries.size, toItem.pck.header.entries.size)
-
-    Row {
-        Column(Modifier.weight(1.0f)) {
-            Text("[${fromItem.viewIdx.string}] ${fromItem.name}", fontSize = 12.sp)
-            Column(Modifier.verticalScroll(scroll)) {
-                repeat(size) {
-                    SwapEntryItem(entry = fromItem.pck.header.entries.getOrNull(it))
-                }
-            }
-        }
-        Column(Modifier.weight(1.0f)) {
-            Text("[${toItem.viewIdx.string}] ${toItem.name}", fontSize = 12.sp)
-            Column(Modifier.verticalScroll(scroll)) {
-                repeat(size) {
-                    SwapEntryItem(entry = toItem.pck.header.entries.getOrNull(it))
-                }
-            }
-        }
-        if (resultItem != null) Column(Modifier.weight(1.0f)) {
-            Text("[${resultItem.viewIdx.string}] ${resultItem.name}", fontSize = 12.sp)
-            Column(Modifier.verticalScroll(scroll)) {
-                repeat(size) {
-                    SwapEntryItem(entry = resultItem.pck.header.entries.getOrNull(it))
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-internal fun SwapEntryItem(entry: UnpackedPckEntry?) {
-    ListItem(
-        text = {
-            if (entry != null) Text(entry.filename)
-            else Text("Missing", color = MaterialTheme.colors.error)
-        },
-        secondaryText = {
-            if (entry != null) Text(entry.hashString)
-            else Text("")
-        },
-        singleLineSecondaryText = true,
-    )
 }

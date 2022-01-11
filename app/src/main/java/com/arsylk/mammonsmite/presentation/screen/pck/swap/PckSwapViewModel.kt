@@ -308,7 +308,7 @@ class PckSwapViewModel(
                 l2dFile = item.l2d,
                 modelInfo = l2dTools.readModelInfo(item.l2d),
             ),
-            viewIdx = item.viewIdx ?: throw IllegalArgumentException("View Idx can't be null")
+            viewIdx = item.viewIdx ?: throw ViewIdxMissing
         )
     }
 
@@ -389,3 +389,5 @@ sealed class Effect : UiEffect {
     data class ParsingError(val throwable: Throwable) : Effect()
     data class SaveResult(val item: PckSwapItem) : Effect()
 }
+
+internal object ViewIdxMissing : Throwable("View Idx is required to perform a swap")

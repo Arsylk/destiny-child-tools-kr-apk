@@ -1,6 +1,5 @@
 package com.arsylk.mammonsmite.presentation.dialog.pck.unpack
 
-import android.net.Uri
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
@@ -9,10 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Article
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Preview
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -30,12 +26,13 @@ import com.arsylk.mammonsmite.domain.onEffect
 import com.arsylk.mammonsmite.model.common.LogLine
 import com.arsylk.mammonsmite.model.common.NavTab
 import com.arsylk.mammonsmite.model.common.OperationProgress
+import com.arsylk.mammonsmite.model.file.FileType
+import com.arsylk.mammonsmite.model.file.FileTypeFile
+import com.arsylk.mammonsmite.model.file.FileTypeFolder
 import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
 import com.arsylk.mammonsmite.presentation.Navigable.Companion.putArg
 import com.arsylk.mammonsmite.presentation.Navigator
-import com.arsylk.mammonsmite.presentation.composable.BottomTabNavigation
-import com.arsylk.mammonsmite.presentation.composable.Live2DSurface
-import com.arsylk.mammonsmite.presentation.composable.LogLines
+import com.arsylk.mammonsmite.presentation.composable.*
 import com.arsylk.mammonsmite.presentation.dialog.NavigableDialog
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Action
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog.Tab
@@ -83,11 +80,11 @@ object PckUnpackDialog : NavigableDialog {
         LOG("Log", Icons.Default.Article),
     }
 
-    enum class Action(val text: String) {
-        CLEAN_UP("Clean up"),
-        OPEN_PACKED("Open Packed"),
-        OPEN_UNPACKED("Open Unpacked"),
-        SAVE_MODEL("Save"),
+    enum class Action(override val label: String, override val icon: ImageVector?) : ActionButtonItem {
+        CLEAN_UP("Clean up", Icons.Default.CleaningServices),
+        OPEN_PACKED("Open Packed", FileTypeFile.icon),
+        OPEN_UNPACKED("Open Unpacked", FileTypeFolder.icon),
+        SAVE_MODEL("Save", Icons.Default.Save),
     }
 }
 
@@ -116,15 +113,19 @@ fun PckUnpackDialog(viewModel: PckUnpackViewModel) {
         floatingActionButton = {
             if (tab == Tab.PREVIEW) return@Scaffold
             val actionSet by viewModel.actionSet.collectAsState()
+            val list = remember(actionSet) { Action.values().filter { it in actionSet } }
+
             ActionButton(
                 expanded = expanded,
+                actions = list,
                 onClick = { expanded = !expanded },
-                actionSet = actionSet,
-                onActionClick = viewModel::onActionClick
+                onActionClick = viewModel::onActionClick,
             )
         },
     ) { padding ->
-        Box(modifier = Modifier.padding(padding).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(padding)
+            .fillMaxSize()) {
             when (tab) {
                 Tab.FILES -> {
                     val isLoading by viewModel.isLoading.collectAsState()
@@ -168,41 +169,6 @@ fun TopBar(progress: OperationProgress) {
             progress = progress.percentage,
             modifier = Modifier.fillMaxWidth(),
         )
-    }
-}
-
-@Composable
-fun ActionButton(expanded: Boolean, actionSet: Set<Action>, onClick: () -> Unit, onActionClick: (Action) -> Unit) {
-    val rotation by animateFloatAsState(targetValue = if (expanded) 90.0f else 0.0f)
-    val alpha by animateFloatAsState(targetValue = if (expanded) 1.0f else 0.0f)
-
-    Column {
-        Action.values().filter { it in actionSet }.forEachIndexed { i, action ->
-            Card(
-                modifier = Modifier
-                    .size(width = 140.dp, height = 36.dp)
-                    .alpha(alpha)
-                    .clickable { onActionClick.invoke(action) }
-            ) {
-                Box {
-                    Text(
-                        text = action.text,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-        FloatingActionButton(
-            onClick = onClick,
-            modifier = Modifier.align(Alignment.End)
-        ) {
-            Icon(
-                Icons.Default.Add,
-                contentDescription = null,
-                modifier = Modifier.rotate(rotation)
-            )
-        }
     }
 }
 

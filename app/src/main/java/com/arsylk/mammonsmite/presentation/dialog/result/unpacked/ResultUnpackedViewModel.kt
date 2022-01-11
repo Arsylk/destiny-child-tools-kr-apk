@@ -42,7 +42,8 @@ class ResultUnpackedViewModel(
             val mutable = mutableListOf<UnpackedPckLive2D>()
             channel.consumeEach { item ->
                 mutable.add(item)
-                send(LoadingList(mutable, true))
+                if (mutable.size % 5 == 0)
+                    send(LoadingList(mutable, true))
             }
             send(LoadingList(mutable.toList(), false))
             close()

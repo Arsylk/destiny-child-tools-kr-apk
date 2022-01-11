@@ -51,30 +51,7 @@ object HomeScreen : NavigableScreen {
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = getViewModel()) {
     val context = LocalContext.current
-    Scaffold(
-        floatingActionButton = {
-            var expanded by remember { mutableStateOf(false) }
-            ActionButton(
-                expanded = expanded,
-                actions = listOf(
-                    object : ActionButtonItem {
-                        override val label = "Action 1"
-                        override val icon = Icons.Default.Face
-                    },
-                    object : ActionButtonItem {
-                        override val label = "Action 2"
-                        override val icon = Icons.Default.Umbrella
-                    },
-                    object : ActionButtonItem {
-                        override val label = "Action 3"
-                        override val icon = Icons.Default.Dangerous
-                    },
-                ),
-                onClick = { expanded = !expanded },
-                onActionClick = {},
-            )
-        }
-    ) {
+    Scaffold {
         Column(Modifier.fillMaxSize()) {
             val banners by viewModel.banners.collectAsState()
             CompositionLocalProvider(

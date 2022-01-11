@@ -23,7 +23,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 31
         versionCode 13
-        versionName '2.0.0-indev4'
+        versionName '2.0.0-indev5'
         multiDexEnabled = true
     }
 

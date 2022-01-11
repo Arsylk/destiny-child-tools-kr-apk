@@ -85,8 +85,8 @@ interface PckL2DTools {
 
     private suspend fun findModelJson(pck: UnpackedPckFile): Pair<UnpackedPckEntry, L2DModelInfo>? {
         return withContext(Dispatchers.IO) {
-            pck.getEntries(PckEntryFileType.JSON, HASH_MODEL_OR_TEXTURE)
-                .firstNotNullOfOrNull { entry ->
+            val candidates = pck.getEntries(PckEntryFileType.JSON, HASH_MODEL_OR_TEXTURE)
+            var result = candidates.firstNotNullOfOrNull { entry ->
                     kotlin.runCatching {
                         val modelInfo = json.decodeFromFile<L2DModelInfo>(pck.getEntryFile(entry))
                         val newEntry = entry.copy(filename = MODEL_INFO_NAME)
@@ -94,6 +94,21 @@ interface PckL2DTools {
                         newEntry to modelInfo
                     }.getOrNull()
                 }
+
+            // fallback to any json
+            val all = pck.getEntries(PckEntryFileType.JSON)
+            if (result == null && all.size > candidates.size) {
+                result = all.firstNotNullOfOrNull { entry ->
+                    kotlin.runCatching {
+                        val modelInfo = json.decodeFromFile<L2DModelInfo>(pck.getEntryFile(entry))
+                        val newEntry = entry.copy(filename = MODEL_INFO_NAME)
+
+                        newEntry to modelInfo
+                    }.getOrNull()
+                }
+            }
+
+            result
         }
     }
 

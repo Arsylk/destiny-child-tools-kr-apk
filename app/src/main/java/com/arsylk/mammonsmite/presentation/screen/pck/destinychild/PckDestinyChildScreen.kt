@@ -147,7 +147,7 @@ fun ModelPackedList(state: LazyListState, items: List<ModelPacked>) {
                 when (action) {
                     Click -> expandedId = if (item._id == expandedId) -1 else item._id
                     is FileClick -> PckUnpackDialog.navigate(nav, action.file.absolutePath)
-                    is WikiClick -> TODO()
+                    is WikiClick -> {}
                 }
             }
         }

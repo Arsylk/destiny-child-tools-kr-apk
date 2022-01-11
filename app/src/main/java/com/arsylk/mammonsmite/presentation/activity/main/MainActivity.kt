@@ -39,6 +39,7 @@ import com.arsylk.mammonsmite.presentation.*
 import com.arsylk.mammonsmite.presentation.activity.BaseActivity
 import com.arsylk.mammonsmite.presentation.composable.MenuDivider
 import com.arsylk.mammonsmite.presentation.composable.MenuItem
+import com.arsylk.mammonsmite.presentation.composable.NonBlockingProgressIndicator
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
 import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogHost
 import com.arsylk.mammonsmite.presentation.screen.home.HomeScreen
@@ -75,7 +76,6 @@ class MainActivity : BaseActivity() {
                 }
             }
         }
-        viewModel.load()
     }
 
     @Composable
@@ -83,6 +83,7 @@ class MainActivity : BaseActivity() {
         val scope = rememberCoroutineScope()
         val drawerState = rememberDrawerState(DrawerValue.Closed)
         val entry by nav.controller.currentBackStackEntryAsState()
+        val syncProgress by viewModel.progress.collectAsState()
 
         if (entry.isFullscreen) {
             Box(Modifier.fillMaxSize()) {
@@ -145,6 +146,8 @@ class MainActivity : BaseActivity() {
                     }
                 }
                 Box {
+                    println(syncProgress)
+                    NonBlockingProgressIndicator(progress = syncProgress)
                     ModalDrawer(
                         drawerState = drawerState,
                         scrimColor = MaterialTheme.colors.surface.copy(alpha = 0.5f),

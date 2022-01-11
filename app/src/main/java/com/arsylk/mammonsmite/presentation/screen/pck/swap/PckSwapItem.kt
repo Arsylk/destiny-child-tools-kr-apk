@@ -6,6 +6,7 @@ import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
 import com.arsylk.mammonsmite.model.live2d.L2DModelInfo
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
+import java.io.File
 
 data class PckSwapItem(
     val pck: UnpackedPckFile,
@@ -17,6 +18,7 @@ data class PckSwapItem(
     val info: L2DModelInfo get() = loaded.modelInfo
 
     val name: String get() = pck.header.name
+    val preview: File get() = l2d.previewFile
 
     @Throws(IndexOutOfBoundsException::class)
     fun entryForFilename(filename: String): UnpackedPckEntry {

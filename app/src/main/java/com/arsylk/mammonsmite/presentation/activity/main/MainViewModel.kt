@@ -14,6 +14,8 @@ class MainViewModel(
     private val _progress = MutableStateFlow(0)
     val progress by lazy(_progress::asStateFlow)
 
+    init { load() }
+
     fun load() {
         withLoading(tag = "sync") {
             syncService.getSyncFlow()
