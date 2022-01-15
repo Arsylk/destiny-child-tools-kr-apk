@@ -64,8 +64,12 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 
-
-@OptIn(ExperimentalFoundationApi::class, ExperimentalSerializationApi::class, ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class)
+@OptIn(
+    ExperimentalFoundationApi::class,
+    ExperimentalSerializationApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterialApi::class
+)
 object PckUnpackedScreen : NavigableScreen {
     override val route = "/pck/unpacked?save={save}"
     override val label = "Unpacked"
@@ -123,7 +127,7 @@ fun PckUnpackedScreen(
             modifier = Modifier.padding(padding)
         ) {
             Column(Modifier.fillMaxSize()) {
-                if (isLoading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth(),)
+                if (isLoading) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
                 else LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = 1.0f)
 
                 Box(
@@ -327,7 +331,7 @@ internal fun UnpackedLive2DActionSheet(item: UnpackedLive2DItem, onDismiss: susp
             .fillMaxWidth()
             .verticalScroll(rememberScrollState()),
 
-    ) {
+        ) {
         Column(Modifier.padding(vertical = 8.dp)) {
             SimpleListItem(text = "Preview") {
                 L2DPreviewScreen.navigate(nav, item.l2dFile.folder.absolutePath)
@@ -336,7 +340,7 @@ internal fun UnpackedLive2DActionSheet(item: UnpackedLive2DItem, onDismiss: susp
                 onDismiss.invoke()
                 viewModel.enqueueEffect(Effect.PackPck(item.pck, load = true))
             }
-            if (item.isBackedUp)  SimpleListItem(text = "Restore") {
+            if (item.isBackedUp) SimpleListItem(text = "Restore") {
                 onDismiss.invoke()
                 viewModel.restorePckBackup(item.pck)
             }
@@ -454,9 +458,13 @@ internal fun HandleSaveFile(saveFile: File?, onSaveHandled: () -> Unit) {
     if (state != null) {
         PckUnpackedConfigDialog(
             state = state,
-            onDismissRequest = { saveState = null },
             onStateChanged = { saveState = it },
+            onDismissRequest = {
+                onSaveHandled.invoke()
+                saveState = null
+            },
             onConfirmClick = {
+                onSaveHandled.invoke()
                 saveState = null
                 viewModel.saveUnpackedPckConfig(it, moveToUnpacked = true)
             }
@@ -465,8 +473,7 @@ internal fun HandleSaveFile(saveFile: File?, onSaveHandled: () -> Unit) {
 
 
     LaunchedEffect(saveFile) {
-        if (saveFile != null) {
-            onSaveHandled.invoke()
+        if (saveFile != null && saveState == null) {
             saveState = viewModel.prepareSaveState(saveFile)
         }
     }

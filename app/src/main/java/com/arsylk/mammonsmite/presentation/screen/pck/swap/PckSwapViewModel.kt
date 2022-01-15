@@ -61,160 +61,166 @@ class PckSwapViewModel(
     fun swap(fromItem: PckSwapItem, toItem: PckSwapItem) {
         log.clear()
         withLoading(tag = "swap") {
-            log.info("[${fromItem.pck.header.name}] -> [${toItem.pck.header.name}]")
+            resultSwap(fromItem, toItem)
+        }
+    }
 
-            // store matches & problems
-            val matches = LinkedHashMap<Match, Match>()
-            val problems = mutableListOf<Problem>()
-            val actions = mutableListOf<Action>()
+    suspend fun resultSwap(fromItem: PckSwapItem, toItem: PckSwapItem): Result<PckSwapItem> {
+        log.info("[${fromItem.pck.header.name}] -> [${toItem.pck.header.name}]")
 
-            // check textures
-            val matchingTextures = fromItem.info.textures.size == toItem.info.textures.size
+        // store matches & problems
+        val matches = LinkedHashMap<Match, Match>()
+        val problems = mutableListOf<Problem>()
+        val actions = mutableListOf<Action>()
 
-            // iterate slots
-            log.info("------------------------  files  ------------------------")
-            for (slot in listEntriesIgnoreTextures(toItem)) {
-                //direct & replace idx match
-                val fromMatch = fromItem.pck.header.entries.firstOrNull {
-                    it.filename == slot.filename.replace(toItem.viewIdx.string, fromItem.viewIdx.string)
-                }
-                if (fromMatch != null) {
-                    log.info("(${fromItem.pck.folder.name}/${fromMatch.filename}) -> (swap/${slot.filename})")
-                    matches[Match(fromItem, fromMatch)] = Match(toItem, slot)
-                } else {
-                    problems.add(Problem(null, slot, false))
+        // check textures
+        val matchingTextures = fromItem.info.textures.size == toItem.info.textures.size
+
+        // iterate slots
+        log.info("------------------------  files  ------------------------")
+        for (slot in listEntriesIgnoreTextures(toItem)) {
+            //direct & replace idx match
+            val fromMatch = fromItem.pck.header.entries.firstOrNull {
+                it.filename == slot.filename.replace(toItem.viewIdx.string, fromItem.viewIdx.string)
+            }
+            if (fromMatch != null) {
+                log.info("(${fromItem.pck.folder.name}/${fromMatch.filename}) -> (swap/${slot.filename})")
+                matches[Match(fromItem, fromMatch)] = Match(toItem, slot)
+            } else {
+                problems.add(Problem(null, slot, false))
+            }
+        }
+
+        log.info("------------------------  textures  ------------------------")
+        // matching textures
+        if (matchingTextures) {
+            // same => same
+            for (i in fromItem.info.textures.indices) {
+                val fromTexture = fromItem.info.textures[i]
+                val fromEntry = fromItem.entryForFilename(fromTexture)
+                val toTexture = toItem.info.textures[i]
+                val toEntry = toItem.entryForFilename(toTexture)
+                log.info("(${fromItem.pck.folder.name}/$fromTexture) -> (swap/$toTexture)")
+
+                matches[Match(fromItem, fromEntry)] = Match(toItem, toEntry)
+
+                // fix textures from other swaps
+                if (!fromTexture.contains("texture_")) {
+                    for (toFixEntry in listEntriesIgnoreTextures(toItem)) {
+                        if (fromTexture == toFixEntry.filename) {
+                            log.warn("! ! ! Swapping already swapped models ! ! !")
+                            problems.add(Problem(null, toFixEntry, false))
+                        }
+                    }
                 }
             }
+        } else {
+            // more => less
+            for (i in fromItem.info.textures.indices) {
+                val fromTexture = fromItem.info.textures[i]
+                val fromEntry = fromItem.entryForFilename(fromTexture)
 
-            log.info("------------------------  textures  ------------------------")
-            // matching textures
-            if (matchingTextures) {
-                // same => same
-                for (i in fromItem.info.textures.indices) {
-                    val fromTexture = fromItem.info.textures[i]
-                    val fromEntry = fromItem.entryForFilename(fromTexture)
+                // texture slots available
+                if (i < toItem.info.textures.size) {
                     val toTexture = toItem.info.textures[i]
                     val toEntry = toItem.entryForFilename(toTexture)
                     log.info("(${fromItem.pck.folder.name}/$fromTexture) -> (swap/$toTexture)")
 
                     matches[Match(fromItem, fromEntry)] = Match(toItem, toEntry)
-
-                    // fix textures from other swaps
-                    if (!fromTexture.contains("texture_")) {
-                        for (toFixEntry in listEntriesIgnoreTextures(toItem)) {
-                            if (fromTexture == toFixEntry.filename) {
-                                log.warn("! ! ! Swapping already swapped models ! ! !")
-                                problems.add(Problem(null, toFixEntry, false))
-                            }
-                        }
-                    }
+                } else {
+                    problems.add(Problem(fromEntry, null, true))
                 }
-            } else {
-                // more => less
-                for (i in fromItem.info.textures.indices) {
+            }
+            // less => more
+            for (i in fromItem.info.textures.size until toItem.info.textures.size) {
+                val toTexture = toItem.info.textures[i]
+                val toEntry = toItem.entryForFilename(toTexture)
+
+                // texture slots available
+                if (i < fromItem.info.textures.size) {
                     val fromTexture = fromItem.info.textures[i]
                     val fromEntry = fromItem.entryForFilename(fromTexture)
+                    log.info("(${fromItem.pck.folder.name}/$fromTexture) -> (swap/$toTexture)")
 
-                    // texture slots available
-                    if (i < toItem.info.textures.size) {
-                        val toTexture = toItem.info.textures[i]
-                        val toEntry = toItem.entryForFilename(toTexture)
-                        log.info("(${fromItem.pck.folder.name}/$fromTexture) -> (swap/$toTexture)")
-
-                        matches[Match(fromItem, fromEntry)] = Match(toItem, toEntry)
-                    } else {
-                        problems.add(Problem(fromEntry, null, true))
-                    }
-                }
-                // less => more
-                for (i in fromItem.info.textures.size until toItem.info.textures.size) {
-                    val toTexture = toItem.info.textures[i]
-                    val toEntry = toItem.entryForFilename(toTexture)
-
-                    // texture slots available
-                    if (i < fromItem.info.textures.size) {
-                        val fromTexture = fromItem.info.textures[i]
-                        val fromEntry = fromItem.entryForFilename(fromTexture)
-                        log.info("(${fromItem.pck.folder.name}/$fromTexture) -> (swap/$toTexture)")
-
-                        matches[Match(fromItem, fromEntry)] = Match(toItem, toEntry)
-                    } else {
-                        problems.add(Problem(null, toEntry, true))
-                    }
+                    matches[Match(fromItem, fromEntry)] = Match(toItem, toEntry)
+                } else {
+                    problems.add(Problem(null, toEntry, true))
                 }
             }
-
-            // auto-resolve problems
-            if (problems.isNotEmpty()) {
-                log.info("------------------------  resolved  ------------------------")
-                for (problem in problems.toList()) {
-                    when {
-                        //copy to file
-                        !problem.important && problem.fromFile == null && problem.toFile != null -> {
-                            log.info("(${toItem.pck.folder.name}/${problem.toFile.filename}) -> (swap/${problem.toFile.filename})")
-
-                            // remove problem & add match
-                            problems.remove(problem)
-                            matches[Match(toItem, problem.toFile)] = Match(toItem, problem.toFile)
-                        }
-                        // replace file with texture
-                        problem.important && problem.fromFile != null && problem.toFile == null -> {
-                            val pair = getMostUnimportantEntry(toItem)
-                            if (pair != null) {
-                                val (unimportant, target) = pair
-                                log.info("(${fromItem.pck.folder.name}/${problem.fromFile.filename}) -> (swap/${unimportant.filename})")
-
-                                // load texture instead
-                                problems.remove(problem)
-                                actions.add(Action(target, unimportant.filename, Action.Kind.REMOVE))
-                                actions.add(Action(Action.Target.TEXTURE, unimportant.filename, Action.Kind.ADD))
-
-                                matches[Match(fromItem, problem.fromFile)] = Match(toItem, unimportant)
-                            }
-                        }
-                        // ignore file with texture
-                        problem.important && problem.fromFile == null && problem.toFile != null -> {
-                            log.info("(${toItem.pck.folder.name}/${problem.toFile.filename}) -> (swap/${problem.toFile.filename})")
-
-                            problems.remove(problem)
-                            actions.add(Action(Action.Target.TEXTURE, problem.toFile.filename, Action.Kind.REMOVE))
-                            matches[Match(toItem, problem.toFile)] = Match(toItem, problem.toFile)
-                        }
-                    }
-                }
-            }
-
-            // iterate unresolved
-            if (problems.isNotEmpty()) {
-                log.info("------------------------  unmatched  ------------------------")
-                for (problem in problems) {
-                    val stringFrom = if (problem.fromFile != null)
-                        "${fromItem.pck.folder.name}/${problem.fromFile.filename}"
-                    else "???"
-                    val stringTo = if (problem.toFile != null)
-                        "swap/${problem.toFile.filename}"
-                    else "???"
-                    log.warn("($stringFrom) ${if (problem.important) "=" else "-"}> ($stringTo)")
-                }
-            }
-
-            // iterate actions taken
-            if (actions.isNotEmpty()) {
-                log.info("------------------------  actions  ------------------------")
-                for (action in actions) {
-                    log.info("${action.kind.name.lowercase()} ${action.target.name.lowercase()} ${action.value}")
-                }
-            }
-
-            // perform swap proper
-            val result = kotlin.runCatching { performSwap(fromItem, toItem, matches, actions) }
-            result.onSuccess {
-                log.success("Successfully swapped to: ${it.pck.folder.name}")
-                _resultItem.value = it
-                setEffect(Effect.SaveResult(it))
-            }
-            result.onFailure { log.error(it) }
         }
+
+        // auto-resolve problems
+        if (problems.isNotEmpty()) {
+            log.info("------------------------  resolved  ------------------------")
+            for (problem in problems.toList()) {
+                when {
+                    //copy to file
+                    !problem.important && problem.fromFile == null && problem.toFile != null -> {
+                        log.info("(${toItem.pck.folder.name}/${problem.toFile.filename}) -> (swap/${problem.toFile.filename})")
+
+                        // remove problem & add match
+                        problems.remove(problem)
+                        matches[Match(toItem, problem.toFile)] = Match(toItem, problem.toFile)
+                    }
+                    // replace file with texture
+                    problem.important && problem.fromFile != null && problem.toFile == null -> {
+                        val pair = getMostUnimportantEntry(toItem)
+                        if (pair != null) {
+                            val (unimportant, target) = pair
+                            log.info("(${fromItem.pck.folder.name}/${problem.fromFile.filename}) -> (swap/${unimportant.filename})")
+
+                            // load texture instead
+                            problems.remove(problem)
+                            actions.add(Action(target, unimportant.filename, Action.Kind.REMOVE))
+                            actions.add(Action(Action.Target.TEXTURE, unimportant.filename, Action.Kind.ADD))
+
+                            matches[Match(fromItem, problem.fromFile)] = Match(toItem, unimportant)
+                        }
+                    }
+                    // ignore file with texture
+                    problem.important && problem.fromFile == null && problem.toFile != null -> {
+                        log.info("(${toItem.pck.folder.name}/${problem.toFile.filename}) -> (swap/${problem.toFile.filename})")
+
+                        problems.remove(problem)
+                        actions.add(Action(Action.Target.TEXTURE, problem.toFile.filename, Action.Kind.REMOVE))
+                        matches[Match(toItem, problem.toFile)] = Match(toItem, problem.toFile)
+                    }
+                }
+            }
+        }
+
+        // iterate unresolved
+        if (problems.isNotEmpty()) {
+            log.info("------------------------  unmatched  ------------------------")
+            for (problem in problems) {
+                val stringFrom = if (problem.fromFile != null)
+                    "${fromItem.pck.folder.name}/${problem.fromFile.filename}"
+                else "???"
+                val stringTo = if (problem.toFile != null)
+                    "swap/${problem.toFile.filename}"
+                else "???"
+                log.warn("($stringFrom) ${if (problem.important) "=" else "-"}> ($stringTo)")
+            }
+        }
+
+        // iterate actions taken
+        if (actions.isNotEmpty()) {
+            log.info("------------------------  actions  ------------------------")
+            for (action in actions) {
+                log.info("${action.kind.name.lowercase()} ${action.target.name.lowercase()} ${action.value}")
+            }
+        }
+
+        // perform swap proper
+        val result = kotlin.runCatching { performSwap(fromItem, toItem, matches, actions) }
+        result.onSuccess {
+            log.success("Successfully swapped to: ${it.pck.folder.name}")
+            _resultItem.value = it
+            setEffect(Effect.SaveResult(it))
+        }
+        result.onFailure { log.error(it) }
+
+        return result
     }
 
     private suspend fun performSwap(

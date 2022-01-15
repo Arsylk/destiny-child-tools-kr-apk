@@ -21,5 +21,6 @@ data class L2DFileLoaded(
                     ViewIdx.parse(item.filename)
                 }
             }
+            ?: ViewIdx.parse(l2dFile.folder.name)
     }
 }

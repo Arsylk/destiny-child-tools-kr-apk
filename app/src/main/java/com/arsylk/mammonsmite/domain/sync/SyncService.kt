@@ -26,26 +26,46 @@ class SyncService(
     fun getSyncFlow(): Flow<Pair<ProgressStore, Int>> {
         val sync = sync {
             group {
-                tag = "dump data group"
+                tag = "dump data"
                 required = true
-                concurrency = 1
+                concurrency = 5
 
                 module {
-                    tag = "char data module"
+                    tag = "char data"
                     action {
                         characterRepository.fetchCharData()
                     }
                 }
                 module {
-                    tag = "character skin data module"
+                    tag = "character skin data"
                     action {
                         characterRepository.fetchCharacterSkinData()
                     }
                 }
                 module {
-                    tag = "view idx names module"
+                    tag = "view idx names"
                     action {
                         characterRepository.fetchViewIdxNames()
+                    }
+                }
+
+                group {
+                    tag = "skill data"
+                    concurrency = 2
+                    required = false
+
+                    module {
+                        tag = "skill active data"
+                        action {
+                            characterRepository.fetchSkillActiveData()
+                        }
+                    }
+
+                    module {
+                        tag = "skill buff data"
+                        action {
+                            characterRepository.fetchSkillBuffData()
+                        }
                     }
                 }
             }

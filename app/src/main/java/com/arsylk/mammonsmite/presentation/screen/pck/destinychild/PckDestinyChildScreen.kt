@@ -11,20 +11,22 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Collections
 import androidx.compose.material.icons.filled.InsertDriveFile
 import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptionsBuilder
 import coil.compose.rememberImagePainter
@@ -44,10 +46,8 @@ import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.androidx.compose.get
 
-@ExperimentalCoroutinesApi
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
-@ExperimentalMaterialApi
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
 object PckDestinyChildScreen : NavigableScreen {
     override val route = "/pck/destinychild"
     override val label = "Destiny Child Models"
@@ -84,13 +84,19 @@ object PckDestinyChildScreen : NavigableScreen {
 @Composable
 fun PckDestinyChildScreen(viewModel: PckDestinyChildViewModel = get()) {
     val isLoading by viewModel.isLoading.collectAsState()
-    val search by viewModel.searchQuery.collectAsState()
+    val searchState by viewModel.searchState.collectAsState()
     val selectedTab by viewModel.selectedTab.collectAsState()
     val state = PckDestinyChildScreen.Tab.values()
         .associateWith { rememberLazyListState() }
+    var showDialog by rememberSaveable { mutableStateOf(false) }
 
     SurfaceColumn {
-        SearchTextField(search, viewModel::setSearchQuery)
+        SearchTextField(
+            tab = selectedTab,
+            state = searchState,
+            onSearchChanged = viewModel::updateSearchState,
+            onOpenDialog = { showDialog = !showDialog }
+        )
         Box(
             modifier = Modifier
                 .weight(1.0f)
@@ -107,14 +113,41 @@ fun PckDestinyChildScreen(viewModel: PckDestinyChildViewModel = get()) {
             alwaysShowLabel = false
         )
     }
+    if (showDialog) SearchStateDialog(viewModel) {
+        showDialog = false
+    }
 }
 
 @Composable
-fun SearchTextField(value: String, onValueChanged: (String) -> Unit) {
+internal fun SearchTextField(
+    tab: PckDestinyChildScreen.Tab,
+    state: SearchState,
+    onSearchChanged: (SearchState.() -> SearchState) -> Unit,
+    onOpenDialog: () -> Unit,
+) {
+    val leadingIcon: @Composable () -> Unit = {
+        Box {
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable(onClick = onOpenDialog)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(4.dp)
+                )
+            }
+        }
+    }
     TextField(
         modifier = Modifier.fillMaxWidth(),
-        value = value,
-        onValueChange = onValueChanged,
+        value = state.text,
+        onValueChange = { text ->
+            onSearchChanged { copy(text = text) }
+        },
         singleLine = true,
         label = { Text("Search") },
         trailingIcon = {
@@ -123,9 +156,12 @@ fun SearchTextField(value: String, onValueChanged: (String) -> Unit) {
                 contentDescription = null,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { onValueChanged.invoke("") }
+                    .clickable {
+                        onSearchChanged { SearchState.Default }
+                    }
             )
-        }
+        },
+        leadingIcon = leadingIcon.takeIf { tab == PckDestinyChildScreen.Tab.DESTINYCHILD }
     )
 }
 

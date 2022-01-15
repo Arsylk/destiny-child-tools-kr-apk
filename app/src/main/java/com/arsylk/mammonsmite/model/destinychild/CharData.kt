@@ -35,4 +35,7 @@ data class CharData(
 
     @SerialName("skill_5")
     val skill5: String,
-)
+) {
+
+    val skills: List<String> get() = listOf(skill1, skill2, skill3, skill4, skill5)
+}

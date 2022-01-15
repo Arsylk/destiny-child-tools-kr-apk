@@ -1,10 +1,8 @@
 package com.arsylk.mammonsmite.domain.repo
 
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
-import com.arsylk.mammonsmite.model.destinychild.CharacterSkinData
 import com.arsylk.mammonsmite.model.api.response.parse
-import com.arsylk.mammonsmite.model.destinychild.CharData
-import com.arsylk.mammonsmite.model.destinychild.ViewIdx
+import com.arsylk.mammonsmite.model.destinychild.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.Json
@@ -18,10 +16,14 @@ class CharacterRepository(
     private val _charData = MutableStateFlow(emptyList<CharData>())
     private val _characterSkinData = MutableStateFlow(emptyList<CharacterSkinData>())
     private val _viewIdxNames = MutableStateFlow(emptyMap<ViewIdx, String>())
+    private val _skillActiveData = MutableStateFlow(emptyMap<String, SkillActiveData>())
+    private val _skillBuffData = MutableStateFlow(emptyMap<String, SkillBuffData>())
     val charData by lazy(_charData::asStateFlow)
     val characterSkinData by lazy(_characterSkinData::asStateFlow)
     val viewIdxNames by lazy(_viewIdxNames::asStateFlow)
     val viewIdxChars = combineIntoCharacters()
+    val skillActiveData by lazy(_skillActiveData::asStateFlow)
+    val skillBuffData by lazy(_skillBuffData::asStateFlow)
 
 
     @Throws(Throwable::class)
@@ -62,6 +64,18 @@ class CharacterRepository(
             }.orEmpty()
             .associate { it }
         _viewIdxNames.value = entries
+    }
+
+    @Throws(Throwable::class)
+    suspend fun fetchSkillActiveData() {
+        val response = apiService.getSkillActiveDataFile()
+        _skillActiveData.value = response
+    }
+
+    @Throws(Throwable::class)
+    suspend fun fetchSkillBuffData() {
+        val response = apiService.getSkillBuffDataFile()
+        _skillBuffData.value = response
     }
 
     private fun combineIntoCharacters() =

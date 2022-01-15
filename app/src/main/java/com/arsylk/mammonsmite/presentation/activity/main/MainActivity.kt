@@ -24,12 +24,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.core.view.WindowCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.dialog
 import com.arsylk.mammonsmite.BuildConfig
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.domain.common.PermissionUtils
@@ -53,7 +50,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
-import java.io.File
 
 @ExperimentalSerializationApi
 @ExperimentalCoroutinesApi
@@ -146,7 +142,6 @@ class MainActivity : BaseActivity() {
                     }
                 }
                 Box {
-                    println(syncProgress)
                     NonBlockingProgressIndicator(progress = syncProgress)
                     ModalDrawer(
                         drawerState = drawerState,

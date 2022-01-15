@@ -28,7 +28,7 @@ interface LogLineChannel {
     fun stateIn(coroutineScope: CoroutineScope): StateFlow<List<LogLine>>
 }
 
-private class LogLineChannelImpl : LogLineChannel {
+private class LogLineChannelImpl(val onLine: (LogLine) -> Unit) : LogLineChannel {
     private val lines = MutableStateFlow(0 to ConcurrentHashMap<Int, LogLine>())
 
     override fun success(msg: String, tag: String?) {
@@ -52,6 +52,7 @@ private class LogLineChannelImpl : LogLineChannel {
     }
 
     override fun put(line: LogLine) {
+        onLine.invoke(line)
         lines.update { (id, map) ->
             map[id] = line
             (id + 1) to map
@@ -102,6 +103,8 @@ private object EmptyLogLineChannelImpl : LogLineChannel {
 
 }
 
-fun LogLineChannel(): LogLineChannel = LogLineChannelImpl()
+fun LogLineChannel(): LogLineChannel = LogLineChannelImpl {}
+
+fun LogLineChannel(onLine: (LogLine) -> Unit): LogLineChannel = LogLineChannelImpl(onLine)
 
 val EmptyLogLineChannel: LogLineChannel get() = EmptyLogLineChannelImpl

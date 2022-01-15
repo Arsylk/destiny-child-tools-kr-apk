@@ -11,10 +11,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarResult
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -188,4 +187,12 @@ suspend fun ScaffoldState.dismissAndShow(
         currentSnackbarData?.dismiss()
         showSnackbar(message, actionLabel, duration)
     }
+}
+
+@Composable
+fun WithAlpha(alpha: Float, content: @Composable () -> Unit) {
+    CompositionLocalProvider(
+        LocalContentAlpha provides alpha,
+        content = content,
+    )
 }

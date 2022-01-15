@@ -46,10 +46,7 @@ import org.koin.core.parameter.parametersOf
 import java.io.File
 
 
-@ExperimentalMaterialApi
-@ExperimentalSerializationApi
-@ExperimentalComposeUiApi
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class, ExperimentalSerializationApi::class, ExperimentalMaterialApi::class)
 object PckUnpackDialog : NavigableDialog {
     override val route = "/pck/unpack/{path}"
     override val label = "Unpack Pck"
