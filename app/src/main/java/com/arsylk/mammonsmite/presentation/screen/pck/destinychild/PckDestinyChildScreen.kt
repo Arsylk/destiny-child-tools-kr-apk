@@ -26,25 +26,28 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptionsBuilder
 import coil.compose.rememberImagePainter
 import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.noRippleClickable
+import com.arsylk.mammonsmite.domain.use
 import com.arsylk.mammonsmite.model.common.NavTab
 import com.arsylk.mammonsmite.model.destinychild.CharData
 import com.arsylk.mammonsmite.presentation.Navigator
 import com.arsylk.mammonsmite.presentation.composable.BottomTabNavigation
+import com.arsylk.mammonsmite.presentation.composable.NonBlockingProgressIndicator
 import com.arsylk.mammonsmite.presentation.composable.SurfaceColumn
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
 import com.arsylk.mammonsmite.presentation.nav
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen.ModelPackedAction
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen.ModelPackedAction.*
+import com.arsylk.mammonsmite.presentation.screen.wiki.character.WikiCharacterScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.androidx.compose.get
+import org.koin.androidx.compose.getViewModel
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class, ExperimentalCoroutinesApi::class)
@@ -82,7 +85,7 @@ object PckDestinyChildScreen : NavigableScreen {
 @ExperimentalFoundationApi
 @ExperimentalCoroutinesApi
 @Composable
-fun PckDestinyChildScreen(viewModel: PckDestinyChildViewModel = get()) {
+fun PckDestinyChildScreen(viewModel: PckDestinyChildViewModel = getViewModel()) {
     val isLoading by viewModel.isLoading.collectAsState()
     val searchState by viewModel.searchState.collectAsState()
     val selectedTab by viewModel.selectedTab.collectAsState()
@@ -90,28 +93,31 @@ fun PckDestinyChildScreen(viewModel: PckDestinyChildViewModel = get()) {
         .associateWith { rememberLazyListState() }
     var showDialog by rememberSaveable { mutableStateOf(false) }
 
-    SurfaceColumn {
-        SearchTextField(
-            tab = selectedTab,
-            state = searchState,
-            onSearchChanged = viewModel::updateSearchState,
-            onOpenDialog = { showDialog = !showDialog }
-        )
-        Box(
-            modifier = Modifier
-                .weight(1.0f)
-                .fillMaxWidth()
-        ) {
-            val items by viewModel.filteredModels.collectAsState(emptyList())
-            if (isLoading) CircularProgressIndicator(Modifier.align(Alignment.Center))
-            else ModelPackedList(state = state[selectedTab]!!, items = items)
+    Box {
+        NonBlockingProgressIndicator(isLoading)
+        SurfaceColumn {
+            SearchTextField(
+                tab = selectedTab,
+                state = searchState,
+                onSearchChanged = viewModel::updateSearchState,
+                onOpenDialog = { showDialog = !showDialog }
+            )
+            Box(
+                modifier = Modifier
+                    .weight(1.0f)
+                    .fillMaxWidth()
+            ) {
+                val items by viewModel.filteredModels.collectAsState(emptyList())
+                if (isLoading && items.isEmpty()) CircularProgressIndicator(Modifier.align(Alignment.Center))
+                else ModelPackedList(state = state[selectedTab]!!, items = items)
+            }
+            BottomTabNavigation(
+                tabs = PckDestinyChildScreen.Tab.values(),
+                selected = selectedTab,
+                onTabClick = viewModel::selectTab,
+                alwaysShowLabel = false
+            )
         }
-        BottomTabNavigation(
-            tabs = PckDestinyChildScreen.Tab.values(),
-            selected = selectedTab,
-            onTabClick = viewModel::selectTab,
-            alwaysShowLabel = false
-        )
     }
     if (showDialog) SearchStateDialog(viewModel) {
         showDialog = false
@@ -171,7 +177,7 @@ internal fun SearchTextField(
 @Composable
 fun ModelPackedList(state: LazyListState, items: List<ModelPacked>) {
     val nav = nav
-    var expandedId by remember { mutableStateOf(-1) }
+    var expandedKey by rememberSaveable { mutableStateOf<String?>(null) }
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = state,
@@ -179,11 +185,11 @@ fun ModelPackedList(state: LazyListState, items: List<ModelPacked>) {
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(items) { item ->
-            ModelPackedItem(item, item._id == expandedId) { action ->
+            ModelPackedItem(item, item.key == expandedKey) { action ->
                 when (action) {
-                    Click -> expandedId = if (item._id == expandedId) -1 else item._id
+                    Click -> expandedKey = if (item.key == expandedKey) null else item.key
                     is FileClick -> PckUnpackDialog.navigate(nav, action.file.absolutePath)
-                    is WikiClick -> {}
+                    is WikiClick -> WikiCharacterScreen.navigate(nav, action.charData.idx)
                 }
             }
         }
@@ -208,7 +214,7 @@ fun ModelPackedItem(item: ModelPacked, expanded: Boolean, onAction: (ModelPacked
                         modifier = Modifier.fillMaxSize()
                     )
                     Image(
-                        painter = rememberImagePainter(item.char?.attribute?.frameRes),
+                        painter = rememberImagePainter(item.char?.data?.attribute?.frameRes),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize()
                     )
@@ -219,7 +225,7 @@ fun ModelPackedItem(item: ModelPacked, expanded: Boolean, onAction: (ModelPacked
                             .align(Alignment.BottomCenter)
                             .height(starSize)
                     ) {
-                        repeat(item.char?.stars ?: 0) { i ->
+                        repeat(item.char?.data?.stars ?: 0) { i ->
                             Image(
                                 painter = painterResource(id = R.drawable.ic_star),
                                 contentDescription = null,
@@ -288,7 +294,7 @@ fun ModelPackedItem(item: ModelPacked, expanded: Boolean, onAction: (ModelPacked
                         Button(
                             modifier = Modifier
                                 .align(Alignment.CenterHorizontally),
-                            onClick = { onAction.invoke(WikiClick(item.char)) },
+                            onClick = { onAction.invoke(WikiClick(item.char.data)) },
                         ) {
                             Text("Wiki")
                         }

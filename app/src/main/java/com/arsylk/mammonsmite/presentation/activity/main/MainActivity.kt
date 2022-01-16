@@ -1,5 +1,7 @@
 package com.arsylk.mammonsmite.presentation.activity.main
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -17,6 +19,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toFile
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -32,6 +36,7 @@ import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.domain.common.PermissionUtils
 import com.arsylk.mammonsmite.domain.files.*
 import com.arsylk.mammonsmite.domain.setFullscreenCompat
+import com.arsylk.mammonsmite.model.file.FileSelect
 import com.arsylk.mammonsmite.presentation.*
 import com.arsylk.mammonsmite.presentation.activity.BaseActivity
 import com.arsylk.mammonsmite.presentation.composable.MenuDivider
@@ -39,6 +44,7 @@ import com.arsylk.mammonsmite.presentation.composable.MenuItem
 import com.arsylk.mammonsmite.presentation.composable.NonBlockingProgressIndicator
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
 import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogHost
+import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileDialog
 import com.arsylk.mammonsmite.presentation.screen.home.HomeScreen
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewScreen
 import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchScreen
@@ -46,10 +52,12 @@ import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChi
 import com.arsylk.mammonsmite.presentation.screen.pck.swap.PckSwapScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
 import com.arsylk.mammonsmite.presentation.screen.settings.SettingsScreen
+import com.arsylk.mammonsmite.presentation.screen.wiki.character.WikiCharacterScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import java.io.File
 
 @ExperimentalSerializationApi
 @ExperimentalCoroutinesApi
@@ -69,6 +77,7 @@ class MainActivity : BaseActivity() {
                     MainContent()
                     UpdateFullscreen()
                     RequestPermissions()
+                    HandleIntent()
                 }
             }
         }
@@ -205,6 +214,20 @@ class MainActivity : BaseActivity() {
                     scope.launch { drawerState.close() }
                 }
             }
+            MenuDivider("Actions")
+            Column(Modifier.padding(8.dp)) {
+                MenuItem(text = "Unpack", selected = false) {
+                    scope.launch {
+                        drawerState.close()
+                        nav.resultDialogHost.showResultDialog {
+                            ResultFileDialog(type = FileSelect.FILE)
+                        }?.also {
+                            PckUnpackDialog.navigate(nav, it.absolutePath)
+                        }
+
+                    }
+                }
+            }
             MenuDivider("Magic")
             Column(Modifier.padding(8.dp)) {
                 MenuItem(
@@ -243,6 +266,7 @@ class MainActivity : BaseActivity() {
             LocalePatchScreen prepare this
             PckSwapScreen prepare this
             SettingsScreen prepare this
+            WikiCharacterScreen prepare this
 
             PckUnpackDialog prepare this
         }
@@ -280,6 +304,30 @@ class MainActivity : BaseActivity() {
                 requestBase -> base.launch(PermissionUtils.base)
                 requestManage -> manage.launch(PermissionUtils.managePermissionIntent())
                 requestSaf -> saf.launch(SafProvider.permissionRequestIntent())
+            }
+        }
+    }
+
+    @Composable
+    private fun HandleIntent() {
+        val nav = nav
+        var handled by rememberSaveable(intent) { mutableStateOf(false) }
+        if (intent?.action == Intent.ACTION_VIEW) {
+            val data = intent?.data ?: return
+            if (!handled) LaunchedEffect(data) {
+                kotlin.runCatching {
+                    val name = (data.path ?: data.toString())
+                        .substringAfterLast('/')
+                        .substringAfterLast(':')
+                        .takeIf(String::isNotBlank)
+                    val temp = File(CommonFiles.cache,name ?: "file")
+                    val ins = contentResolver.openInputStream(data)
+                    if (ins != null) {
+                        ins.use { temp.writeBytes(it.readBytes()) }
+                        PckUnpackDialog.navigate(nav, temp.absolutePath)
+                    }
+                }
+                handled = true
             }
         }
     }

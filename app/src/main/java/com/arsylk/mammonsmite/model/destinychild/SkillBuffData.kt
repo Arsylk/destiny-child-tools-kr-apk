@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.model.destinychild
 
+import com.arsylk.mammonsmite.Cfg
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -24,5 +25,8 @@ data class SkillBuffData(
     val category2: Int,
 
     @SerialName("category_3")
-    val category4: Int,
-)
+    val category3: Int,
+) {
+
+    val iconUrl get() = "${Cfg.API_URL}static/icons/buff/${idx}.png"
+}

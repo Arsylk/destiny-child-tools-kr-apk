@@ -136,5 +136,5 @@ data class SkillActiveData(
     val value4Type: Int,
 ) {
 
-    val buffs: List<String> get() = listOf(buff1, buff2, buff3, buff4)
+    inline val buffs: List<String> get() = listOf(buff1, buff2, buff3, buff4)
 }

@@ -43,15 +43,15 @@ class SyncService(
                     }
                 }
                 module {
-                    tag = "view idx names"
+                    tag = "english patch data"
                     action {
-                        characterRepository.fetchViewIdxNames()
+                        characterRepository.fetchEngLocale()
                     }
                 }
 
                 group {
                     tag = "skill data"
-                    concurrency = 2
+                    concurrency = 3
                     required = false
 
                     module {
@@ -67,21 +67,28 @@ class SyncService(
                             characterRepository.fetchSkillBuffData()
                         }
                     }
+
+                    module {
+                        tag = "skill ignition data"
+                        action {
+                            characterRepository.fetchIgnitionCharacterSkillData()
+                        }
+                    }
                 }
             }
 
-            group {
-                tag = "locale group"
-                required = true
-
-                cacheableModule<LocalePatch> {
-                    tag = "english patch module"
-                    file = CommonFiles.Internal.englishPatchFile
-                    fetch { service.getEnglishPatch(it) }
-                    serialize { json.encodeToString(it) }
-                    deserialize { json.decodeFromString(it) }
-                }
-            }
+//            group {
+//                tag = "locale group"
+//                required = true
+//
+//                cacheableModule<LocalePatch> {
+//                    tag = "english patch module"
+//                    file = CommonFiles.Internal.englishPatchFile
+//                    fetch { service.getEnglishPatch(it) }
+//                    serialize { json.encodeToString(it) }
+//                    deserialize { json.decodeFromString(it) }
+//                }
+//            }
         }
         return execute(sync)
     }

@@ -2,6 +2,7 @@ package com.arsylk.mammonsmite.model.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.produceState
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
@@ -39,6 +40,10 @@ fun <T> uiResultOf(block: suspend () -> T): Flow<UiResult<T>> {
 
 fun <T, R> Flow<T>.mapAsUiResult(block: suspend (T) -> R) =
     flatMapLatest { uiResultOf { block.invoke(it) } }
+
+@Composable
+fun <T> Flow<UiResult<T>>.collectAsState() =
+    collectAsState(initial = UiResult.Loading())
 
 @Composable
 fun <T> produceUiResult(vararg keys: Any?, block: suspend () -> T): State<UiResult<T>> {

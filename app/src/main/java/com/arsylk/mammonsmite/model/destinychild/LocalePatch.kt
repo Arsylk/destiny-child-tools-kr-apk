@@ -16,7 +16,8 @@ data class LocalePatch(
     val files: Map<String, LocalePatchFile>,
 ) {
 
-    val characterNamesFile get() = files["c40e0023a077cb28"]
+    inline val characterNamesFile get() = files["c40e0023a077cb28"]
+    inline val skillNamesFile get() = files["f80a001a49cfda65"]
 
     operator fun plus(patch: LocalePatch): LocalePatch {
         val base = files.toMutableMap()

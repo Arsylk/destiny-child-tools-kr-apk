@@ -2,10 +2,7 @@ package com.arsylk.mammonsmite.domain.retrofit
 
 
 import com.arsylk.mammonsmite.model.api.response.CharacterSkinDataFileResponse
-import com.arsylk.mammonsmite.model.destinychild.CharData
-import com.arsylk.mammonsmite.model.destinychild.LocalePatch
-import com.arsylk.mammonsmite.model.destinychild.SkillActiveData
-import com.arsylk.mammonsmite.model.destinychild.SkillBuffData
+import com.arsylk.mammonsmite.model.destinychild.*
 import retrofit2.http.*
 
 interface RetrofitApiService {
@@ -42,6 +39,9 @@ interface RetrofitApiService {
 
     @GET("/api/get_file/SKILL_BUFF_DATA/")
     suspend fun getSkillBuffDataFile(): Map<String, SkillBuffData>
+
+    @GET("/api/get_file/IGNITION_CHARACTER_SKILL_DATA/")
+    suspend fun getIgnitionCharacterSkillDataFile(): IgnitionCharacterSkills
 
     @GET("/api/get_children_skills")
     suspend fun getChildrenSkills(@Query("md5") md5: String)

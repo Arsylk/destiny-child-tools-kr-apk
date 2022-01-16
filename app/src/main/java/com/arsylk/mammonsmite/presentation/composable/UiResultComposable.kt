@@ -14,7 +14,23 @@ import com.arsylk.mammonsmite.model.common.UiResult
 
 
 
-@ExperimentalFoundationApi
+@JvmName("UiResultBoxNotNullOptional")
+@Composable
+fun <T> UiResultBox(
+    uiResult: UiResult<T>,
+    modifier: Modifier = Modifier,
+    onLoading: @Composable (BoxScope.() -> Unit)? = null,
+    onFailure: @Composable (BoxScope.(Throwable) -> Unit)? = null,
+    onSuccess: @Composable BoxScope.(T) -> Unit,
+) = UiResultBox(
+    uiResult = uiResult,
+    modifier = modifier,
+    onLoading = onLoading,
+    onFailure = onFailure,
+    onSuccess = onSuccess,
+    onEmpty = {},
+)
+
 @JvmName("UiResultBoxOptional")
 @Composable
 fun <T> UiResultBox(

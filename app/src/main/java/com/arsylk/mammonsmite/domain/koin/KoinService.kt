@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.lifecycle.SavedStateHandle
 import com.arsylk.mammonsmite.Cfg
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
@@ -24,6 +25,7 @@ import com.arsylk.mammonsmite.presentation.screen.home.HomeViewModel
 import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchViewModel
 import com.arsylk.mammonsmite.presentation.screen.pck.swap.PckSwapViewModel
 import com.arsylk.mammonsmite.presentation.screen.settings.SettingsViewModel
+import com.arsylk.mammonsmite.presentation.screen.wiki.character.WikiCharacterViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,7 +71,7 @@ object KoinService {
                 module {
                     viewModel { MainViewModel(get()) }
                     viewModel { HomeViewModel(get()) }
-                    viewModel { PckDestinyChildViewModel(get(), get()) }
+                    viewModel { (handle: SavedStateHandle) -> PckDestinyChildViewModel(get(), get(), handle = handle) }
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
                     viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
@@ -78,6 +80,7 @@ object KoinService {
                     viewModel { SettingsViewModel(get()) }
                     viewModel { PckSwapViewModel(get(), get(), get()) }
                     viewModel { ResultUnpackedViewModel(get(), get()) }
+                    viewModel { param -> WikiCharacterViewModel(get(), idx = param.get()) }
                 }
             )
         }

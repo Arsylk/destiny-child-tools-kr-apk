@@ -1,25 +1,19 @@
 package com.arsylk.mammonsmite.model.destinychild
 
-
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CharData(
-    @SerialName("idx")
-    val idx: String,
+data class IgnitionCharacterSkillData(
 
-    @SerialName("attribute")
-    val attribute: ChildAttribute,
+    @SerialName("character_idx")
+    val charIdx: String,
 
-    @SerialName("role")
-    val role: ChildRole,
+    @SerialName("ignition_level")
+    val ignitionLevel: Int,
 
-    @SerialName("start_grade")
-    val stars: Int,
-
-    @SerialName("name")
-    val koreanName: String,
+    @SerialName("redstar")
+    val redStar: Int,
 
     @SerialName("skill_1")
     val skill1: String,
@@ -39,3 +33,5 @@ data class CharData(
 
     inline val skills: List<String> get() = listOf(skill1, skill2, skill3, skill4, skill5)
 }
+
+typealias IgnitionCharacterSkills = Map<String, Map<Int, IgnitionCharacterSkillData>>

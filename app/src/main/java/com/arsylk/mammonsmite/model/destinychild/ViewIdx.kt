@@ -45,5 +45,10 @@ data class ViewIdx(
                 }
             }
         }
+        fun Collection<ViewIdx>.naturalOrder(): List<ViewIdx> {
+            return sortedBy {
+                it.number * 1000 + it.variant
+            }
+        }
     }
 }
