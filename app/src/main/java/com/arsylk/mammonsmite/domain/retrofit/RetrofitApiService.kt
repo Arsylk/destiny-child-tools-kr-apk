@@ -43,6 +43,12 @@ interface RetrofitApiService {
     @GET("/api/get_file/IGNITION_CHARACTER_SKILL_DATA/")
     suspend fun getIgnitionCharacterSkillDataFile(): IgnitionCharacterSkills
 
+    @GET("/api/get_file/SKILL_LEVEL_EQUATIONS/")
+    suspend fun getSkillLevelEquationsFile(): Map<Int, String>
+
+    @GET("/api/get_file/SKILL_CATEGORY/")
+    suspend fun getSkillCategoryFile(): Map<String, Int>
+
     @GET("/api/get_children_skills")
     suspend fun getChildrenSkills(@Query("md5") md5: String)
 

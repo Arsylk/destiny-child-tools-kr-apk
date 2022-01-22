@@ -2,7 +2,8 @@ package com.arsylk.mammonsmite.presentation.screen.wiki.character
 
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
-import com.arsylk.mammonsmite.domain.repo.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
+import com.arsylk.mammonsmite.domain.sync.SyncService
 import com.arsylk.mammonsmite.model.common.UiResult
 import kotlinx.coroutines.flow.combineTransform
 
@@ -12,9 +13,8 @@ class WikiCharacterViewModel(
 ) : EffectViewModel<Effect>() {
     val character = prepareUiCharacter()
 
-
     private fun prepareUiCharacter() =
-        combineTransform(repo.isLoading, repo.fullCharacters) { isLoading, characters ->
+        combineTransform(SyncService.isLoading, repo.fullCharacters) { isLoading, characters ->
             val char = characters[idx]
             when {
                 char != null -> emit(UiResult(char))

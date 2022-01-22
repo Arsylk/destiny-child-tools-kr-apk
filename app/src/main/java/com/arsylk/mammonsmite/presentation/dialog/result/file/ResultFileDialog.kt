@@ -20,6 +20,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import com.arsylk.mammonsmite.domain.WithAlpha
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.onEffect
 import com.arsylk.mammonsmite.domain.use
@@ -68,6 +69,7 @@ fun ResultDialogAction<IFile>.ResultFileDialog(
     val title by viewModel.title.collectAsState()
     val items by viewModel.items.collectAsState()
     val selectedItem by viewModel.selectedItem.collectAsState()
+    val hasParent by viewModel.hasParent.collectAsState()
 
     ResultDialogScaffold(
         title = title,
@@ -80,7 +82,9 @@ fun ResultDialogAction<IFile>.ResultFileDialog(
         Content(
             uiResult = items,
             selectedItem = selectedItem,
+            hasParent = hasParent,
             onItemClick = viewModel::onItemClick,
+            onNavigateUpClick = viewModel::navigateUp,
         )
 
         val list = Action.values().filter { it in allowed }
@@ -140,17 +144,28 @@ fun ResultDialogAction<IFile>.ResultFileDialog(
 internal fun Content(
     uiResult: UiResult<List<ResultFileItem>>,
     selectedItem: ResultFileItem?,
+    hasParent: Boolean,
     onItemClick: (ResultFileItem) -> Unit,
+    onNavigateUpClick: () -> Unit,
 ) {
-    UiResultBox(uiResult = uiResult) { items ->
-        if (items.isNotEmpty()) LazyColumn(Modifier.fillMaxSize()) {
+    UiResultBox(
+        modifier = Modifier.fillMaxSize(),
+        uiResult = uiResult,
+    ) { items ->
+        LazyColumn(Modifier.fillMaxSize()) {
+            if (hasParent) item {
+                WithAlpha(alpha = ContentAlpha.medium) {
+                    ListItem(
+                        text = { Text("..") },
+                        modifier = Modifier.clickable(onClick = onNavigateUpClick)
+                    )
+                }
+            }
             items(items) { item ->
                 val alpha = if (item.enabled) ContentAlpha.high else ContentAlpha.disabled
                 val alphaFloat by animateFloatAsState(if (item == selectedItem) 0.125f else 0.0f)
 
-                CompositionLocalProvider(
-                    LocalContentAlpha provides alpha
-                ) {
+                WithAlpha(alpha = alpha) {
                     ListItem(
                         text = { Text(item.label) },
                         icon = { Icon(item.type.icon, contentDescription = null) },
@@ -164,10 +179,7 @@ internal fun Content(
                     )
                 }
             }
-        } else Text(
-            text = "Empty",
-            modifier = Modifier.align(Alignment.Center),
-        )
+        }
     }
 }
 

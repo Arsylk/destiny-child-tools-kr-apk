@@ -139,7 +139,7 @@ internal fun SearchTextField(
                     .clickable(onClick = onOpenDialog)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Search,
+                    imageVector = Icons.Default.FilterAlt,
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.Center)
@@ -225,7 +225,7 @@ fun ModelPackedItem(item: ModelPacked, expanded: Boolean, onAction: (ModelPacked
                             .align(Alignment.BottomCenter)
                             .height(starSize)
                     ) {
-                        repeat(item.char?.data?.stars ?: 0) { i ->
+                        repeat(item.char?.data?.baseGrade ?: 0) { i ->
                             Image(
                                 painter = painterResource(id = R.drawable.ic_star),
                                 contentDescription = null,

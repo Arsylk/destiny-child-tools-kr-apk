@@ -196,3 +196,7 @@ fun WithAlpha(alpha: Float, content: @Composable () -> Unit) {
         content = content,
     )
 }
+
+inline val String.Companion.unknown get() = "<Unknown>"
+
+fun String?.orUnknown(): String = this ?: String.unknown

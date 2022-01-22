@@ -1,14 +1,12 @@
 package com.arsylk.mammonsmite.presentation.screen.pck.swap
 
 import androidx.lifecycle.viewModelScope
-import com.arsylk.mammonsmite.DestinyChild.Pck
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.encodeToFile
 import com.arsylk.mammonsmite.domain.files.CommonFiles
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
-import com.arsylk.mammonsmite.domain.repo.CharacterRepository
 import com.arsylk.mammonsmite.model.common.*
 import com.arsylk.mammonsmite.model.live2d.L2DExpressionInfo
 import com.arsylk.mammonsmite.model.live2d.L2DFile
@@ -17,7 +15,6 @@ import com.arsylk.mammonsmite.model.pck.UnpackedPckLive2D
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString

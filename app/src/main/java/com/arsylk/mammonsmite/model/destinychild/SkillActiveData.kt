@@ -1,7 +1,9 @@
 package com.arsylk.mammonsmite.model.destinychild
 
+import com.arsylk.mammonsmite.domain.unknown
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class SkillActiveData(
@@ -137,4 +139,34 @@ data class SkillActiveData(
 ) {
 
     inline val buffs: List<String> get() = listOf(buff1, buff2, buff3, buff4)
+    inline val values: List<Int> get() = listOf(value, value1, value2, value3, value4)
+    inline val valueTypes: List<Int> get() = listOf(valueType, value1Type, value2Type, value3Type, value4Type)
+    inline val durations: List<Int> get() = listOf(0, duration1, duration2, duration3, duration4)
+    inline val levelEquations: List<Int> get() = listOf(levelEquation, levelEquation1, levelEquation2, levelEquation3, levelEquation4)
+
+    // TODO maybe use `type` ?
+    @Transient
+    val skillType = when (idx.firstOrNull()?.digitToIntOrNull()) {
+        1 -> Type.DEFAULT
+        2 -> Type.NORMAL
+        3 -> Type.SLIDE
+        4 -> Type.DRIVE
+        5 -> Type.LEADER
+        else -> Type.UNKNOWN
+    }
+
+    enum class Type(val int: Int?, val label: String,) {
+        DEFAULT(1, "Default"),
+        NORMAL(2, "Normal"),
+        SLIDE(3, "Slide"),
+        DRIVE(4, "Drive"),
+        LEADER(5, "Leader"),
+        UNKNOWN(null, String.unknown),
+    }
+
+    companion object {
+
+        fun stringKey(key: String, pos: Int) =
+            "{${"${key}_$pos".replace("_0$".toRegex(), "")}}"
+    }
 }

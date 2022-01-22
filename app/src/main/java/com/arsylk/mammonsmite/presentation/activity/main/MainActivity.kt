@@ -12,7 +12,9 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -45,6 +47,8 @@ import com.arsylk.mammonsmite.presentation.composable.NonBlockingProgressIndicat
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
 import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogHost
 import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileDialog
+import com.arsylk.mammonsmite.presentation.dialog.wiki.buff.WikiBuffDialog
+import com.arsylk.mammonsmite.presentation.dialog.wiki.skill.WikiSkillDialog
 import com.arsylk.mammonsmite.presentation.screen.home.HomeScreen
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewScreen
 import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchScreen
@@ -178,7 +182,9 @@ class MainActivity : BaseActivity() {
         val nav = nav
         val scope = rememberCoroutineScope()
 
-        Column {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()),
+        ) {
             MenuDivider("Models")
             Column(Modifier.padding(8.dp)) {
                 MenuItem(
@@ -195,13 +201,6 @@ class MainActivity : BaseActivity() {
                 ) {
                     PckUnpackedScreen.navigate(nav)
                     scope.launch { drawerState.close() }
-                }
-                Spacer(Modifier.height(4.dp))
-                MenuItem(
-                    text = "Menu 3",
-                    selected = false,
-                ) {
-
                 }
             }
             MenuDivider("Locale")
@@ -269,6 +268,8 @@ class MainActivity : BaseActivity() {
             WikiCharacterScreen prepare this
 
             PckUnpackDialog prepare this
+            WikiBuffDialog prepare this
+            WikiSkillDialog prepare this
         }
     }
 

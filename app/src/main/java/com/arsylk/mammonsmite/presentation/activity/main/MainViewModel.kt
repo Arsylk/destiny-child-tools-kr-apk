@@ -1,20 +1,17 @@
 package com.arsylk.mammonsmite.presentation.activity.main
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.arsylk.mammonsmite.domain.asResult
 import com.arsylk.mammonsmite.domain.asSuccess
 import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.files.CommonFiles
-import com.arsylk.mammonsmite.domain.files.DocFile
 import com.arsylk.mammonsmite.domain.files.IFile
-import com.arsylk.mammonsmite.domain.files.NormalFile
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
-import com.arsylk.mammonsmite.domain.repo.CharacterRepository
 import com.arsylk.mammonsmite.domain.safeListFiles
+import com.arsylk.mammonsmite.domain.sync.SyncBuilder
 import com.arsylk.mammonsmite.domain.sync.SyncService
 import com.arsylk.mammonsmite.domain.toSnackbarMessage
 import com.arsylk.mammonsmite.model.common.LogLine
@@ -35,7 +32,7 @@ class MainViewModel(
     private val _progress = MutableStateFlow(0)
     val progress by lazy(_progress::asStateFlow)
 
-    init { load(); yukine() }
+    init { load() }
 
     fun load() {
         withLoading(tag = "sync") {
@@ -47,7 +44,6 @@ class MainViewModel(
     }
 
     private fun yukine() {
-        return
         val vm = get<PckSwapViewModel>(PckSwapViewModel::class.java)
         val prefs = get<AppPreferences>(AppPreferences::class.java)
         val tools = get<PckTools>(PckTools::class.java)
@@ -144,11 +140,11 @@ class MainViewModel(
 
     private suspend fun prepareActualFile(iFile: IFile): File {
         return withContext(Dispatchers.IO) {
-                    CommonFiles.cache.run { if (!exists()) mkdirs() }
-                    val file = File(CommonFiles.cache, iFile.name)
-                    file.writeBytes(iFile.inputStream().use { it.readBytes() })
-                    file
-                }
+            CommonFiles.cache.run { if (!exists()) mkdirs() }
+            val file = File(CommonFiles.cache, iFile.name)
+            file.writeBytes(iFile.inputStream().use { it.readBytes() })
+            file
+        }
     }
 }
 

@@ -67,7 +67,7 @@ private fun <T> UiResultBox(
     onSuccess: @Composable BoxScope.(T) -> Unit,
 ) {
     Box(
-        modifier = modifier.then(Modifier.fillMaxSize())
+        modifier = modifier
     ) {
         when (uiResult) {
             is UiResult.Success -> onSuccess(uiResult.value)

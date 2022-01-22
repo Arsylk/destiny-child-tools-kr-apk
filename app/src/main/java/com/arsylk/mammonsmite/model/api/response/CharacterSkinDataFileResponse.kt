@@ -1,6 +1,5 @@
 package com.arsylk.mammonsmite.model.api.response
 
-import com.arsylk.mammonsmite.model.destinychild.CharacterSkinData
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -9,7 +8,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 typealias CharacterSkinDataFileResponse = JsonObject
 
-fun CharacterSkinDataFileResponse.parse(): List<CharacterSkinData> {
+fun CharacterSkinDataFileResponse.parse(): Map<String, List<ViewIdx>> {
     return mapNotNull { (key, item) ->
         kotlin.runCatching {
             val viewIdxList = mutableListOf<ViewIdx>()
@@ -29,8 +28,8 @@ fun CharacterSkinDataFileResponse.parse(): List<CharacterSkinData> {
                 }
             }
             innerParse(item)
-            CharacterSkinData(key, viewIdxList)
+            key to viewIdxList
         }.getOrNull()
-    }
+    }.toMap()
 }
 

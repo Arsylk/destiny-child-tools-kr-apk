@@ -6,7 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.dialog
 import com.arsylk.mammonsmite.presentation.Navigable
 
-@ExperimentalComposeUiApi
+@OptIn(ExperimentalComposeUiApi::class)
 interface NavigableDialog : Navigable {
     val usePlatformDefaultWidth: Boolean get() = false
     val dismissOnBackPress: Boolean get() = true

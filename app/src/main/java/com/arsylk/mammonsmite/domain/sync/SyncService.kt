@@ -1,78 +1,112 @@
 package com.arsylk.mammonsmite.domain.sync
 
-import com.arsylk.mammonsmite.domain.files.CommonFiles
-import com.arsylk.mammonsmite.domain.repo.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.EngLocaleRepository
+import com.arsylk.mammonsmite.domain.destinychild.LevelEquationParser
+import com.arsylk.mammonsmite.domain.destinychild.SkillBuffRepository
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
-import com.arsylk.mammonsmite.domain.sumOf
-import com.arsylk.mammonsmite.domain.sync.module.cacheableModule
-import com.arsylk.mammonsmite.model.common.HashUtils
-import com.arsylk.mammonsmite.model.destinychild.LocalePatch
+import com.arsylk.mammonsmite.domain.sync.SyncBuilder.sync
 import kotlinx.coroutines.flow.*
-import com.manimani.app.domain.sync.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.withTimeout
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class SyncService(
     private val json: Json,
-    private val service: RetrofitApiService,
+    private val apiService: RetrofitApiService,
+    private val engLocaleRepository: EngLocaleRepository,
+    private val skillBuffRepository: SkillBuffRepository,
     private val characterRepository: CharacterRepository,
 ) {
 
     fun getSyncFlow(): Flow<Pair<ProgressStore, Int>> {
+        return prepareSyncFlow()
+            .onStart { _isLoading.value = true }
+            .onCompletion { _isLoading.value = false }
+    }
+
+    private fun prepareSyncFlow(): Flow<Pair<ProgressStore, Int>> {
         val sync = sync {
             group {
-                tag = "dump data"
-                required = true
+                tag = "eng locale repo"
+
+                module {
+                    tag = "eng locale data"
+                    required = false
+                    action {
+                        val response = apiService.getEnglishPatch()
+                        engLocaleRepository.setEngLocale(response)
+                    }
+                }
+            }
+
+            group {
+                tag = "skill buff repo"
+                concurrency = 5
+
+                module {
+                    tag = "skill active data"
+                    required = false
+                    action {
+                        val response = apiService.getSkillActiveDataFile()
+                        skillBuffRepository.setSkillActiveData(response)
+                    }
+                }
+
+                module {
+                    tag = "skill buff data"
+                    required = false
+                    action {
+                        val response = apiService.getSkillBuffDataFile()
+                        skillBuffRepository.setSkillBuffData(response)
+                    }
+                }
+
+                module {
+                    tag = "skill category data"
+                    required = false
+                    action {
+                        val response = apiService.getSkillCategoryFile()
+                        skillBuffRepository.setSkillCategoryData(response)
+                    }
+                }
+
+                module {
+                    tag = "skill equations data"
+                    required = false
+                    action {
+                        val response = apiService.getSkillLevelEquationsFile()
+                        LevelEquationParser.equations = response
+                    }
+                }
+            }
+
+            group {
+                tag = "character repo"
                 concurrency = 5
 
                 module {
                     tag = "char data"
+                    required = false
                     action {
-                        characterRepository.fetchCharData()
+                        val response = apiService.getCharDataFile()
+                        characterRepository.setCharData(response)
                     }
                 }
+
                 module {
                     tag = "character skin data"
-                    action {
-                        characterRepository.fetchCharacterSkinData()
-                    }
-                }
-                module {
-                    tag = "english patch data"
-                    action {
-                        characterRepository.fetchEngLocale()
-                    }
-                }
-
-                group {
-                    tag = "skill data"
-                    concurrency = 3
                     required = false
-
-                    module {
-                        tag = "skill active data"
-                        action {
-                            characterRepository.fetchSkillActiveData()
-                        }
+                    action {
+                        val response = apiService.getCharacterSkinDataFile()
+                        characterRepository.setCharacterSkinData(response)
                     }
+                }
 
-                    module {
-                        tag = "skill buff data"
-                        action {
-                            characterRepository.fetchSkillBuffData()
-                        }
-                    }
-
-                    module {
-                        tag = "skill ignition data"
-                        action {
-                            characterRepository.fetchIgnitionCharacterSkillData()
-                        }
+                module {
+                    tag = "ignition character skill data"
+                    required = false
+                    action {
+                        val response = apiService.getIgnitionCharacterSkillDataFile()
+                        characterRepository.setIgnitionCharacterSkillData(response)
                     }
                 }
             }
@@ -90,89 +124,11 @@ class SyncService(
 //                }
 //            }
         }
-        return execute(sync)
+        return SyncBuilder.execute(sync)
     }
 
-    private fun sync(block: RootSyncGroup.Builder.() -> Unit): RootSyncGroup {
-        return RootSyncGroup.Builder().apply(block).build()
-    }
-
-
-    private fun execute(root: RootSyncGroup): Flow<Pair<ProgressStore, Int>> {
-        val p = ProgressStore()
-        return flow { emit(p) }
-            .flatMapLatest { progress ->
-                prepareGroupFlow(root.store, root, root.weight, false)
-                    .onEach(progress::setProgress)
-                    .mapLatest { progress to progress.getProgress().toInt() }
-            }
-            .catch {
-                p.setProgress(ComponentResult(root, Result.Error(it), root.weight))
-                it.printStackTrace()
-                throw it
-            }
-            .onCompletion {
-                p.iterateMap { syncComponent, simpleProgress ->
-                    println("${syncComponent.javaClass.simpleName}(${syncComponent.tag}), ${simpleProgress.result}, ${simpleProgress.weight}", )
-                }
-            }
-    }
-
-    private suspend fun prepareGroupFlow(
-        store: SyncGroupStore,
-        group: ISyncGroup,
-        weight: Float,
-        skip: Boolean,
-    ): Flow<ComponentResult> {
-        val componentList = group.components.sortedBy(SyncComponent::order).toList()
-        val weightSum = componentList.sumOf(SyncComponent::weight)
-
-        return (if (skip) emptyFlow() else componentList.asFlow())
-            .flatMapMerge(group.concurrency) { component ->
-                val componentWeight = weight * (component.weight / weightSum)
-                val componentSkip = component
-                    .runCatching { !condition.invoke(SyncComponentContext(store)) }
-                    .getOrElse { t -> throw SyncComponentConditionException(component, t) }
-
-                when {
-                    componentSkip -> {
-                        flow {
-                            emit(ComponentResult(component, Result.Success(skipped = componentSkip), componentWeight))
-                        }
-                    }
-                    component is ISyncModule -> {
-                        flow { emit(component) }
-                            .flatMapConcat { module ->
-                                channelFlow<Result> {
-                                    val context = SyncModuleContext(this, group, store)
-                                    withTimeout(module.timeout) {
-                                        module.internalFlow(context).collect()
-                                    }
-                                }
-                            }
-                            .onCompletion { t ->
-                                if (t == null) emit(Result.Success(skipped = componentSkip))
-                            }
-                            .catch { t ->
-                                emit(Result.Error(t))
-                                if (component.required) throw SyncModuleException(component, t)
-                            }
-                            .map { progress ->
-                                ComponentResult(component, progress, componentWeight)
-                            }
-                    }
-                    component is ISyncGroup -> {
-                        prepareGroupFlow(store, component, componentWeight, componentSkip)
-                    }
-                    else -> emptyFlow() // compiler type inference problem ?
-                }
-            }
-            .onCompletion { t ->
-                if (t == null) emit(ComponentResult(group, Result.Success(skipped = skip), weight * group.weight))
-            }
-            .catch { t ->
-                emit(ComponentResult(group, Result.Error(t), weight * group.weight))
-                if (group.required) throw SyncGroupException(group, t)
-            }
+    companion object {
+        private val _isLoading = MutableStateFlow(false)
+        val isLoading by lazy(_isLoading::asStateFlow)
     }
 }

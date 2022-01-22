@@ -22,6 +22,7 @@ class ResultFileViewModel(
     val title = current.prepareTitle()
     val items = current.prepareItemList()
     val selectedItem by lazy(_selectedItem::asStateFlow)
+    val hasParent = current.prepareHasParent()
 
 
     init {
@@ -121,6 +122,15 @@ class ResultFileViewModel(
         }
         .flowOn(Dispatchers.IO)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), UiResult.Loading())
+
+    private fun Flow<IFile>.prepareHasParent() =
+        mapLatest {
+            val parent = it.parent
+            parent != null && parent.listFiles().isNotEmpty()
+        }
+        .flowOn(Dispatchers.IO)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), false)
+
 
     companion object {
         private val comparator = Comparator<IFile> { f1, f2 ->

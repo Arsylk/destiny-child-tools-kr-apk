@@ -9,7 +9,9 @@ import com.arsylk.mammonsmite.Cfg
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
-import com.arsylk.mammonsmite.domain.repo.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.EngLocaleRepository
+import com.arsylk.mammonsmite.domain.destinychild.SkillBuffRepository
 import com.arsylk.mammonsmite.domain.retrofit.JsoupConverterFactory
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitBannerService
@@ -18,6 +20,8 @@ import com.arsylk.mammonsmite.presentation.activity.main.MainViewModel
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackViewModel
 import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileViewModel
 import com.arsylk.mammonsmite.presentation.dialog.result.unpacked.ResultUnpackedViewModel
+import com.arsylk.mammonsmite.presentation.dialog.wiki.buff.WikiBuffViewModel
+import com.arsylk.mammonsmite.presentation.dialog.wiki.skill.WikiSkillViewModel
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewViewModel
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildViewModel
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedViewModel
@@ -63,7 +67,9 @@ object KoinService {
                     single { provideRetrofitApiService(get(), get()) }
                     single { provideRetrofitBannerService(get()) }
                     single { provideAppPreferences(get()) }
-                    single { provideSyncService(get(), get(), get()) }
+                    single { provideSyncService(get(), get(), get(), get(), get()) }
+                    single { provideEngLocaleRepository() }
+                    single { provideSkillBuffRepository(get(), get()) }
                     single { provideCharacterRepository(get(), get(), get()) }
                     single { providePckTools(get()) }
                     single { provideL2DTools(get()) }
@@ -71,7 +77,7 @@ object KoinService {
                 module {
                     viewModel { MainViewModel(get()) }
                     viewModel { HomeViewModel(get()) }
-                    viewModel { (handle: SavedStateHandle) -> PckDestinyChildViewModel(get(), get(), handle = handle) }
+                    viewModel { (handle: SavedStateHandle) -> PckDestinyChildViewModel(get(), get(), get(), handle = handle) }
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
                     viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
@@ -81,6 +87,8 @@ object KoinService {
                     viewModel { PckSwapViewModel(get(), get(), get()) }
                     viewModel { ResultUnpackedViewModel(get(), get()) }
                     viewModel { param -> WikiCharacterViewModel(get(), idx = param.get()) }
+                    viewModel { param -> WikiBuffViewModel(get(), idx = param.get()) }
+                    viewModel { param -> WikiSkillViewModel(get(), get(), idx = param.get()) }
                 }
             )
         }
@@ -125,11 +133,25 @@ object KoinService {
     private fun provideAppPreferences(context: Context) =
         AppPreferences(context)
 
-    private fun provideSyncService(json: Json, apiService: RetrofitApiService, characterRepository: CharacterRepository) =
-        SyncService(json, apiService, characterRepository)
+    private fun provideSyncService(
+        json: Json,
+        apiService: RetrofitApiService,
+        engLocaleRepository: EngLocaleRepository,
+        skillBuffRepository: SkillBuffRepository,
+        characterRepository: CharacterRepository,
+    ) = SyncService(json, apiService, engLocaleRepository, skillBuffRepository, characterRepository)
 
-    private fun provideCharacterRepository(scope: CoroutineScope, apiService: RetrofitApiService, json: Json) =
-        CharacterRepository(scope, apiService, json)
+    private fun provideEngLocaleRepository() =
+        EngLocaleRepository()
+
+    private fun provideSkillBuffRepository(scope: CoroutineScope, repo: EngLocaleRepository) =
+        SkillBuffRepository(scope, repo)
+
+    private fun provideCharacterRepository(
+        scope: CoroutineScope,
+        engLocaleRepository: EngLocaleRepository,
+        skillBuffRepository: SkillBuffRepository,
+    ) = CharacterRepository(scope, engLocaleRepository, skillBuffRepository)
 
     private fun providePckTools(json: Json) =
         PckTools(json)

@@ -11,31 +11,28 @@ data class FullCharacter(
 }
 
 data class SkillSet(
-    val default: SkillWithBuffs,
-    val normal: SkillWithBuffs,
-    val slide: SkillWithBuffs,
-    val drive: SkillWithBuffs,
-    val leader: SkillWithBuffs,
+    val default: FullSkill,
+    val normal: FullSkill,
+    val slide: FullSkill,
+    val drive: FullSkill,
+    val leader: FullSkill,
 ) {
 
     inline val skills get() = listOf(default, normal, slide, drive, leader)
-}
+    inline val skillMap get() = mapOf(
+        SkillActiveData.Type.DEFAULT to default,
+        SkillActiveData.Type.NORMAL to normal,
+        SkillActiveData.Type.SLIDE to slide,
+        SkillActiveData.Type.DRIVE to drive,
+        SkillActiveData.Type.LEADER to leader,
+    )
 
-data class SkillWithBuffs(
-    val text: String?,
-    val data: SkillActiveData?,
-    val buffs: List<BuffData>,
-) {
-
-    val name by lazy { text?.substringBefore('\t') }
-    val contents by lazy {
-        text?.substringAfterLast('\t')
-            ?.replace("\\", "\n")
-            ?.replace("<color=.*?>(.*?)</color>".toRegex(), "$1")
+    operator fun get(type: SkillActiveData.Type): FullSkill? = when (type) {
+        SkillActiveData.Type.DEFAULT -> default
+        SkillActiveData.Type.NORMAL -> normal
+        SkillActiveData.Type.SLIDE -> slide
+        SkillActiveData.Type.DRIVE -> drive
+        SkillActiveData.Type.LEADER -> leader
+        else -> null
     }
 }
-
-data class BuffData(
-    val text: String?,
-    val data: SkillBuffData,
-)

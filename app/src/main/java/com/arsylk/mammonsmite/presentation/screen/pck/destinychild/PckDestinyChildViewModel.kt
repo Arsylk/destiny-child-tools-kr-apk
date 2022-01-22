@@ -2,25 +2,26 @@ package com.arsylk.mammonsmite.presentation.screen.pck.destinychild
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.arsylk.mammonsmite.Cfg
 import com.arsylk.mammonsmite.domain.base.BaseViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
-import com.arsylk.mammonsmite.domain.repo.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.SkillBuffRepository
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.naturalOrder
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.ordered
 import com.arsylk.mammonsmite.presentation.composable.Autocomplete
 import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen.Tab
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
-import java.util.concurrent.atomic.AtomicInteger
 
 @ExperimentalCoroutinesApi
 class PckDestinyChildViewModel(
     private val prefs: AppPreferences,
-    private val repo: CharacterRepository,
+    private val charRepo: CharacterRepository,
+    private val skillBuffRepo: SkillBuffRepository,
     private val handle: SavedStateHandle,
 ) : BaseViewModel() {
     private val _files = MutableStateFlow(emptyList<IFile>())
@@ -37,6 +38,7 @@ class PckDestinyChildViewModel(
     val charIdxSuggestions = searchState.prepareCharIdxSuggestions()
     val skillIdxSuggestions = searchState.prepareSkillIdxSuggestions()
     val buffIdxSuggestions = searchState.prepareBuffIdxSuggestions()
+    val allBuffs by lazy(skillBuffRepo::skillBuffData)
 
 
     init {
@@ -71,7 +73,7 @@ class PckDestinyChildViewModel(
     }
 
     private fun prepareDestinyChildModels() =
-        combine(repo.fullCharacters, _viewIdxFiles) { characters, files ->
+        combine(charRepo.fullCharacters, _viewIdxFiles) { characters, files ->
             characters.values.sortedBy { it.data.idx }.map { char ->
                 val viewIdxList = char.viewIdxNames.keys.ordered()
                 val fileList = viewIdxList
@@ -92,9 +94,9 @@ class PckDestinyChildViewModel(
 
     private fun prepareAllModels() =
         combine(
-            repo.fullCharacters,
-            repo.viewIdxChars,
-            repo.viewIdxNames,
+            charRepo.fullCharacters,
+            charRepo.viewIdxChars,
+            charRepo.viewIdxNames,
             _viewIdxFiles,
         ) { characters, viewIdxChars, viewIdxNames, files ->
             (files.keys + viewIdxChars.keys)
@@ -124,9 +126,9 @@ class PckDestinyChildViewModel(
 
     private fun prepareFileModels() =
         combine(
-            repo.fullCharacters,
-            repo.viewIdxChars,
-            repo.viewIdxNames,
+            charRepo.fullCharacters,
+            charRepo.viewIdxChars,
+            charRepo.viewIdxNames,
             _files,
         ) { characters, viewIdxChars, viewIdxNames, files ->
             files.map { file ->
@@ -177,7 +179,7 @@ class PckDestinyChildViewModel(
                 }
                 .filter { item ->
                     // search stars
-                    search.stars == 0 || item.char?.data?.stars ?: 0 >= search.stars
+                    search.stars == 0 || item.char?.data?.baseGrade ?: 0 >= search.stars
                 }
                 .filter { item ->
                     // search skin name
@@ -198,7 +200,7 @@ class PckDestinyChildViewModel(
                 .filter { item ->
                     // search skills
                     val charSkills = item.char?.allSkills.orEmpty()
-                    val skillBuffs = charSkills.flatMap { it.buffs }
+                    val skillBuffs = charSkills.flatMap { it.buffs.values }
 
                     // search logic
                     val matchLogic = search.skillLogic.isBlank() || skillBuffs.any {
@@ -208,7 +210,7 @@ class PckDestinyChildViewModel(
 
                     // search skill idx
                     val matchSkillIdx = search.skillIdx.isBlank() || charSkills.any {
-                        it.data?.idx?.contains(search.skillIdx, ignoreCase = true) == true
+                        it.data.idx.contains(search.skillIdx, ignoreCase = true)
                     }
                     if (!matchSkillIdx) return@filter false
 
@@ -230,7 +232,7 @@ class PckDestinyChildViewModel(
         }
 
     private fun Flow<SearchState>.prepareSkillLogicSuggestions() =
-        repo.skillBuffData
+        skillBuffRepo.skillBuffData
             .map { data -> data.values.distinctBy { it.logic } }
             .flatMapLatest { list ->
                 map { search ->
@@ -248,32 +250,34 @@ class PckDestinyChildViewModel(
                     )
                 }
             }
+            .flowOn(Dispatchers.Default)
 
     private fun Flow<SearchState>.prepareCharIdxSuggestions() =
-        repo.charData
-            .map { data -> data.distinctBy { it.idx } }
-            .flatMapLatest { list ->
+        charRepo.charData
+            .map { it.keys }
+            .flatMapLatest { set ->
                 map { search ->
-                    list.filter {
-                        it.idx.contains(search.charIdx, ignoreCase = true)
+                    set.filter {
+                        it.contains(search.charIdx, ignoreCase = true)
                     }
                 }
             }
-            .map { list -> list.sortedBy { it.idx } }
+            .map { list -> list.sorted() }
             .map { list ->
-                list.map { data ->
+                list.map { idx ->
                     Autocomplete(
-                        text = data.idx,
+                        text = idx,
                     )
                 }
             }
+            .flowOn(Dispatchers.Default)
 
     private fun Flow<SearchState>.prepareSkillIdxSuggestions() =
-        repo.skillActiveData
+        skillBuffRepo.skillActiveData
             .map { data -> data.keys }
-            .flatMapLatest { list ->
+            .flatMapLatest { set ->
                 map { search ->
-                    list.filter {
+                    set.filter {
                         it.contains(search.skillIdx, ignoreCase = true)
                     }
                 }
@@ -286,25 +290,27 @@ class PckDestinyChildViewModel(
                     )
                 }
             }
+            .flowOn(Dispatchers.Default)
 
     private fun Flow<SearchState>.prepareBuffIdxSuggestions() =
-        repo.skillBuffData
-            .map { data -> data.values.distinctBy { it.idx } }
-            .flatMapLatest { list ->
+        skillBuffRepo.skillBuffData
+            .map { data -> data.keys }
+            .flatMapLatest { set ->
                 map { search ->
-                    list.filter {
-                        it.idx.contains(search.buffIdx, ignoreCase = true)
+                    set.filter {
+                        it.contains(search.buffIdx, ignoreCase = true)
                     }
                 }
             }
-            .map { list -> list.sortedBy { it.idx } }
+            .map { list -> list.sorted() }
             .map { list ->
-                list.map { data ->
+                list.map { idx ->
                     Autocomplete(
-                        text = data.idx,
+                        text = idx,
                     )
                 }
             }
+            .flowOn(Dispatchers.Default)
 
     companion object {
         private const val TAB_KEY = "tab"

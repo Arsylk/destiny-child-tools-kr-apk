@@ -8,7 +8,7 @@ import com.arsylk.mammonsmite.domain.files.CommonFiles
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
-import com.arsylk.mammonsmite.domain.repo.CharacterRepository
+import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
 import com.arsylk.mammonsmite.domain.base.FileListFlow
 import com.arsylk.mammonsmite.domain.files.IFile
 import com.arsylk.mammonsmite.domain.toSnackbarMessage

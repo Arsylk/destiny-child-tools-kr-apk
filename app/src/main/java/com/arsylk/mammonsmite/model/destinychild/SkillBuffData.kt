@@ -29,4 +29,6 @@ data class SkillBuffData(
 ) {
 
     val iconUrl get() = "${Cfg.API_URL}static/icons/buff/${idx}.png"
+
+    inline val categories get() = listOf(category1, category2, category3)
 }

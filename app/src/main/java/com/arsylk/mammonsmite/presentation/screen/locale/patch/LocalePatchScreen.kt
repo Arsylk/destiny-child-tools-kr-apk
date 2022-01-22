@@ -363,7 +363,10 @@ fun PatchItemDescription(modifier: Modifier = Modifier, uiResult: UiResult<Local
                 .height(120.dp)
         )
     ) {
-        UiResultBox(uiResult = uiResult) { item ->
+        UiResultBox(
+            modifier = Modifier.fillMaxSize(),
+            uiResult = uiResult
+        ) { item ->
             Column(
                 modifier = Modifier.padding(8.dp)
             ) {
@@ -403,7 +406,11 @@ internal fun PatchAppliedDescription(modifier: Modifier = Modifier, uiResult: Ui
                 .fillMaxSize()
         )
     ) {
-        UiResultBox(uiResult, onEmpty = { Text("Nothing selected") }) { applied ->
+        UiResultBox(
+            modifier = Modifier.fillMaxSize(),
+            uiResult = uiResult,
+            onEmpty = { Text("Nothing selected") },
+        ) { applied ->
             Column(
                 modifier = Modifier.padding(8.dp)
             ) {
