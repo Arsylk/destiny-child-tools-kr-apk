@@ -44,6 +44,7 @@ import com.arsylk.mammonsmite.presentation.activity.BaseActivity
 import com.arsylk.mammonsmite.presentation.composable.MenuDivider
 import com.arsylk.mammonsmite.presentation.composable.MenuItem
 import com.arsylk.mammonsmite.presentation.composable.NonBlockingProgressIndicator
+import com.arsylk.mammonsmite.presentation.dialog.pck.pack.PckPackDialog
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
 import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogHost
 import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileDialog
@@ -57,6 +58,7 @@ import com.arsylk.mammonsmite.presentation.screen.pck.swap.PckSwapScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen
 import com.arsylk.mammonsmite.presentation.screen.settings.SettingsScreen
 import com.arsylk.mammonsmite.presentation.screen.wiki.character.WikiCharacterScreen
+import com.arsylk.mammonsmite.presentation.screen.wiki.items.WikiItemsScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -213,8 +215,28 @@ class MainActivity : BaseActivity() {
                     scope.launch { drawerState.close() }
                 }
             }
+            MenuDivider("Wiki")
+            Column(Modifier.padding(8.dp)) {
+                MenuItem(
+                    text = "Items",
+                    selected = WikiItemsScreen describes entry,
+                ) {
+                    WikiItemsScreen.navigate(nav)
+                    scope.launch { drawerState.close() }
+                }
+            }
             MenuDivider("Actions")
             Column(Modifier.padding(8.dp)) {
+                MenuItem(text = "Pack", selected = false) {
+                    scope.launch {
+                        drawerState.close()
+                        nav.resultDialogHost.showResultDialog {
+                            ResultFileDialog(type = FileSelect.FILE)
+                        }?.also {
+                            PckPackDialog.navigate(nav, it.absolutePath)
+                        }
+                    }
+                }
                 MenuItem(text = "Unpack", selected = false) {
                     scope.launch {
                         drawerState.close()
@@ -223,7 +245,6 @@ class MainActivity : BaseActivity() {
                         }?.also {
                             PckUnpackDialog.navigate(nav, it.absolutePath)
                         }
-
                     }
                 }
             }
@@ -266,7 +287,9 @@ class MainActivity : BaseActivity() {
             PckSwapScreen prepare this
             SettingsScreen prepare this
             WikiCharacterScreen prepare this
+            WikiItemsScreen prepare this
 
+            PckPackDialog prepare this
             PckUnpackDialog prepare this
             WikiBuffDialog prepare this
             WikiSkillDialog prepare this

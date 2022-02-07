@@ -2,6 +2,7 @@ package com.arsylk.mammonsmite.domain.retrofit
 
 
 import com.arsylk.mammonsmite.model.api.response.CharacterSkinDataFileResponse
+import com.arsylk.mammonsmite.model.api.response.ItemDataResponse
 import com.arsylk.mammonsmite.model.destinychild.*
 import retrofit2.http.*
 
@@ -48,6 +49,9 @@ interface RetrofitApiService {
 
     @GET("/api/get_file/SKILL_CATEGORY/")
     suspend fun getSkillCategoryFile(): Map<String, Int>
+
+    @GET("/api/get_file/ITEM_DATA")
+    suspend fun getItemDataFile(): ItemDataResponse
 
     @GET("/api/get_children_skills")
     suspend fun getChildrenSkills(@Query("md5") md5: String)

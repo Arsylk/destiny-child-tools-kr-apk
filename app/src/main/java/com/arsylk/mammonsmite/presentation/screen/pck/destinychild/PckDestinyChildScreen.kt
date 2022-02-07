@@ -42,8 +42,7 @@ import com.arsylk.mammonsmite.presentation.composable.SurfaceColumn
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackDialog
 import com.arsylk.mammonsmite.presentation.nav
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
-import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen.ModelPackedAction
-import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.PckDestinyChildScreen.ModelPackedAction.*
+import com.arsylk.mammonsmite.presentation.screen.pck.destinychild.ModelPackedAction.*
 import com.arsylk.mammonsmite.presentation.screen.wiki.character.WikiCharacterScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.koin.androidx.compose.get
@@ -73,11 +72,12 @@ object PckDestinyChildScreen : NavigableScreen {
         FILES("Files", Icons.Default.InsertDriveFile)
     }
 
-    sealed class ModelPackedAction {
-        object Click : ModelPackedAction()
-        data class FileClick(val file: IFile) : ModelPackedAction()
-        data class WikiClick(val charData: CharData) : ModelPackedAction()
-    }
+}
+
+sealed class ModelPackedAction {
+    object Click : ModelPackedAction()
+    data class FileClick(val file: IFile) : ModelPackedAction()
+    data class WikiClick(val charData: CharData) : ModelPackedAction()
 }
 
 @ExperimentalMaterialApi

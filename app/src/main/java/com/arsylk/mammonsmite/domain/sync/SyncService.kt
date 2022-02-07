@@ -1,17 +1,17 @@
 package com.arsylk.mammonsmite.domain.sync
 
-import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
-import com.arsylk.mammonsmite.domain.destinychild.EngLocaleRepository
-import com.arsylk.mammonsmite.domain.destinychild.LevelEquationParser
-import com.arsylk.mammonsmite.domain.destinychild.SkillBuffRepository
+import com.arsylk.mammonsmite.domain.db.AppDatabase
+import com.arsylk.mammonsmite.domain.destinychild.*
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
 import com.arsylk.mammonsmite.domain.sync.SyncBuilder.sync
+import com.arsylk.mammonsmite.model.api.response.toDatabase
 import kotlinx.coroutines.flow.*
 import kotlinx.serialization.json.Json
 
 class SyncService(
     private val json: Json,
     private val apiService: RetrofitApiService,
+    private val database: AppDatabase,
     private val engLocaleRepository: EngLocaleRepository,
     private val skillBuffRepository: SkillBuffRepository,
     private val characterRepository: CharacterRepository,
@@ -107,6 +107,19 @@ class SyncService(
                     action {
                         val response = apiService.getIgnitionCharacterSkillDataFile()
                         characterRepository.setIgnitionCharacterSkillData(response)
+                    }
+                }
+            }
+
+            group {
+                tag = "item repo"
+
+                module {
+                    tag = "item data"
+                    required = false
+                    action {
+                        val response = apiService.getItemDataFile()
+                        database.itemDataDao().insert(response.toDatabase())
                     }
                 }
             }

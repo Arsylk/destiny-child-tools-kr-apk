@@ -5,18 +5,24 @@ import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.arsylk.mammonsmite.Cfg
+import com.arsylk.mammonsmite.domain.db.AppDatabase
+import com.arsylk.mammonsmite.domain.db.converter.ViewIdxConverter
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
 import com.arsylk.mammonsmite.domain.destinychild.EngLocaleRepository
+import com.arsylk.mammonsmite.domain.destinychild.ItemRepository
 import com.arsylk.mammonsmite.domain.destinychild.SkillBuffRepository
 import com.arsylk.mammonsmite.domain.retrofit.JsoupConverterFactory
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitBannerService
 import com.arsylk.mammonsmite.domain.sync.SyncService
 import com.arsylk.mammonsmite.presentation.activity.main.MainViewModel
+import com.arsylk.mammonsmite.presentation.dialog.pck.pack.PckPackViewModel
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpack.PckUnpackViewModel
 import com.arsylk.mammonsmite.presentation.dialog.result.file.ResultFileViewModel
 import com.arsylk.mammonsmite.presentation.dialog.result.unpacked.ResultUnpackedViewModel
@@ -30,6 +36,7 @@ import com.arsylk.mammonsmite.presentation.screen.locale.patch.LocalePatchViewMo
 import com.arsylk.mammonsmite.presentation.screen.pck.swap.PckSwapViewModel
 import com.arsylk.mammonsmite.presentation.screen.settings.SettingsViewModel
 import com.arsylk.mammonsmite.presentation.screen.wiki.character.WikiCharacterViewModel
+import com.arsylk.mammonsmite.presentation.screen.wiki.items.WikiItemsViewModel
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,11 +73,13 @@ object KoinService {
                     single { provideOkHttpClient() }
                     single { provideRetrofitApiService(get(), get()) }
                     single { provideRetrofitBannerService(get()) }
+                    single { provideAppDatabase(get()) }
                     single { provideAppPreferences(get()) }
-                    single { provideSyncService(get(), get(), get(), get(), get()) }
+                    single { provideSyncService(get(), get(), get(), get(), get(), get()) }
                     single { provideEngLocaleRepository() }
                     single { provideSkillBuffRepository(get(), get()) }
                     single { provideCharacterRepository(get(), get(), get()) }
+                    single { provideItemRepository(get(), get(), get()) }
                     single { providePckTools(get()) }
                     single { provideL2DTools(get()) }
                 },
@@ -78,6 +87,7 @@ object KoinService {
                     viewModel { MainViewModel(get()) }
                     viewModel { HomeViewModel(get()) }
                     viewModel { (handle: SavedStateHandle) -> PckDestinyChildViewModel(get(), get(), get(), handle = handle) }
+                    viewModel { param -> PckPackViewModel(get(), file = param.get()) }
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
                     viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
@@ -89,6 +99,7 @@ object KoinService {
                     viewModel { param -> WikiCharacterViewModel(get(), idx = param.get()) }
                     viewModel { param -> WikiBuffViewModel(get(), idx = param.get()) }
                     viewModel { param -> WikiSkillViewModel(get(), get(), idx = param.get()) }
+                    viewModel { WikiItemsViewModel(get()) }
                 }
             )
         }
@@ -130,16 +141,23 @@ object KoinService {
             .build()
             .create(RetrofitBannerService::class.java)
 
+    private fun provideAppDatabase(context: Context) =
+        Room.databaseBuilder(context, AppDatabase::class.java, "database.db")
+            .fallbackToDestructiveMigration()
+            .addTypeConverter(ViewIdxConverter())
+            .build()
+
     private fun provideAppPreferences(context: Context) =
         AppPreferences(context)
 
     private fun provideSyncService(
         json: Json,
         apiService: RetrofitApiService,
+        database: AppDatabase,
         engLocaleRepository: EngLocaleRepository,
         skillBuffRepository: SkillBuffRepository,
         characterRepository: CharacterRepository,
-    ) = SyncService(json, apiService, engLocaleRepository, skillBuffRepository, characterRepository)
+    ) = SyncService(json, apiService, database, engLocaleRepository, skillBuffRepository, characterRepository)
 
     private fun provideEngLocaleRepository() =
         EngLocaleRepository()
@@ -152,6 +170,12 @@ object KoinService {
         engLocaleRepository: EngLocaleRepository,
         skillBuffRepository: SkillBuffRepository,
     ) = CharacterRepository(scope, engLocaleRepository, skillBuffRepository)
+
+    private fun provideItemRepository(
+        scope: CoroutineScope,
+        database: AppDatabase,
+        engLocaleRepository: EngLocaleRepository,
+    ) = ItemRepository(scope, database, engLocaleRepository)
 
     private fun providePckTools(json: Json) =
         PckTools(json)

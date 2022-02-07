@@ -15,7 +15,7 @@ data class ViewIdx(
     val iconUrl get() = "${Cfg.API_URL.trimEnd('/')}/static/icons/${string}.png"
 
     companion object {
-        val regex = Regex("([A-z]+)([0-9]{3})_([0-9]{2})", RegexOption.IGNORE_CASE)
+        val regex = Regex("([A-Za-z]+)([0-9]{3})_([0-9]{2})", RegexOption.IGNORE_CASE)
 
         fun parse(string: String): ViewIdx? {
             return kotlin.runCatching {

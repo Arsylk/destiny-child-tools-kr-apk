@@ -38,6 +38,11 @@ fun <T> uiResultOf(block: suspend () -> T): Flow<UiResult<T>> {
         }
 }
 
+fun <T> Flow<T>.asUiResultFlow(): Flow<UiResult<T>> =
+    mapLatest { UiResult(it) }
+    .onStart { emit(UiResult.Loading<T>()) }
+    .catch { emit(UiResult.Failure<T>(it)) }
+
 fun <T, R> Flow<T>.mapAsUiResult(block: suspend (T) -> R) =
     flatMapLatest { uiResultOf { block.invoke(it) } }
 

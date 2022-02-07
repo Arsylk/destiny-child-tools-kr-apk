@@ -41,6 +41,7 @@ import com.arsylk.mammonsmite.R
 import com.arsylk.mammonsmite.domain.WithAlpha
 import com.arsylk.mammonsmite.domain.destinychild.SkillValueParser
 import com.arsylk.mammonsmite.domain.noRippleClickable
+import com.arsylk.mammonsmite.domain.orUnknown
 import com.arsylk.mammonsmite.domain.use
 import com.arsylk.mammonsmite.model.destinychild.*
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx.Companion.naturalOrder
@@ -111,13 +112,11 @@ internal fun CharacterNameRow(
     selectedViewIdx: ViewIdx?,
 ) {
     Row(
-        modifier = Modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(8.dp),
+        modifier = Modifier.padding(8.dp),
     ) {
-        Column {
+        Column(modifier = Modifier.weight(1.0f)) {
             Text(
-                text = char.viewIdxNames[selectedViewIdx] ?: "<Unknown>",
+                text = char.viewIdxNames[selectedViewIdx].orUnknown(),
                 style = MaterialTheme.typography.h6,
             )
             WithAlpha(alpha = ContentAlpha.medium) {
@@ -135,6 +134,22 @@ internal fun CharacterNameRow(
                     )
                 }
             }
+        }
+        Row(
+            modifier = Modifier
+                .align(Alignment.CenterVertically)
+                .height(32.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = rememberImagePainter(data = char.data.role.iconRes),
+                contentDescription = null
+            )
+            Spacer(Modifier.width(8.dp))
+            Image(
+                painter = rememberImagePainter(data = char.data.attribute.iconRes),
+                contentDescription = null
+            )
         }
     }
 }

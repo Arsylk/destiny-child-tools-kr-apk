@@ -77,7 +77,8 @@ class PckDestinyChildViewModel(
             characters.values.sortedBy { it.data.idx }.map { char ->
                 val viewIdxList = char.viewIdxNames.keys.ordered()
                 val fileList = viewIdxList
-                    .flatMap { viewIdx -> files[viewIdx].orEmpty() }
+                    .naturalOrder()
+                    .flatMap { viewIdx -> files[viewIdx].orEmpty().sortedBy { it.name } }
                     .distinct()
                 ModelPacked(
                     key = "dc:${char.data.idx}",
