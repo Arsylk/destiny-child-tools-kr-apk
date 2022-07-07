@@ -1,4 +1,4 @@
-package com.manimani.app.domain.sync
+package com.arsylk.mammonsmite.domain.sync
 
 sealed interface SyncComponent {
     val tag: String

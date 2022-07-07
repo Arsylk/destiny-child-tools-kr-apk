@@ -1,4 +1,4 @@
-package com.manimani.app.domain.sync
+package com.arsylk.mammonsmite.domain.sync
 
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*

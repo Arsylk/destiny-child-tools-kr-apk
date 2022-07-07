@@ -1,4 +1,4 @@
-package com.manimani.app.domain.base.adapter
+package com.arsylk.mammonsmite.domain.adapter
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

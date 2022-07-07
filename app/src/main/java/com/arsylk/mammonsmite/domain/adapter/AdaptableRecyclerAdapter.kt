@@ -6,9 +6,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import com.arsylk.mammonsmite.domain.adapter.Adaptable
-import com.arsylk.mammonsmite.domain.adapter.AdaptableBinding
-import com.arsylk.mammonsmite.domain.adapter.AdaptableView
+import com.arsylk.mammonsmite.domain.adapter.*
 
 open class AdaptableRecyclerAdapter<Item : Any> : RecyclerView.Adapter<AdaptableHolder>() {
     // ViewType -> Adaptable

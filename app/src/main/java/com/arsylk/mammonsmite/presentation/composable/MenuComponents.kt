@@ -20,13 +20,12 @@ fun MenuItem(
     onClick: () -> Unit
 ) {
     Surface(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(48.dp)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(8.dp),
-        onClick = onClick,
-        role = Role.Button,
+        shape = RoundedCornerShape(8.dp)
     ) {
         Row {
             CompositionLocalProvider(

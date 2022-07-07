@@ -3,8 +3,8 @@ package com.arsylk.mammonsmite.presentation.screen.home
 import android.graphics.drawable.BitmapDrawable
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -55,7 +55,7 @@ fun HomeScreen(viewModel: HomeViewModel = getViewModel()) {
         Column(Modifier.fillMaxSize()) {
             val banners by viewModel.banners.collectAsState()
             CompositionLocalProvider(
-                LocalOverScrollConfiguration provides null
+                LocalOverscrollConfiguration provides null
             ) {
                 LazyColumn {
                     items(banners) { item ->

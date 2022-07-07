@@ -2,9 +2,6 @@ package com.arsylk.mammonsmite.domain.sync
 
 import com.arsylk.mammonsmite.domain.putIfAbsentCompat
 import com.arsylk.mammonsmite.domain.sumOf
-import com.manimani.app.domain.sync.ISyncGroup
-import com.manimani.app.domain.sync.ISyncModule
-import com.manimani.app.domain.sync.SyncComponent
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

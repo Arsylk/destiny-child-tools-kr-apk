@@ -1,4 +1,4 @@
-package com.manimani.app.domain.sync
+package com.arsylk.mammonsmite.domain.sync
 
 abstract class ISyncGroup : SyncComponent {
     open val concurrency: Int = 1

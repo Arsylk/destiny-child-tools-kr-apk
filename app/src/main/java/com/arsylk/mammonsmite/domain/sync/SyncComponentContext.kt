@@ -1,7 +1,6 @@
-package com.manimani.app.domain.sync
+package com.arsylk.mammonsmite.domain.sync
 
 import androidx.annotation.IntRange
-import com.arsylk.mammonsmite.domain.sync.Result
 import kotlinx.coroutines.channels.SendChannel
 
 interface ISyncComponentContext {

@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.viewbinding.ViewBinding
-import com.manimani.app.domain.base.adapter.*
 
 sealed interface Adaptable<Item: Any> {
     val predicate: (Item) -> Boolean

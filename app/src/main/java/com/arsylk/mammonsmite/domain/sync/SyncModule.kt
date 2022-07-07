@@ -1,4 +1,4 @@
-package com.manimani.app.domain.sync
+package com.arsylk.mammonsmite.domain.sync
 
 import kotlinx.coroutines.flow.*
 

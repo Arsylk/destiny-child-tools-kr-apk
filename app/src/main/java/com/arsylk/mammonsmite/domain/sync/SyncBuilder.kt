@@ -1,7 +1,6 @@
 package com.arsylk.mammonsmite.domain.sync
 
 import com.arsylk.mammonsmite.domain.sumOf
-import com.manimani.app.domain.sync.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*

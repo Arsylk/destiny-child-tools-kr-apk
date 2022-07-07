@@ -1,7 +1,6 @@
 package com.arsylk.mammonsmite.presentation.composable
 
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -85,7 +84,7 @@ fun LogLinesDialog(
 @Composable
 fun LogLines(list: List<LogLine>) {
     Box(modifier = Modifier.fillMaxWidth()) {
-        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()

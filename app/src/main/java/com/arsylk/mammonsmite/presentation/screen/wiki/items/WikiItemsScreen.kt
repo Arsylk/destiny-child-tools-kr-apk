@@ -2,37 +2,28 @@ package com.arsylk.mammonsmite.presentation.screen.wiki.items
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptionsBuilder
 import coil.compose.rememberImagePainter
-import com.arsylk.mammonsmite.domain.destinychild.ItemRepository
-import com.arsylk.mammonsmite.domain.orUnknown
 import com.arsylk.mammonsmite.model.common.collectAsState
 import com.arsylk.mammonsmite.model.db.item.ItemData
 import com.arsylk.mammonsmite.presentation.Navigator
-import com.arsylk.mammonsmite.presentation.composable.BottomTabNavigation
 import com.arsylk.mammonsmite.presentation.composable.SurfaceColumn
 import com.arsylk.mammonsmite.presentation.composable.UiResultBox
-import com.arsylk.mammonsmite.presentation.dialog.wiki.buff.WikiBuffDialog
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
-import org.koin.androidx.compose.get
 import org.koin.androidx.compose.getViewModel
 
 object WikiItemsScreen : NavigableScreen {

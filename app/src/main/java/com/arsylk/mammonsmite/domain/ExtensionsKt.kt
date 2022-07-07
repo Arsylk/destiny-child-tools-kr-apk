@@ -172,7 +172,9 @@ inline fun Modifier.noRippleClickable(crossinline onClick: ()->Unit): Modifier =
 @Composable
 fun <T: UiEffect> EffectViewModel<T>.onEffect(key: Any? = Unit, action: suspend (effect: T) -> Unit) {
     LaunchedEffect(key) {
-        effect.collect(action)
+        effect.collect {
+            action(it)
+        }
     }
 }
 

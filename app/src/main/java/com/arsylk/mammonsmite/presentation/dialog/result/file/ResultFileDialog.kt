@@ -201,6 +201,7 @@ internal fun BottomBar(
 }
 
 @Composable
+@OptIn(ExperimentalMaterialApi::class)
 internal fun NewFileAction(
     type: FileType,
     validate: (String) -> NewFileError?,

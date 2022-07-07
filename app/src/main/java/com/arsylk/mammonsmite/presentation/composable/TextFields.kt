@@ -104,6 +104,7 @@ fun <T : IAutocomplete> AutocompleteTextField(
 }
 
 @Composable
+@OptIn(ExperimentalMaterialApi::class)
 fun BasicTextField(
     modifier: Modifier = Modifier,
     label: String,

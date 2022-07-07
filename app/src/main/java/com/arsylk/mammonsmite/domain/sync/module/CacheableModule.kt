@@ -1,9 +1,8 @@
 package com.arsylk.mammonsmite.domain.sync.module
 
 
+import com.arsylk.mammonsmite.domain.sync.*
 import com.arsylk.mammonsmite.model.common.HashUtils
-import com.manimani.app.domain.sync.*
-import com.manimani.app.domain.sync.module.PaginatedSyncModule
 import kotlinx.coroutines.flow.*
 import java.io.File
 import kotlin.experimental.ExperimentalTypeInference

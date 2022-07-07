@@ -4,11 +4,11 @@ plugins {
     id 'androidx.navigation.safeargs'
     id 'org.jetbrains.kotlin.plugin.serialization'
     id 'kotlin-parcelize'
-    id 'org.jetbrains.kotlin.kapt'
+    id 'kotlin-kapt'
 }
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     buildFeatures {
         viewBinding true
@@ -16,13 +16,13 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.1.0-rc01"
+        kotlinCompilerExtensionVersion = "1.2.0"
     }
 
     defaultConfig {
         applicationId 'com.Arsylk.MammonsMite'
         minSdkVersion 21
-        targetSdkVersion 31
+        targetSdkVersion 32
         versionCode 13
         versionName '2.0.0-indev9'
         multiDexEnabled = true
@@ -95,7 +95,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.core:core-ktx:1.7.0'
+    implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
@@ -114,9 +114,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0'
 
-    implementation 'androidx.room:room-runtime:2.4.1'
-    implementation 'androidx.room:room-ktx:2.4.1'
-    kapt 'androidx.room:room-compiler:2.4.1'
+    implementation 'androidx.room:room-runtime:2.5.0-alpha02'
+    implementation 'androidx.room:room-ktx:2.5.0-alpha02'
+    kapt 'androidx.room:room-compiler:2.5.0-alpha02'
 
 
     implementation 'io.coil-kt:coil:1.4.0'
@@ -129,17 +129,17 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2'
 
 
-    implementation 'androidx.compose.ui:ui:1.0.5'
-    implementation 'androidx.compose.ui:ui-tooling:1.0.5'
-    implementation 'androidx.compose.material:material:1.2.0-alpha01'
-    implementation 'androidx.compose.animation:animation:1.0.5'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0'
-    implementation 'com.google.android.material:compose-theme-adapter:1.1.2'
-    implementation 'androidx.compose.material:material-icons-extended:1.0.5'
-    implementation 'androidx.activity:activity-compose:1.4.0'
-    implementation "androidx.navigation:navigation-compose:2.4.0-rc01"
+    implementation 'androidx.compose.ui:ui:1.2.0-rc03'
+    implementation 'androidx.compose.ui:ui-tooling:1.2.0-rc03'
+    implementation 'androidx.compose.material:material:1.2.0-rc03'
+    implementation 'androidx.compose.animation:animation:1.2.0-rc03'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.5.0'
+    implementation 'com.google.android.material:compose-theme-adapter:1.1.14'
+    implementation 'androidx.compose.material:material-icons-extended:1.1.1'
+    implementation 'androidx.activity:activity-compose:1.5.0'
+    implementation "androidx.navigation:navigation-compose:2.5.0"
 
     implementation 'io.coil-kt:coil-compose:1.4.0'
-    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.22.0-rc'
+    implementation 'com.google.accompanist:accompanist-systemuicontroller:0.24.13-rc'
 
 }

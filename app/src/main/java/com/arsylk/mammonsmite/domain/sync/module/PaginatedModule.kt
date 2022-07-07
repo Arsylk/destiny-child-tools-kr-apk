@@ -1,6 +1,7 @@
-package com.manimani.app.domain.sync.module
+package com.arsylk.mammonsmite.domain.sync.module
 
-import com.manimani.app.domain.sync.*
+import com.arsylk.mammonsmite.domain.sync.*
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flatMapConcat
@@ -16,6 +17,7 @@ data class PaginatedSyncModule(
     val pageModifiers: List<FlowModifier>,
 ) : ISyncModule() {
 
+    @OptIn(FlowPreview::class)
     override fun flow(context: SyncModuleContext): Flow<Any> {
         fun buildPageFlow(page: Int): Flow<Any> {
             var builtFlow = kotlinx.coroutines.flow.flow { emit(page) }
