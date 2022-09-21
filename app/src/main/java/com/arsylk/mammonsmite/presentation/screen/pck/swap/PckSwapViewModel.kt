@@ -5,6 +5,7 @@ import com.arsylk.mammonsmite.domain.base.EffectViewModel
 import com.arsylk.mammonsmite.domain.base.UiEffect
 import com.arsylk.mammonsmite.domain.encodeToFile
 import com.arsylk.mammonsmite.domain.files.CommonFiles
+import com.arsylk.mammonsmite.domain.live2d.L2DPositionTools
 import com.arsylk.mammonsmite.domain.live2d.L2DTools
 import com.arsylk.mammonsmite.domain.pck.PckTools
 import com.arsylk.mammonsmite.model.common.*
@@ -14,6 +15,7 @@ import com.arsylk.mammonsmite.model.live2d.L2DFileLoaded
 import com.arsylk.mammonsmite.model.pck.UnpackedPckLive2D
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckEntry
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
+import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckHeader
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -27,6 +29,7 @@ import java.io.File
 class PckSwapViewModel(
     private val pckTools: PckTools,
     private val l2dTools: L2DTools,
+    private val positionTools: L2DPositionTools,
     private val json: Json,
 ) : EffectViewModel<Effect>() {
     private val folder = CommonFiles.External.appWorkspaceFolder
@@ -209,11 +212,12 @@ class PckSwapViewModel(
         }
 
         // perform swap proper
-        val result = kotlin.runCatching { performSwap(fromItem, toItem, matches, actions) }
+        val result = kotlin.runCatching {
+            performSwap(fromItem, toItem, matches, actions, log)
+        }
         result.onSuccess {
             log.success("Successfully swapped to: ${it.pck.folder.name}")
             _resultItem.value = it
-            setEffect(Effect.SaveResult(it))
         }
         result.onFailure { log.error(it) }
 
@@ -225,6 +229,7 @@ class PckSwapViewModel(
         toItem: PckSwapItem,
         matches: LinkedHashMap<Match, Match>,
         actions: List<Action>,
+        log: LogLineChannel,
     ): PckSwapItem {
         // prepare swap output folder
         val output = prepareOutput(fromItem, toItem)
@@ -280,6 +285,20 @@ class PckSwapViewModel(
             ),
         )
         pckTools.writeUnpackedPckHeader(pck)
+
+        // check for positions info
+        val fromPosFile = fromItem.pck.positionsFile
+        if (fromPosFile.exists()) {
+            fromItem.pck.positionsFile.copyTo(pck.positionsFile, overwrite = true)
+            log.info("(${fromItem.pck.folder.name}/${fromPosFile.name}) -> (swap/${fromPosFile.name})")
+        } else {
+            val gamePos = kotlin.runCatching { positionTools.readGamePositions(fromItem.viewIdx) }
+                .getOrNull()
+            if (gamePos != null) {
+                positionTools.writePositions(pck, gamePos)
+                log.info("{model_info.json} -> (swap/${fromPosFile.name})")
+            }
+        }
 
         // create final l2d file
         val l2d = L2DFile(
@@ -390,7 +409,6 @@ class PckSwapViewModel(
 }
 sealed class Effect : UiEffect {
     data class ParsingError(val throwable: Throwable) : Effect()
-    data class SaveResult(val item: PckSwapItem) : Effect()
 }
 
 internal object ViewIdxMissing : Throwable("View Idx is required to perform a swap")

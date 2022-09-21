@@ -6,7 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.room.Room
-import androidx.room.RoomDatabase
 import com.arsylk.mammonsmite.Cfg
 import com.arsylk.mammonsmite.domain.db.AppDatabase
 import com.arsylk.mammonsmite.domain.db.converter.ViewIdxConverter
@@ -17,6 +16,7 @@ import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
 import com.arsylk.mammonsmite.domain.destinychild.EngLocaleRepository
 import com.arsylk.mammonsmite.domain.destinychild.ItemRepository
 import com.arsylk.mammonsmite.domain.destinychild.SkillBuffRepository
+import com.arsylk.mammonsmite.domain.live2d.L2DPositionTools
 import com.arsylk.mammonsmite.domain.retrofit.JsoupConverterFactory
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitApiService
 import com.arsylk.mammonsmite.domain.retrofit.RetrofitBannerService
@@ -82,6 +82,7 @@ object KoinService {
                     single { provideItemRepository(get(), get(), get()) }
                     single { providePckTools(get()) }
                     single { provideL2DTools(get()) }
+                    single { provideL2DPositionTools(get(), get()) }
                 },
                 module {
                     viewModel { MainViewModel(get()) }
@@ -90,11 +91,11 @@ object KoinService {
                     viewModel { param -> PckPackViewModel(get(), file = param.get()) }
                     viewModel { param -> PckUnpackViewModel(get(), get(), get(), file = param.get()) }
                     viewModel { param -> L2DPreviewViewModel(get(), get(), file = param.get()) }
-                    viewModel { PckUnpackedViewModel(get(), get(), get(), get()) }
+                    viewModel { PckUnpackedViewModel(get(), get(), get(), get(), get(), get()) }
                     viewModel { LocalePatchViewModel(get(), get(), get()) }
                     viewModel { param -> ResultFileViewModel(type = param.get()) }
                     viewModel { SettingsViewModel(get()) }
-                    viewModel { PckSwapViewModel(get(), get(), get()) }
+                    viewModel { PckSwapViewModel(get(), get(), get(), get()) }
                     viewModel { ResultUnpackedViewModel(get(), get()) }
                     viewModel { param -> WikiCharacterViewModel(get(), idx = param.get()) }
                     viewModel { param -> WikiBuffViewModel(get(), idx = param.get()) }
@@ -182,6 +183,9 @@ object KoinService {
 
     private fun provideL2DTools(json: Json) =
         L2DTools(json)
+
+    private fun provideL2DPositionTools(json: Json, prefs: AppPreferences) =
+        L2DPositionTools(json, prefs)
 }
 
 inline val KoinAndroidContext : Context

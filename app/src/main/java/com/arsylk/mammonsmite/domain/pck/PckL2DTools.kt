@@ -169,7 +169,6 @@ interface PckL2DTools {
                         val expression = json.decodeFromFile<L2DExpression>(pck.getEntryFile(entry))
                         entry.copy(filename = modelInfo.expressions[i].filename)
                     }.getOrElse {
-                        it.printStackTrace()
                         return@mapIndexedNotNull null
                     }
                 }

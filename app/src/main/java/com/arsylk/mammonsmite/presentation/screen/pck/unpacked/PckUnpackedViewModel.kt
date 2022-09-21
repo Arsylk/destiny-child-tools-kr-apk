@@ -11,10 +11,12 @@ import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.domain.destinychild.CharacterRepository
 import com.arsylk.mammonsmite.domain.base.FileListFlow
 import com.arsylk.mammonsmite.domain.files.IFile
+import com.arsylk.mammonsmite.domain.live2d.L2DPositionTools
 import com.arsylk.mammonsmite.domain.toSnackbarMessage
 import com.arsylk.mammonsmite.model.common.*
 import com.arsylk.mammonsmite.model.destinychild.InGame
 import com.arsylk.mammonsmite.model.destinychild.ViewIdx
+import com.arsylk.mammonsmite.model.live2d.L2DFile
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpacked.PckUnpackedConfigState
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +26,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.concurrent.ConcurrentHashMap
 
@@ -31,6 +35,8 @@ import java.util.concurrent.ConcurrentHashMap
 class PckUnpackedViewModel(
     private val pckTools: PckTools,
     private val l2dTools: L2DTools,
+    private val positionTools: L2DPositionTools,
+    private val json: Json,
     private val repo: CharacterRepository,
     private val prefs: AppPreferences,
 ) : EffectViewModel<Effect>() {
@@ -42,6 +48,7 @@ class PckUnpackedViewModel(
     private val _drawerItem = MutableStateFlow<UnpackedLive2DItem?>(null)
     val items = updateChannel.toItemList()
     val drawerItem by lazy(_drawerItem::asStateFlow)
+    var uiState = MutableStateFlow<PckUnpackedScreen.UiState>(PckUnpackedScreen.UiState.Nothing)
 
 
     init {
@@ -309,6 +316,61 @@ class PckUnpackedViewModel(
         }
     }
 
+
+    fun getPositions(pck: UnpackedPckFile, viewIdx: ViewIdx?) {
+        withLoading(tag = "positions") {
+            viewIdx ?: return@withLoading setEffect(Effect.ShowToast("No view idx"))
+
+            val result = kotlin.runCatching {
+                if (pck.positionsFile.exists()) positionTools.readPositions(pck) else null
+            }
+            result.onFailure { setEffect(Effect.ShowToast("Failed reading model_info.json")) }
+
+            val pos = result.getOrNull()
+            uiState.value = PckUnpackedScreen.UiState.L2DPositions(
+                pck = pck,
+                viewIdx = viewIdx,
+                string = pos?.let(json::encodeToString),
+            )
+        }
+    }
+
+    fun applyPositions(pck: UnpackedPckFile, viewIdx: ViewIdx) {
+        withLoading(tag = "apply-positions") {
+            kotlin.runCatching {
+                val pos = positionTools.readPositions(pck)
+                positionTools.updateGamePositions(viewIdx, pos)
+                setEffect(Effect.ShowToast("Applies successfully !"))
+            }.onFailure {
+                setEffect(Effect.ShowToast("Failed applying positions"))
+            }
+        }
+    }
+
+    fun loadPositions(pck: UnpackedPckFile, viewIdx: ViewIdx) {
+        withLoading(tag = "load-positions") {
+            kotlin.runCatching {
+                positionTools.readGamePositions(viewIdx)
+            }.fold(
+                onSuccess = { pos ->
+                    if (pos == null) {
+                        setEffect(Effect.ShowToast("No positions in model_info.json"))
+                        return@fold
+                    }
+                    positionTools.writePositions(pck, pos)
+                    uiState.value = PckUnpackedScreen.UiState.L2DPositions(
+                        pck = pck,
+                        viewIdx = viewIdx,
+                        string = pos.let(json::encodeToString),
+                    )
+                },
+                onFailure = {
+                    setEffect(Effect.ShowToast("Failed reading model_info.json"))
+                }
+            )
+        }
+    }
+
     private fun Channel<Unit>.toItemList(): StateFlow<List<UnpackedLive2DItem>> {
         return receiveAsFlow()
             .mapLatest { cacheMap.entries.sortedBy { it.key }.map { it.value } }
@@ -318,5 +380,5 @@ class PckUnpackedViewModel(
 
 sealed class Effect : UiEffect {
     data class ShowSnackbar(val text: String, val action: String? = null) : Effect()
-    data class PackPck(val pck: UnpackedPckFile, val load: Boolean) : Effect()
+    data class ShowToast(val text: String) : Effect()
 }

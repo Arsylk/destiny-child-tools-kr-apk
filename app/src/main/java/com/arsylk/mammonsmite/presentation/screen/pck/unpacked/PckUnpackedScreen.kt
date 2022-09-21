@@ -1,5 +1,6 @@
 package com.arsylk.mammonsmite.presentation.screen.pck.unpacked
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.*
@@ -26,6 +27,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
@@ -38,7 +41,9 @@ import com.arsylk.mammonsmite.domain.onEffect
 import com.arsylk.mammonsmite.domain.prefs.AppPreferences
 import com.arsylk.mammonsmite.model.common.LogLine
 import com.arsylk.mammonsmite.model.common.NavTab
+import com.arsylk.mammonsmite.model.destinychild.ViewIdx
 import com.arsylk.mammonsmite.model.pck.unpacked.UnpackedPckFile
+import com.arsylk.mammonsmite.presentation.AppMaterialTheme
 import com.arsylk.mammonsmite.presentation.Navigable.Companion.putArg
 import com.arsylk.mammonsmite.presentation.Navigator
 import com.arsylk.mammonsmite.presentation.composable.BottomTabNavigation
@@ -46,12 +51,12 @@ import com.arsylk.mammonsmite.presentation.composable.LogLinesDialog
 import com.arsylk.mammonsmite.presentation.composable.SurfaceBox
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpacked.PckUnpackedConfigDialog
 import com.arsylk.mammonsmite.presentation.dialog.pck.unpacked.PckUnpackedConfigState
+import com.arsylk.mammonsmite.presentation.dialog.result.ResultDialogScaffold
 import com.arsylk.mammonsmite.presentation.nav
 import com.arsylk.mammonsmite.presentation.screen.NavigableScreen
 import com.arsylk.mammonsmite.presentation.screen.l2d.preview.L2DPreviewScreen
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen.Tab
 import com.arsylk.mammonsmite.presentation.screen.pck.unpacked.PckUnpackedScreen.UiState
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -105,6 +110,7 @@ object PckUnpackedScreen : NavigableScreen {
     sealed class UiState {
         object Nothing : UiState()
         data class PackPck(val pck: UnpackedPckFile, val load: Boolean) : UiState()
+        data class L2DPositions(val pck: UnpackedPckFile, val viewIdx: ViewIdx, val string: String?) : UiState()
     }
 }
 
@@ -157,18 +163,23 @@ fun PckUnpackedScreen(
     }
 
 
-    var uiState by remember { mutableStateOf<UiState>(UiState.Nothing) }
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
     viewModel.onEffect { effect ->
         when (effect) {
             is Effect.ShowSnackbar -> scaffoldState.snackbarHostState
                 .showSnackbar(effect.text, effect.action)
-            is Effect.PackPck -> uiState = UiState.PackPck(effect.pck, effect.load)
+            is Effect.ShowToast ->
+                Toast.makeText(context, effect.text, Toast.LENGTH_SHORT).show()
         }
     }
     when (val state = uiState) {
         UiState.Nothing -> {}
         is UiState.PackPck -> {
-            HandlePackPck(state, onHandled = { uiState = UiState.Nothing })
+            HandlePackPck(state, onHandled = { viewModel.uiState.value = UiState.Nothing })
+        }
+        is UiState.L2DPositions -> {
+            DisplayPositionsDialog(state, onDismiss = { viewModel.uiState.value = UiState.Nothing })
         }
     }
 
@@ -338,7 +349,7 @@ internal fun UnpackedLive2DActionSheet(item: UnpackedLive2DItem, onDismiss: susp
             }
             SimpleListItem(text = "Load") {
                 onDismiss.invoke()
-                viewModel.enqueueEffect(Effect.PackPck(item.pck, load = true))
+                viewModel.uiState.value = UiState.PackPck(item.pck, load = true)
             }
             if (item.isBackedUp) SimpleListItem(text = "Restore") {
                 onDismiss.invoke()
@@ -355,19 +366,16 @@ internal fun UnpackedLive2DActionSheet(item: UnpackedLive2DItem, onDismiss: susp
                     .clickable { },
                 text = { Text("Wallpaper") }
             )
-            ListItem(
-                modifier = Modifier
-                    .padding(horizontal = 8.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .clickable { },
-                text = { Text("Info") }
-            )
+            SimpleListItem(text = "Info") {
+                onDismiss.invoke()
+                viewModel.getPositions(item.pck, item.viewIdx)
+            }
             SimpleListItem(text = "Open") {
                 IntentUtils.openFile(context, item.l2dFile.folder)
             }
             SimpleListItem(text = "Pack") {
                 onDismiss.invoke()
-                viewModel.enqueueEffect(Effect.PackPck(item.pck, load = false))
+                viewModel.uiState.value = UiState.PackPck(item.pck, load = false)
             }
         }
     }
@@ -475,6 +483,49 @@ internal fun HandleSaveFile(saveFile: File?, onSaveHandled: () -> Unit) {
     LaunchedEffect(saveFile) {
         if (saveFile != null && saveState == null) {
             saveState = viewModel.prepareSaveState(saveFile)
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+internal fun DisplayPositionsDialog(state: UiState.L2DPositions, onDismiss: () -> Unit) {
+    val viewModel by viewModel<PckUnpackedViewModel>()
+    Dialog(
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+        ),
+        onDismissRequest = onDismiss,
+    ) {
+        ResultDialogScaffold(
+            title = "Positions",
+            bottomBar = {
+                OutlinedButton(onClick = { viewModel.loadPositions(state.pck, state.viewIdx) }) {
+                    Text("Load")
+                }
+                Spacer(Modifier.width(16.dp))
+                OutlinedButton(
+                    enabled = state.string != null,
+                    onClick = { viewModel.applyPositions(state.pck, state.viewIdx) },
+                ) {
+                    Text("Apply")
+                }
+            }
+        ) {
+            if (state.string != null) Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(8.dp),
+                fontFamily = AppMaterialTheme.ConsoleFontFamily,
+                text = state.string
+            ) else Text(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(8.dp),
+                fontFamily = AppMaterialTheme.ConsoleFontFamily,
+                text = "No positions loaded"
+            )
         }
     }
 }

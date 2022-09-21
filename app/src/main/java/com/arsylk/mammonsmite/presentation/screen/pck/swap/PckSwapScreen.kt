@@ -1,5 +1,8 @@
 package com.arsylk.mammonsmite.presentation.screen.pck.swap
 
+import android.annotation.SuppressLint
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +49,7 @@ object PckSwapScreen : NavigableScreen {
     }
 }
 
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
     val scope = rememberCoroutineScope()
@@ -83,8 +87,39 @@ fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
                 }
             }
 
-            Box(Modifier.fillMaxSize()) {
+            val offsetX by animateDpAsState(targetValue = if (resultItem == null) 0.dp else 54.dp)
+            Box(Modifier.fillMaxWidth().weight(1.0f)) {
                 LogLines(list = log)
+            }
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(offsetX),
+                color = SnackbarDefaults.backgroundColor,
+                contentColor = MaterialTheme.colors.surface,
+                shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(8.dp),
+                ) {
+                    Text(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        style = MaterialTheme.typography.body2,
+                        text = "Swap Successful"
+                    )
+                    Spacer(modifier = Modifier.weight(1.0f))
+                    TextButton(
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        onClick = click@{
+                            val item = resultItem ?: return@click
+                            PckUnpackedScreen.navigate(nav, item.pck.folder)
+                        },
+                        content = { Text("Save") }
+                    )
+                }
+
             }
         }
     }
@@ -94,16 +129,6 @@ fun PckSwapScreen(viewModel: PckSwapViewModel = getViewModel()) {
             is Effect.ParsingError -> {
                 scope.launch {
                     scaffoldState.dismissAndShow(effect.throwable.toSnackbarMessage())
-                }
-            }
-            is Effect.SaveResult -> {
-                val result = scaffoldState.dismissAndShow(
-                    message = "Swap Successful",
-                    actionLabel = "Save",
-                    duration = SnackbarDuration.Indefinite,
-                )
-                if (result == SnackbarResult.ActionPerformed) {
-                    PckUnpackedScreen.navigate(nav, effect.item.pck.folder)
                 }
             }
         }
@@ -181,5 +206,4 @@ internal fun PckSwapSelect(
             }
         }
     }
-
 }

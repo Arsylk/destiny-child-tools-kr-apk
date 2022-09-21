@@ -41,7 +41,12 @@ fun ResultDialogScaffold(
             ) {
                 ResultDialogTopBar(title = title)
                 Divider()
-                Box(Modifier.weight(1.0f), content = content)
+                Box(
+                    modifier = Modifier
+                        .weight(1.0f)
+                        .fillMaxWidth(),
+                    content = content,
+                )
                 Divider()
                 ResultDialogBottomBar(content = bottomBar)
             }

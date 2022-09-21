@@ -12,8 +12,8 @@ import kotlin.coroutines.CoroutineContext
 
 abstract class EffectViewModel<Effect : UiEffect> : BaseViewModel() {
     private val _effect = Channel<Effect>()
-    val effect = _effect.consumeAsFlow()
-        .shareIn(viewModelScope, SharingStarted.Lazily)
+    val effect = _effect.receiveAsFlow()
+        .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
 
     protected suspend fun setEffect(effect: Effect) {
         _effect.send(effect)

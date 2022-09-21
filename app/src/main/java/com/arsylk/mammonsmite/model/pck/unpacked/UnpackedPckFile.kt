@@ -10,6 +10,7 @@ data class UnpackedPckFile(
 ): Serializable {
     val headerFile = File(folder, HEADER_FILENAME)
     val backupFile = prepareBackupFile()
+    val positionsFile = File(folder, POSITIONS_FILENAME)
 
     fun getEntries(type: PckEntryFileType) =
         header.entries.filter { it.type == type }
@@ -34,5 +35,6 @@ data class UnpackedPckFile(
 
     companion object {
         const val HEADER_FILENAME = "_header"
+        const val POSITIONS_FILENAME = "positions.json"
     }
 }
